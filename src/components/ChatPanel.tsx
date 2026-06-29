@@ -11,34 +11,66 @@ import { messages } from "../data/messages";
 import UserAvatar from "./UserAvatar";
 import React, { useRef, useEffect } from "react";
 import { XmppServer } from "../xmpp/XmppServer";
+import { useState } from "react";
 
 interface Props {
     conversation: Conversation;
 }
+    function connect() {
+        console.log("connect ....");
+        const xmpp =
+            XmppServer.getInstance();
+        xmpp.login("nafiseh@zchat.ir", "123");
+        xmpp.sendPresence();
+        console.log("connection end ....");
+    }
 
 export default function ChatPanel({ conversation }: Props) {
 
-    const currentMessages = messages
-        .filter(m => m.conversationId === conversation.id)
-        // اگر لازم بود، بر اساس زمان مرتب کن (جدیدترین در آخر)
-        .sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+    const [message, setMessage] = useState("");
+
+    const xmpp = XmppServer.getInstance();
+
+    const [currentMessages, setCurrentMessages] = useState(
+        messages.filter(
+            m => m.conversationId === conversation.id
+        )
+    );
 
     const messageListRef = useRef<any>(null);
 
     // خودکار اسکرول به پایین وقتی پیام جدید اضافه می‌شه
+    // useEffect(() => {
+    //     if (messageListRef.current) {
+    //         messageListRef.current.scrollToBottom();
+    //     }
+    // }, [currentMessages]);
     useEffect(() => {
-        if (messageListRef.current) {
-            messageListRef.current.scrollToBottom();
-        }
-    }, [currentMessages]);
 
-    function connect(){
-      const xmpp =
-    XmppServer.getInstance();
-  const handleLogin = () => {
-    xmpp.login("nafiseh@zchat.ir", "123");
-  };
-    }
+        connect();
+        xmpp.addMessageListener(message => {
+
+            console.log("yechizi omad")
+            console.log(message);
+
+        });
+
+    }, []);
+
+
+    const handleSend = (text: string) => {
+
+        if (!text.trim()) {
+            return;
+        }
+
+        xmpp.sendMessage(
+            conversation.jid,
+            text
+        );
+
+        setMessage("");
+    };
 
     return (
         <ChatContainer>
@@ -54,7 +86,7 @@ export default function ChatPanel({ conversation }: Props) {
             <MessageList
                 ref={messageListRef}
                 autoScrollToBottom={true}           // مهم
-// style={{ display: 'flex', flexDirection: 'column-reverse' }}
+            // style={{ display: 'flex', flexDirection: 'column-reverse' }}
             >
                 {currentMessages.map((message) => (
                     <Message
@@ -71,7 +103,9 @@ export default function ChatPanel({ conversation }: Props) {
             <MessageInput
                 placeholder="Type a message..."
                 attachButton={true}
-                onClick={connect}
+                onChange={setMessage}
+                value={message}
+                onSend={handleSend}
             />
         </ChatContainer>
     );

@@ -1,5 +1,9 @@
-import $pres from "strophe.js";
-import Strophe from "strophe.js";
+// import $pres from "strophe.js";
+// import Strophe from "strophe.js";
+
+import {Strophe,$pres} from "strophe.js";
+
+
 
 export type ConnectionStatusListener = (status: number) => void;
 
@@ -7,7 +11,7 @@ export class XmppClient {
 
     private static instance: XmppClient;
 
-private connection!: InstanceType<typeof Strophe.Connection>;
+    private connection!: InstanceType<typeof Strophe.Connection>;
     private readonly websocketUrl: string;
 
     private connected = false;
@@ -17,7 +21,7 @@ private connection!: InstanceType<typeof Strophe.Connection>;
     private constructor() {
 
         // بعداً از env می‌خوانیم
-        this.websocketUrl = "ws://localhost:7070/ws/";
+        this.websocketUrl = "ws://130.185.121.173:7070/ws/";
 
     }
 
@@ -59,6 +63,7 @@ private connection!: InstanceType<typeof Strophe.Connection>;
         this.createConnection();
 
         return new Promise((resolve, reject) => {
+            console.log("jid : "+jid);
 
             this.connection!.connect(
 
@@ -66,7 +71,7 @@ private connection!: InstanceType<typeof Strophe.Connection>;
 
                 password,
 
-                (status) => {
+                (status: number) => {
 
                     this.connected =
                         status === Strophe.Status.CONNECTED;
@@ -78,6 +83,8 @@ private connection!: InstanceType<typeof Strophe.Connection>;
                         case Strophe.Status.CONNECTED:
 
                             console.log("Connected.");
+                            console.log("jid : "+jid);
+
 
                             resolve();
 
@@ -187,71 +194,71 @@ private connection!: InstanceType<typeof Strophe.Connection>;
     }
     public send(stanza: Element): void {
 
-    if (!this.connected) {
-        throw new Error("Not connected.");
+        if (!this.connected) {
+            throw new Error("Not connected.");
+        }
+
+        this.connection.send(stanza);
+
     }
+    public sendIQ(
+        stanza: Element,
+        success?: (result: Element) => void,
+        error?: (error: Element) => void
+    ): void {
 
-    this.connection.send(stanza);
+        if (!this.connected) {
+            throw new Error("Not connected.");
+        }
 
-}
-public sendIQ(
-    stanza: Element,
-    success?: (result: Element) => void,
-    error?: (error: Element) => void
-): void {
+        this.connection.sendIQ(
+            stanza,
+            success,
+            error
+        );
 
-    if (!this.connected) {
-        throw new Error("Not connected.");
     }
+    public addHandler(
+        handler: InstanceType<typeof Strophe.handler>,
+        ns?: string,
+        name?: string,
+        type?: string,
+        id?: string,
+        from?: string
+    ) {
 
-    this.connection.sendIQ(
-        stanza,
-        success,
-        error
-    );
+        return this.connection.addHandler(
+            handler,
+            ns,
+            name,
+            type,
+            id,
+            from
+        );
 
-}
-public addHandler(
-    handler: InstanceType<typeof Strophe.handler>,
-    ns?: string,
-    name?: string,
-    type?: string,
-    id?: string,
-    from?: string
-) {
+    }
+    public removeHandler(handler: any): void {
 
-    return this.connection.addHandler(
-        handler,
-        ns,
-        name,
-        type,
-        id,
-        from
-    );
+        this.connection.deleteHandler(handler);
 
-}
-public removeHandler(handler: any): void {
+    }
+    public addTimedHandler(
+        period: number,
+        handler: () => boolean
+    ) {
 
-    this.connection.deleteHandler(handler);
+        return this.connection.addTimedHandler(
+            period,
+            handler
+        );
 
-}
-public addTimedHandler(
-    period: number,
-    handler: () => boolean
-) {
+    }
+    public sendPresence(): void {
 
-    return this.connection.addTimedHandler(
-        period,
-        handler
-    );
+        this.send(
+            $pres().tree()
+        );
 
-}
-public sendPresence(): void {
-
-    this.send(
-        $pres().tree()
-    );
-
-}
+    }
 
 }

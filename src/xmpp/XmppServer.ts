@@ -1,5 +1,5 @@
-import     $msg from "strophe.js";
-import     $pres from "strophe.js";
+import   {$msg,  $pres} from "strophe.js";
+
 
 import { XmppClient } from "./XmppClient";
 
@@ -26,6 +26,7 @@ export class XmppServer {
 
     public static getInstance(): XmppServer {
 
+        console.log("getindtance 1")
         if (!XmppServer.instance) {
 
             XmppServer.instance =
@@ -45,6 +46,7 @@ export class XmppServer {
         jid: string,
         password: string
     ): Promise<void> {
+            console.log("jid : "+jid);
 
         await this.client.connect(
             jid,
