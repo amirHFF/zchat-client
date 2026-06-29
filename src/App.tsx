@@ -1,12 +1,10 @@
 import {useState} from "react";
-
 import {MainContainer} from "@chatscope/chat-ui-kit-react";
-
 import ConversationListPanel from "./components/ConversationListPanel";
-import ChatPanel from "./components/ChatPanel";
-
+import {ChatPanel} from "../components/ChatPanel";
 import {conversations} from "./data/conversations";
 import React from "react";
+export const userJid = 'nafiseh@zchat.ir';
 
 export default function App(){
 

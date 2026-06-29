@@ -14,7 +14,8 @@
     "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "strophe.js": "^3.1.0"
+    "strophe.js": "^3.1.0",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
