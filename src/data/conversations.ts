@@ -4,8 +4,8 @@ export const conversations:Conversation[]=[
 
     {
         id:1,
-        name:"Ali",
-                jid:"Ali",
+        name:"amir",
+                jid:"amir@zchat.ir",
 
         lastMessage:"سلام"
     },

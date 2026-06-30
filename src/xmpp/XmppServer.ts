@@ -115,11 +115,17 @@ export class XmppServer {
         listener: (
             message: XmppMessage
         ) => void
-    ): void {
+    ) {
 
         this.messageListeners.push(
             listener
         );
+            return () => {
+
+        this.messageListeners =
+            this.messageListeners.filter(l => l !== listener);
+
+    };
 
     }
 

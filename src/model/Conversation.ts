@@ -1,6 +1,6 @@
 export interface Conversation {
     id: number;
     name: string;
-    jid:string
+    jid:string;
     lastMessage: string;
 }
