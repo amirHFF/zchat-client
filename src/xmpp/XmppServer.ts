@@ -1,8 +1,6 @@
 import   {$msg,  $pres} from "strophe.js";
-
-
 import { XmppClient } from "./XmppClient";
-
+import { $iq } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage";
 import type { XmppPresence } from "../model/XmppPresence.ts";
 
@@ -248,5 +246,78 @@ export class XmppServer {
         );
 
     }
+    public async isMamSupported(): Promise<boolean> {
+
+    const features =
+        await this.discoverFeatures();
+
+    return (
+        features.includes("urn:xmpp:mam:2") ||
+        features.includes("urn:xmpp:mam:1")
+    );
+
+}
+    public discoverFeatures(): Promise<string[]> {
+
+    return new Promise((resolve, reject) => {
+
+        const iq =
+            $iq({
+                type: "get",
+                to: this.client
+                    .getConnection()
+                    .domain,
+                id: "disco1"
+            })
+            .c("query", {
+                xmlns: "http://jabber.org/protocol/disco#info"
+            })
+            .tree();
+
+        this.client.sendIQ(
+
+            iq,
+
+            (result: Element) => {
+
+                const features: string[] = [];
+
+                const nodes =
+                    result.getElementsByTagName(
+                        "feature"
+                    );
+
+                for (
+                    let i = 0;
+                    i < nodes.length;
+                    i++
+                ) {
+
+                    const feature =
+                        nodes[i].getAttribute("var");
+
+                    if (feature) {
+
+                        features.push(feature);
+
+                    }
+
+                }
+
+                resolve(features);
+
+            },
+
+            (error) => {
+
+                reject(error);
+
+            }
+
+        );
+
+    });
+
+}
 
 }

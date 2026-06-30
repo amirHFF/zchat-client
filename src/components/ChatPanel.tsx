@@ -16,18 +16,28 @@ import { useChatStore } from "../chatStore/ChatStore";
 
 import type { ChatMessage } from "../model/ChatMessage";
 
-function connect() {
+async function  connect() {
 
     const xmpp = XmppServer.getInstance();
 
-    xmpp.login(
+    await xmpp.login(
         "nafiseh@zchat.ir",
         "123"
     );
+const features =
+    await xmpp.discoverFeatures();
+
+console.log(features);
+
+console.log(
+    "MAM:",
+    await xmpp.isMamSupported()
+);
 
 }
 
 export default function ChatPanel() {
+    
 
     const [text, setText] = useState("");
 
