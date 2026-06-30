@@ -1,129 +1,189 @@
-import { create } from "zustand";
+import {
+    ChatContainer,
+    ConversationHeader,
+    Message,
+    MessageInput,
+    MessageList
+} from "@chatscope/chat-ui-kit-react";
 
-import type { Conversation } from "../model/Conversation";
-import type { XmppMessage } from "../model/XmppMessage";
+import React, { useEffect, useRef, useState } from "react";
 
-export type ConnectionStatus =
-    | "disconnected"
-    | "connecting"
-    | "connected";
+import UserAvatar from "./UserAvatar";
 
-interface ChatStore {
+import { XmppServer } from "../xmpp/XmppServer";
 
-    conversations: Conversation[];
+import { useChatStore } from "../chatStore/ChatStore";
 
-    messages: Map<number, XmppMessage[]>;
+import type { ChatMessage } from "../model/ChatMessage";
 
-    selectedConversationId?: number;
+function connect() {
 
-    connectionStatus: ConnectionStatus;
+    const xmpp = XmppServer.getInstance();
 
-    addConversation(
-        conversation: Conversation
-    ): void;
+    xmpp.login(
+        "nafiseh@zchat.ir",
+        "123"
+    );
 
-    setSelectedConversation(
-        conversationId: number
-    ): void;
-
-    addMessage(
-        message: XmppMessage
-    ): void;
-
-    setConnectionStatus(
-        status: ConnectionStatus
-    ): void;
-
-    conversationListener(
-        listener: (conversation: Conversation) => void
-    ): void;
 }
 
-let listener:
-    ((conversation: Conversation) => void)
-    | undefined;
+export default function ChatPanel() {
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+    const [text, setText] = useState("");
 
-    conversations: [],
+    const messageListRef = useRef<any>(null);
 
-    messages: new Map<number, XmppMessage[]>(),
+    const xmpp = XmppServer.getInstance();
 
-    selectedConversationId: undefined,
+    const conversation = useChatStore(
+        state => state.selectedConversation
+    );
 
-    connectionStatus: "disconnected",
+    const messages = useChatStore(
+        state => state.messages
+    );
 
-    addConversation: (conversation) =>
+    const addMessage = useChatStore(
+        state => state.addMessage
+    );
 
-        set((state) => ({
+    useEffect(() => {
 
-            conversations: [
-                ...state.conversations,
-                conversation
-            ]
+        connect();
 
-        })),
+        const unsubscribe =
+            xmpp.addMessageListener(xmppMessage => {
 
-    setSelectedConversation: (conversationId) =>
+                if (!conversation)
+                    return;
+                
+                    console.log("set message to chat panel");
 
-        set({
+                const message: ChatMessage = {
 
-            selectedConversationId: conversationId
+                    id: Date.now(),
 
-        }),
+                    conversationId: conversation.id,
 
-    addMessage: (message) =>
+                    text: xmppMessage.body,
 
-        set((state) => {
+                    outgoing: false,
 
-            const messages =
-                new Map(state.messages);
+                    timestamp: Date.now()
 
-            const conversationMessages =
-                messages.get(message.conversationId) ?? [];
+                };
 
-            messages.set(
+                addMessage(message);
 
-                message.conversationId,
+            });
 
-                [
-                    ...conversationMessages,
-                    message
-                ]
+        return () => unsubscribe();
 
-            );
+    }, [conversation]);
 
-            const conversation =
-                state.conversations.find(
-                    c => c.id === message.conversationId
-                );
+    const handleSend = (value: string) => {
 
-            if (conversation) {
+        if (!conversation)
+            return;
 
-                listener?.(conversation);
+        if (!value.trim())
+            return;
 
-            }
+        xmpp.sendMessage(
+            conversation.jid,
+            value
+        );
 
-            return {
+        const message: ChatMessage = {
 
-                messages
+            id: Date.now(),
 
-            };
+            conversationId: conversation.id,
 
-        }),
+            text: value,
 
-    setConnectionStatus: (status) =>
+            outgoing: true,
 
-        set({
+            timestamp: Date.now()
 
-            connectionStatus: status
+        };
 
-        }),
+        addMessage(message);
 
-    conversationListener: (newListener) => {
+        setText("");
 
-        listener = newListener;
+    };
+
+    if (!conversation) {
+
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%"
+                }}
+            >
+                Select Conversation
+            </div>
+        );
 
     }
 
-}));
+    return (
+
+        <ChatContainer>
+
+            <ConversationHeader>
+
+                <ConversationHeader.Back />
+
+                <UserAvatar
+                    name={conversation.name}
+                    online={true}
+                />
+
+                <ConversationHeader.Content
+                    userName={conversation.name}
+                    info="Online"
+                />
+
+            </ConversationHeader>
+
+            <MessageList
+                ref={messageListRef}
+                autoScrollToBottom
+            >
+
+                {messages.map(message => (
+
+                    <Message
+                        key={message.id}
+                        model={{
+                            message: message.text,
+                            direction:
+                                message.outgoing
+                                    ? "outgoing"
+                                    : "incoming",
+                            position: "single"
+                        }}
+                    />
+
+                ))}
+
+            </MessageList>
+
+            <MessageInput
+                placeholder="Type a message..."
+                value={text}
+                onChange={setText}
+                onSend={handleSend}
+                attachButton
+            />
+
+        </ChatContainer>
+
+    );
+
+}

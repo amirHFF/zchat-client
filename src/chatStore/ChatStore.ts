@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import type { Conversation } from "../model/Conversation";
-import type { XmppMessage } from "../model/XmppMessage";
+import type { ChatMessage } from "../model/ChatMessage";
 
 export type ConnectionStatus =
     | "disconnected"
@@ -14,7 +14,7 @@ interface ChatStore {
 
     selectedConversation?: Conversation;
 
-    messages: XmppMessage[];
+    messages: ChatMessage[];
 
     connectionStatus: ConnectionStatus;
 
@@ -27,14 +27,12 @@ interface ChatStore {
     ): void;
 
     setMessages(
-        messages: XmppMessage[]
+        messages: ChatMessage[]
     ): void;
 
     addMessage(
-        message: XmppMessage
+        message: ChatMessage
     ): void;
-
-    clearMessages(): void;
 
     setConnectionStatus(
         status: ConnectionStatus
@@ -61,8 +59,7 @@ export const useChatStore = create<ChatStore>((set) => ({
 
     setSelectedConversation: (conversation) =>
         set({
-            selectedConversation: conversation,
-            messages: []
+            selectedConversation: conversation
         }),
 
     setMessages: (messages) =>
@@ -77,11 +74,6 @@ export const useChatStore = create<ChatStore>((set) => ({
                 message
             ]
         })),
-
-    clearMessages: () =>
-        set({
-            messages: []
-        }),
 
     setConnectionStatus: (status) =>
         set({

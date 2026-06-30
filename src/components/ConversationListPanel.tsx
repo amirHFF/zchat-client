@@ -1,75 +1,119 @@
 import {
-  Sidebar,
-  Search,
-  ConversationList,
-  Conversation,
-  Avatar
+    Sidebar,
+    Search,
+    ConversationList,
+    Conversation
 } from "@chatscope/chat-ui-kit-react";
-import React from "react";
-import type { Conversation as ConversationModel } from "../model/Conversation";
+
+import React, { useEffect } from "react";
+
 import UserAvatar from "./UserAvatar";
 
-const conversations = [
-  {
-    id: 1,
-    name: "Ali",
-    lastMessage: "سلام",
-    time: "10:30",
-  },
-  {
-    id: 2,
-    name: "Sara",
-    lastMessage: "How are you?",
-    time: "10:28",
-  },
-  {
-    id: 3,
-    name: "Reza",
-    lastMessage: "Picture",
-    time: "10:25",
-  },
-];
+import { conversations } from "../data/conversations";
+import { messages } from "../data/messages";
 
-interface Props {
-  conversations: ConversationModel[];
-  selected: ConversationModel;
-  onSelect: (conversation: ConversationModel) => void;
-}
+import { useChatStore } from "../chatStore/ChatStore";
 
-export default function ConversationListPanel({
-  conversations,
-  selected,
-  onSelect,
-}: Props) {
-  return (
-    <Sidebar
-      position="left"
-      style={{
-        width: 380,
-        background: "#ffffff",
-      }}
-    >
-      <Search placeholder="Search..." />
+export default function ConversationListPanel() {
 
-      <ConversationList>
-        {conversations.map((c) => (
-    <Conversation
+    const addConversation = useChatStore(
+        state => state.addConversation
+    );
 
-    key={c.id}
+    const setSelectedConversation = useChatStore(
+        state => state.setSelectedConversation
+    );
 
-    name={c.name}
+    const setMessages = useChatStore(
+        state => state.setMessages
+    );
 
-    info={c.lastMessage}
-            lastActivityTime="10:30"
-            onClick={() => onSelect(c)}
->
-<UserAvatar
-    name={c.name}
-    online={true}
-/>
-</Conversation>
-        ))}
-      </ConversationList>
-    </Sidebar>
-  );
+    const selectedConversation = useChatStore(
+        state => state.selectedConversation
+    );
+
+    useEffect(() => {
+
+        conversations.forEach(addConversation);
+
+        if (conversations.length > 0) {
+
+            setSelectedConversation(conversations[0]);
+
+            setMessages(
+                messages.filter(
+                    m => m.conversationId === conversations[0].id
+                )
+            );
+
+        }
+
+    }, []);
+
+    const handleSelect = (conversation: typeof conversations[number]) => {
+
+        setSelectedConversation(conversation);
+
+        setMessages(
+
+            messages.filter(
+
+                m => m.conversationId === conversation.id
+
+            )
+
+        );
+
+    };
+
+    return (
+
+        <Sidebar
+            position="left"
+            style={{
+                width: 380,
+                background: "#ffffff",
+            }}
+        >
+
+            <Search placeholder="Search..." />
+
+            <ConversationList>
+
+                {conversations.map((conversation) => (
+
+                    <Conversation
+
+                        key={conversation.id}
+
+                        name={conversation.name}
+
+                        info={conversation.lastMessage}
+
+                        active={
+                            selectedConversation?.id === conversation.id
+                        }
+
+                        onClick={() => handleSelect(conversation)}
+
+                    >
+
+                        <UserAvatar
+
+                            name={conversation.name}
+
+                            online={true}
+
+                        />
+
+                    </Conversation>
+
+                ))}
+
+            </ConversationList>
+
+        </Sidebar>
+
+    );
+
 }
