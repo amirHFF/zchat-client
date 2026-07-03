@@ -218,6 +218,65 @@ export class XmppClient {
         );
 
     }
+    public addMessageListener(
+    listener: (message: Element) => void
+) {
+
+    return this.addHandler(
+
+        stanza => {
+
+            listener(stanza);
+
+            return true;
+
+        },
+
+        undefined,
+        "message"
+
+    );
+}
+public addPresenceListener(
+    listener: (presence: Element) => void
+) {
+
+    return this.addHandler(
+
+        stanza => {
+
+            listener(stanza);
+
+            return true;
+
+        },
+
+        undefined,
+        "presence"
+
+    );
+
+}
+public addIqListener(
+    listener: (iq: Element) => void
+) {
+
+    return this.addHandler(
+
+        stanza => {
+
+            listener(stanza);
+
+            return true;
+
+        },
+
+        undefined,
+        "iq"
+
+    );
+
+}
     public addHandler(
         handler: InstanceType<typeof Strophe.handler>,
         ns?: string,

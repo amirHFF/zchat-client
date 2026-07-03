@@ -5,45 +5,22 @@ import {
     MessageInput,
     MessageList
 } from "@chatscope/chat-ui-kit-react";
-
 import React, { useEffect, useRef, useState } from "react";
-
 import UserAvatar from "./UserAvatar";
-
-import { XmppServer } from "../xmpp/XmppServer";
-
+import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { useChatStore } from "../chatStore/ChatStore";
-
 import type { ChatMessage } from "../model/ChatMessage";
 
-async function  connect() {
 
-    const xmpp = XmppServer.getInstance();
-
-    await xmpp.login(
-        "nafiseh@zchat.ir",
-        "123"
-    );
-const features =
-    await xmpp.discoverFeatures();
-
-console.log(features);
-
-console.log(
-    "MAM:",
-    await xmpp.isMamSupported()
-);
-
-}
 
 export default function ChatPanel() {
-    
+
 
     const [text, setText] = useState("");
 
     const messageListRef = useRef<any>(null);
 
-    const xmpp = XmppServer.getInstance();
+    const chatServiceFacade = ChatServiceFacade.getInstance();
 
     const conversation = useChatStore(
         state => state.selectedConversation
@@ -56,38 +33,13 @@ export default function ChatPanel() {
     const addMessage = useChatStore(
         state => state.addMessage
     );
-
     useEffect(() => {
 
-        connect();
+        if (!conversation) {
+            return;
+        }
 
-        const unsubscribe =
-            xmpp.addMessageListener(xmppMessage => {
-
-                if (!conversation)
-                    return;
-                
-                    console.log("set message to chat panel");
-
-                const message: ChatMessage = {
-
-                    id: Date.now(),
-
-                    conversationId: conversation.id,
-
-                    text: xmppMessage.body,
-
-                    outgoing: false,
-
-                    timestamp: Date.now()
-
-                };
-
-                addMessage(message);
-
-            });
-
-        return () => unsubscribe();
+        chatServiceFacade.loadChatHistory(conversation.jid , conversation.id);
 
     }, [conversation]);
 
@@ -99,28 +51,10 @@ export default function ChatPanel() {
         if (!value.trim())
             return;
 
-        xmpp.sendMessage(
+        chatServiceFacade.sendMessage(
             conversation.jid,
             value
         );
-
-        const message: ChatMessage = {
-
-            id: Date.now(),
-
-            conversationId: conversation.id,
-
-            text: value,
-
-            outgoing: true,
-
-            timestamp: Date.now()
-
-        };
-
-        addMessage(message);
-
-        setText("");
 
     };
 

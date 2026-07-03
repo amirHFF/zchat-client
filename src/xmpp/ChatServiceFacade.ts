@@ -1,14 +1,21 @@
-import   {$msg,  $pres} from "strophe.js";
-import { XmppClient } from "./XmppClient";
+import { $msg, $pres } from "strophe.js";
+import { XmppClient } from "./XmppClient.ts";
 import { $iq } from "strophe.js";
-import type { XmppMessage } from "../model/XmppMessage";
+import type { XmppMessage } from "../model/XmppMessage.ts";
 import type { XmppPresence } from "../model/XmppPresence.ts";
+import { MessageEventHandler } from "../chatStore/MessagEventHandler.ts";
+import { XmppMamClient } from "./XmppMamClient.ts";
 
-export class XmppServer {
+export class ChatServiceFacade {
 
-    private static instance: XmppServer;
+    private static currentJid: string;
+
+    private static instance: ChatServiceFacade;
 
     private readonly client: XmppClient;
+    private readonly xmppMamClient: XmppMamClient;
+
+    private readonly messageDisplayHandler: MessageEventHandler;
 
     private messageListeners:
         Array<(message: XmppMessage) => void> = [];
@@ -19,20 +26,22 @@ export class XmppServer {
     private constructor() {
 
         this.client = XmppClient.getInstance();
+        this.xmppMamClient = new XmppMamClient(this.client);
+        this.messageDisplayHandler = new MessageEventHandler();
 
     }
 
-    public static getInstance(): XmppServer {
+    public static getInstance(): ChatServiceFacade {
 
         console.log("getindtance 1")
-        if (!XmppServer.instance) {
+        if (!ChatServiceFacade.instance) {
 
-            XmppServer.instance =
-                new XmppServer();
+            ChatServiceFacade.instance =
+                new ChatServiceFacade();
 
         }
 
-        return XmppServer.instance;
+        return ChatServiceFacade.instance;
 
     }
 
@@ -44,18 +53,22 @@ export class XmppServer {
         jid: string,
         password: string
     ): Promise<void> {
-            console.log("jid : "+jid);
+        ChatServiceFacade.currentJid = jid;
+        console.log("login jid : " + jid);
 
         await this.client.connect(
             jid,
             password
         );
+        console.log("jid : " + jid +"connected ...");
 
         this.registerMessageHandler();
 
         this.registerPresenceHandler();
 
         this.sendPresence();
+        console.log("set listener for jid : " + jid);
+        this.setListener();
 
     }
 
@@ -97,11 +110,12 @@ export class XmppServer {
                 to,
                 type: "chat"
             })
-            .c("body")
-            .t(text)
-            .tree();
+                .c("body")
+                .t(text)
+                .tree();
 
         this.client.send(message);
+        this.messageDisplayHandler.onOutgoingMessage(to, message);
 
     }
 
@@ -109,21 +123,39 @@ export class XmppServer {
     // Message Listeners
     // ------------------------------------
 
-    public addMessageListener(
-        listener: (
-            message: XmppMessage
-        ) => void
-    ) {
+    // public addMessageListener(
+    //     listener: (
+    //         message: XmppMessage
+    //     ) => void
+    // ) {
 
-        this.messageListeners.push(
-            listener
-        );
-            return () => {
+    //     this.messageListeners.push(
+    //         listener
+    //     );
+    //         return () => {
 
-        this.messageListeners =
-            this.messageListeners.filter(l => l !== listener);
+    //     this.messageListeners =
+    //         this.messageListeners.filter(l => l !== listener);
 
-    };
+    // };
+
+    // }
+    public setListener(): void {
+
+        this.client.addMessageListener(message => {
+
+            this.messageDisplayHandler.onIncomingMessage(
+                message
+            );
+
+        });
+
+        // this.client.addPresenceListener(presence => {
+
+        //     this.messageDisplayHandler.onPresenceChanged(
+        //         presence
+        //     );
+        // });
 
     }
 
@@ -248,76 +280,97 @@ export class XmppServer {
     }
     public async isMamSupported(): Promise<boolean> {
 
-    const features =
-        await this.discoverFeatures();
+        const features =
+            await this.discoverFeatures();
 
-    return (
-        features.includes("urn:xmpp:mam:2") ||
-        features.includes("urn:xmpp:mam:1")
-    );
+        return (
+            features.includes("urn:xmpp:mam:2") ||
+            features.includes("urn:xmpp:mam:1")
+        );
 
-}
+    }
     public discoverFeatures(): Promise<string[]> {
 
-    return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-        const iq =
-            $iq({
-                type: "get",
-                to: this.client
-                    .getConnection()
-                    .domain,
-                id: "disco1"
-            })
-            .c("query", {
-                xmlns: "http://jabber.org/protocol/disco#info"
-            })
-            .tree();
+            const iq =
+                $iq({
+                    type: "get",
+                    to: this.client
+                        .getConnection()
+                        .domain,
+                    id: "disco1"
+                })
+                    .c("query", {
+                        xmlns: "http://jabber.org/protocol/disco#info"
+                    })
+                    .tree();
 
-        this.client.sendIQ(
+            this.client.sendIQ(
 
-            iq,
+                iq,
 
-            (result: Element) => {
+                (result: Element) => {
 
-                const features: string[] = [];
+                    const features: string[] = [];
 
-                const nodes =
-                    result.getElementsByTagName(
-                        "feature"
-                    );
+                    const nodes =
+                        result.getElementsByTagName(
+                            "feature"
+                        );
 
-                for (
-                    let i = 0;
-                    i < nodes.length;
-                    i++
-                ) {
+                    for (
+                        let i = 0;
+                        i < nodes.length;
+                        i++
+                    ) {
 
-                    const feature =
-                        nodes[i].getAttribute("var");
+                        const feature =
+                            nodes[i].getAttribute("var");
 
-                    if (feature) {
+                        if (feature) {
 
-                        features.push(feature);
+                            features.push(feature);
+
+                        }
 
                     }
 
+                    resolve(features);
+
+                },
+
+                (error) => {
+
+                    reject(error);
+
                 }
 
-                resolve(features);
+            );
 
-            },
+        });
 
-            (error) => {
+    }
+    public loadChatHistory(targetJid: string ,conversationId:number): void {
+        console.log("loadChatHistory jid ="+targetJid +" "+conversationId)
 
-                reject(error);
+        this.xmppMamClient.loadHistory(
+
+            ChatServiceFacade.currentJid,
+
+            targetJid,
+            conversationId,
+
+            messages => {
+
+                this.messageDisplayHandler.onHistoryLoaded(
+                    messages
+                );
 
             }
 
         );
 
-    });
-
-}
+    }
 
 }

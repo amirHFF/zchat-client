@@ -1,6 +1,6 @@
 export  interface ChatMessage {
 
-    id:number;
+    id:string;
 
     conversationId:number;
 
