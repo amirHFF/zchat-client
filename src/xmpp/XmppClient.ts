@@ -2,6 +2,7 @@
 // import Strophe from "strophe.js";
 
 import {Strophe,$pres} from "strophe.js";
+import type { XmppMessage } from "../model/XmppMessage";
 
 
 
@@ -218,24 +219,41 @@ export class XmppClient {
         );
 
     }
-    public addMessageListener(
-    listener: (message: Element) => void
+public addMessageListener(
+    listener: (message: XmppMessage) => void
 ) {
 
-    return this.addHandler(
+    this.addHandler(
 
         stanza => {
 
-            listener(stanza);
+            const body =
+                stanza.getElementsByTagName("body")[0]
+                      ?.textContent ?? "";
+
+            listener({
+                id: stanza.getAttribute("id") ?? "",
+
+                from: stanza.getAttribute("from") ?? "",
+
+                to: stanza.getAttribute("to") ?? "",
+
+                type: stanza.getAttribute("type") ?? "",
+
+                body,
+                xmlns: stanza.getAttribute("xmlns") ?? ""
+            });
 
             return true;
 
         },
 
         undefined,
+
         "message"
 
     );
+
 }
 public addPresenceListener(
     listener: (presence: Element) => void

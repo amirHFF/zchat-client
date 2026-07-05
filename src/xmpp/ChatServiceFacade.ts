@@ -115,7 +115,7 @@ export class ChatServiceFacade {
                 .tree();
 
         this.client.send(message);
-        this.messageDisplayHandler.onOutgoingMessage(to, message);
+        this.messageDisplayHandler.onOutgoingMessage(to, text);
 
     }
 
@@ -144,6 +144,7 @@ export class ChatServiceFacade {
 
         this.client.addMessageListener(message => {
 
+            message.from = message.from.substring(0 , message.from.indexOf('/'));
             this.messageDisplayHandler.onIncomingMessage(
                 message
             );
@@ -362,7 +363,7 @@ export class ChatServiceFacade {
             conversationId,
 
             messages => {
-
+                console.log("loaded history : "+messages);
                 this.messageDisplayHandler.onHistoryLoaded(
                     messages
                 );

@@ -1,4 +1,5 @@
 export interface XmppMessage {
+    id: string;
 
     from: string;
 
@@ -6,6 +7,8 @@ export interface XmppMessage {
 
     body: string;
 
-    timestamp: Date;
+    type: string;
+
+    xmlns:string
 
 }

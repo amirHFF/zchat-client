@@ -4,15 +4,11 @@ import {
     ConversationList,
     Conversation
 } from "@chatscope/chat-ui-kit-react";
-
 import React, { useEffect } from "react";
-
 import UserAvatar from "./UserAvatar";
-
-import { conversations } from "../data/conversations";
-import { messages } from "../data/messages";
-
 import { useChatStore } from "../chatStore/ChatStore";
+import { conversations } from "../data/messages";
+import { messages } from "../data/conversations";
 
 export default function ConversationListPanel() {
 

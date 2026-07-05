@@ -1,10 +1,11 @@
 import type { Message } from "stanza/protocol";
 import { useChatStore } from "../chatStore/ChatStore";
 import type { ChatMessage } from "../model/ChatMessage";
+import type { XmppMessage } from "../model/XmppMessage";
 
 export class MessageEventHandler {
 
-    public onIncomingMessage(receivedMessage: Message) {
+    public onIncomingMessage(receivedMessage: XmppMessage) {
         const state = useChatStore.getState();
 
         console.log("incoming message:", receivedMessage);
@@ -66,7 +67,7 @@ export class MessageEventHandler {
         };
 
         state.addMessage(message);
-
+        
 
     }
 

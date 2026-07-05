@@ -1,47 +1,21 @@
-import type {ChatMessage} from "../model/ChatMessage";
+import type { Conversation } from "../model/Conversation"
 
-export const messages:ChatMessage[]=[
-
-    {
-        id:1,
-        conversationId:1,
-        text:"سلام امیر 👋",
-        outgoing:false,
-        timestamp:12
-    },
-    
+export const conversations: Conversation[] = [
 
     {
-        id:2,
-        conversationId:1,
-        text:"سلام علی",
-        outgoing:true,
-                timestamp:13
+        id: 1,
+        name: "amir",
+        jid: "amir@zchat.ir",
+
+        lastMessage: "سلام"
     },
 
     {
-        id:3,
-        conversationId:2,
-        text:"Hello Amir",
-        outgoing:false,
-                timestamp:14
+        id: 2,
+        name: "sajjad",
+        jid: "sajjad@zchat.ir",
 
+        lastMessage: "How are you?"
     },
-
-    {
-        id:4,
-        conversationId:2,
-        text:"Hello Sara",
-        outgoing:true,
-                timestamp:15
-    },
-
-    {
-        id:5,
-        conversationId:3,
-        text:"Picture",
-        outgoing:false,
-                timestamp:16
-    }
 
 ];
