@@ -51,14 +51,14 @@ export default function LandingPage() {
                         className="primary"
                         onClick={login}
                     >
-                        ورود
+                        sign in
                     </button>
 
                     <button
                         className="secondary"
                         onClick={register}
                     >
-                        ثبت نام
+                        sign up
                     </button>
 
                 </div>

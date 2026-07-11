@@ -17,7 +17,7 @@ export class XmppMamClient {
     public loadHistory(
         ownerJid: string,
         targetJid: string,
-        conversationId:number,
+        conversationId:string,
         callback: (messages: ChatMessage[]) => void
     ): void {
 
@@ -96,6 +96,7 @@ export class XmppMamClient {
 
             stanza => {
 
+                messages.sort((a, b) => a.timestamp - b.timestamp);
                 callback(messages);
 
                 this.removeMamHandler();
@@ -190,7 +191,7 @@ export class XmppMamClient {
     private parseMamMessage(
         ownerJid: string,
         message: Element ,
-        conversationId:number
+        conversationId:string
     ): ChatMessage | null {
 
         const body =

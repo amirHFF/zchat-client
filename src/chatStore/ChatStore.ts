@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { Conversation } from "../model/Conversation";
+import type { ConversationModel } from "../model/ConversationModel";
 import type { ChatMessage } from "../model/ChatMessage";
 
 export type ConnectionStatus =
@@ -10,20 +10,22 @@ export type ConnectionStatus =
 
 interface ChatStore {
 
-    conversations: Conversation[];
+    conversations: ConversationModel[];
 
-    selectedConversation?: Conversation;
+    selectedConversation?: ConversationModel;
 
     messages: ChatMessage[];
 
     connectionStatus: ConnectionStatus;
 
     addConversation(
-        conversation: Conversation
+        conversation: ConversationModel
     ): void;
+    setConversations: (conversations: ConversationModel[]) => void;
+    // setConversations: (conversations: ConversationModel[]) => void;
 
     setSelectedConversation(
-        conversation: Conversation
+        conversation: ConversationModel
     ): void;
 
     setMessages(
@@ -50,12 +52,19 @@ export const useChatStore = create<ChatStore>((set) => ({
     connectionStatus: "disconnected",
 
     addConversation: (conversation) =>
-        set((state) => ({
-            conversations: [
-                ...state.conversations,
-                conversation
-            ]
-        })),
+        set((state) => {
+            // جلوگیری از اضافه شدن تکراری
+            const exists = state.conversations.some(
+                (c) => c.targetJid === conversation.targetJid
+            );
+            if (exists) return state;
+
+            return {
+                conversations: [...state.conversations, conversation]
+            };
+        }),
+    setConversations: (conversations) =>
+        set({ conversations }),
 
     setSelectedConversation: (conversation) =>
         set({

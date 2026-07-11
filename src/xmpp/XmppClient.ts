@@ -1,7 +1,7 @@
 // import $pres from "strophe.js";
 // import Strophe from "strophe.js";
 
-import {Strophe,$pres} from "strophe.js";
+import { Strophe, $pres } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage";
 
 
@@ -46,11 +46,12 @@ export class XmppClient {
         if (!this.connection) {
 
             this.connection = new Strophe.Connection(
-                this.websocketUrl
+                this.websocketUrl, {
+                mechanisms: [Strophe.SASLPlain]   // Force PLAIN
+            }
             );
 
         }
-
     }
 
     /**
@@ -60,11 +61,13 @@ export class XmppClient {
         jid: string,
         password: string
     ): Promise<void> {
-
+        Strophe.log = function (level, msg) {
+            console.log(level, msg);
+        };
         this.createConnection();
 
         return new Promise((resolve, reject) => {
-            console.log("jid : "+jid);
+            console.log("jid : " + jid);
 
             this.connection!.connect(
 
@@ -84,7 +87,7 @@ export class XmppClient {
                         case Strophe.Status.CONNECTED:
 
                             console.log("Connected.");
-                            console.log("jid : "+jid);
+                            console.log("jid : " + jid);
 
 
                             resolve();
@@ -120,7 +123,6 @@ export class XmppClient {
             );
 
         });
-
     }
 
     /**
@@ -219,82 +221,82 @@ export class XmppClient {
         );
 
     }
-public addMessageListener(
-    listener: (message: XmppMessage) => void
-) {
+    public addMessageListener(
+        listener: (message: XmppMessage) => void
+    ) {
 
-    this.addHandler(
+        this.addHandler(
 
-        stanza => {
+            stanza => {
 
-            const body =
-                stanza.getElementsByTagName("body")[0]
-                      ?.textContent ?? "";
+                const body =
+                    stanza.getElementsByTagName("body")[0]
+                        ?.textContent ?? "";
 
-            listener({
-                id: stanza.getAttribute("id") ?? "",
+                listener({
+                    id: stanza.getAttribute("id") ?? "",
 
-                from: stanza.getAttribute("from") ?? "",
+                    from: stanza.getAttribute("from") ?? "",
 
-                to: stanza.getAttribute("to") ?? "",
+                    to: stanza.getAttribute("to") ?? "",
 
-                type: stanza.getAttribute("type") ?? "",
+                    type: stanza.getAttribute("type") ?? "",
 
-                body,
-                xmlns: stanza.getAttribute("xmlns") ?? ""
-            });
+                    body,
+                    xmlns: stanza.getAttribute("xmlns") ?? ""
+                });
 
-            return true;
+                return true;
 
-        },
+            },
 
-        undefined,
+            undefined,
 
-        "message"
+            "message"
 
-    );
+        );
 
-}
-public addPresenceListener(
-    listener: (presence: Element) => void
-) {
+    }
+    public addPresenceListener(
+        listener: (presence: Element) => void
+    ) {
 
-    return this.addHandler(
+        return this.addHandler(
 
-        stanza => {
+            stanza => {
 
-            listener(stanza);
+                listener(stanza);
 
-            return true;
+                return true;
 
-        },
+            },
 
-        undefined,
-        "presence"
+            undefined,
+            "presence"
 
-    );
+        );
 
-}
-public addIqListener(
-    listener: (iq: Element) => void
-) {
+    }
+    public addIqListener(
+        listener: (iq: Element) => void
+    ) {
 
-    return this.addHandler(
+        return this.addHandler(
 
-        stanza => {
+            stanza => {
 
-            listener(stanza);
+                listener(stanza);
 
-            return true;
+                return true;
 
-        },
+            },
 
-        undefined,
-        "iq"
+            undefined,
+            "iq"
 
-    );
+        );
 
-}
+    }
     public addHandler(
         handler: InstanceType<typeof Strophe.handler>,
         ns?: string,

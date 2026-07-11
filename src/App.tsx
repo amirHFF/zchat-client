@@ -4,10 +4,11 @@ import ConversationListPanel from "./components/ConversationListPanel";
 import ChatPanel from "./components/ChatPanel";
 import NewConversation from "./components/NewConversation";
 import { ChatServiceFacade } from "./xmpp/ChatServiceFacade";
-import { OpenfireClient } from "./restClient/openfireClient";
 import { useChatStore } from "./chatStore/ChatStore";
 import keycloak from "./auth/Keycloak";
 import { useState } from "react";
+import { OrchestratorRestClient } from "./restClient/OrchestratorRestClient";
+import type { ConversationModel } from "./model/ConversationModel";
 
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
@@ -21,6 +22,7 @@ export default function App() {
 
         async function init() {
 
+
             if (!keycloak.authenticated)
                 return;
 
@@ -29,7 +31,7 @@ export default function App() {
 
             await chatFacade.login(
                 jid,
-                "123"
+                keycloak.token
             );
 
             console.log("login done");
@@ -69,17 +71,26 @@ export default function App() {
                     boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
                 }}
             >
-                <NewConversation onCreateConversation={function (username: string): void {
-                    let jid = OpenfireClient.fetchUserName(username);
+                <NewConversation onCreateConversation={async function (username: string): Promise<void> {
+                    console.log("converstion will be added " +username);
+            
+                    if (username!=null) {
+                        const currentJid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
+                        const chatStore = useChatStore.getState();
 
-                    if (!jid) {
+                        const conversations = await OrchestratorRestClient.addConversation([username.concat("@zchat.ir"),
+                             currentJid] , "");
 
-                        useChatStore.getState().addConversation({
-                            id: 1,
-                            name: username,
-                            jid: username + "@zchat.ir",
-                            lastMessage: ""
-                        })
+                        const newConversation:ConversationModel={
+                            jid:currentJid,
+                            targetJid:username.concat("@zchat.ir"),
+                            lastMessage:"",
+                            lastMessageTime:Date.now().toString()
+                        }    
+                        chatStore.addConversation(newConversation);
+                        chatStore.setSelectedConversation(newConversation);
+                        ChatServiceFacade.getInstance().loadChatHistory(newConversation.targetJid , newConversation.targetJid);
+
                     }
                 }} />
 

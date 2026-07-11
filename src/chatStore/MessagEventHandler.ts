@@ -1,7 +1,9 @@
-import type { Message } from "stanza/protocol";
 import { useChatStore } from "../chatStore/ChatStore";
 import type { ChatMessage } from "../model/ChatMessage";
+import type { ConversationModel } from "../model/ConversationModel";
 import type { XmppMessage } from "../model/XmppMessage";
+import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
+import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 
 export class MessageEventHandler {
 
@@ -16,18 +18,25 @@ export class MessageEventHandler {
             return;
         }
 
-        const conversation = state.conversations.find(
-            c => c.jid === receivedMessage.from
-        );
-
-        if (!conversation) {
+        if (!state.selectedConversation) {
             console.warn(`Conversation not found for jid: ${receivedMessage.from}`);
             return;
         }
+        if (state.selectedConversation.targetJid != receivedMessage.from) {
+            const newConversation:ConversationModel={
+                jid : state.selectedConversation.jid,
+                targetJid : receivedMessage.from,
+                lastMessage : receivedMessage.body,
+                lastMessageTime : Date.now().toString()
+            } 
+            OrchestratorRestClient.addConversation([receivedMessage.from , state.selectedConversation.jid] , receivedMessage.body);
+
+            state.addConversation(newConversation)
+        }
 
         const message: ChatMessage = {
-            id: Date.now().toString(),
-            conversationId: conversation.id,
+            id: receivedMessage.id,
+            conversationId: state.selectedConversation.targetJid,
             text: receivedMessage.body,
             outgoing: false,
             timestamp: Date.now()
@@ -43,20 +52,11 @@ export class MessageEventHandler {
 
         const state = useChatStore.getState();
 
-        const conversation =
-            state.conversations.find(
-                c => c.jid === toJid
-            );
-
-        if (!conversation) {
-            return;
-        }
-
         const message: ChatMessage = {
 
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
 
-            conversationId: conversation.id,
+            conversationId: state.selectedConversation.jid,
 
             text: body,
 
@@ -67,7 +67,7 @@ export class MessageEventHandler {
         };
 
         state.addMessage(message);
-        
+
 
     }
 

@@ -143,6 +143,7 @@ export class ChatServiceFacade {
     public setListener(): void {
 
         this.client.addMessageListener(message => {
+            console.log("received message : "+message);
 
             message.from = message.from.substring(0 , message.from.indexOf('/'));
             this.messageDisplayHandler.onIncomingMessage(
@@ -352,7 +353,7 @@ export class ChatServiceFacade {
         });
 
     }
-    public loadChatHistory(targetJid: string ,conversationId:number): void {
+    public loadChatHistory(targetJid: string ,conversationId:string): void {
         console.log("loadChatHistory jid ="+targetJid +" "+conversationId)
 
         this.xmppMamClient.loadHistory(

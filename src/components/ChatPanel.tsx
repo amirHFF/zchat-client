@@ -39,7 +39,7 @@ export default function ChatPanel() {
             return;
         }
 
-        chatServiceFacade.loadChatHistory(conversation.jid , conversation.id);
+        chatServiceFacade.loadChatHistory(conversation.targetJid , conversation.targetJid);
 
     }, [conversation]);
 
@@ -52,7 +52,7 @@ export default function ChatPanel() {
             return;
 
         chatServiceFacade.sendMessage(
-            conversation.jid,
+            conversation.targetJid,
             value
         );
 
@@ -84,12 +84,12 @@ export default function ChatPanel() {
                 <ConversationHeader.Back />
 
                 <UserAvatar
-                    name={conversation.name}
+                    name={conversation.targetJid}
                     online={true}
                 />
 
                 <ConversationHeader.Content
-                    userName={conversation.name}
+                    userName={conversation.targetJid}
                     info="Online"
                 />
 
