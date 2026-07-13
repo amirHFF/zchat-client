@@ -70,7 +70,7 @@ export default function NewConversation(
                 color="primary"
                 sx={{
                     position: "fixed",
-                    bottom: 35,
+                    bottom: 50,
                     right: 24
                 }}
                 onClick={() => setOpen(true)}

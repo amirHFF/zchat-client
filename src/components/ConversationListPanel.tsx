@@ -58,10 +58,24 @@ export default function ConversationListPanel() {
             position="left"
             style={{ width: 380, background: "#ffffff" }}
         >
+            <div
+                style={{
+                    padding: "18px",
+                    fontSize: "24px",
+                    fontWeight: 700,
+                    color: "#4f46e5",
+                    borderBottom: "1px solid #eee",
+                    textAlign: "center",
+                    letterSpacing: "1px"
+                }}
+            >
+                ZChat
+            </div>
+            
             <Search placeholder="Search..." />
 
             <ConversationList>
-                {conversations.map((conversation) => (
+                {conversations?.map((conversation) => (
                     <Conversation
                         key={conversation.targetJid}                    // خیلی مهم!
                         name={conversation.targetJid}
