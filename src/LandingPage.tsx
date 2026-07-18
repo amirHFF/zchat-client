@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "./LandingPage.css";
 import keycloak from "./auth/Keycloak.ts";
 import { useNavigate } from "react-router-dom";
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 async function register() {
 
@@ -19,7 +19,7 @@ export default function LandingPage() {
     async function login() {
         console.log("login on landing")
         if (!keycloak.authenticated) {
-            keycloak.login({redirectUri: "http://localhost:5173/chat"});
+            keycloak.login({redirectUri: apiUrl+"/chat"});
             const jid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
             console.log("user logged in successfully ... : "+jid)
         }else{

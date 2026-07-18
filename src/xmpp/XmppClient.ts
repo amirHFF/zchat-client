@@ -1,8 +1,6 @@
-// import $pres from "strophe.js";
-// import Strophe from "strophe.js";
-
 import { Strophe, $pres } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage";
+const chatWebSocketAddress = import.meta.env.VITE_API_CHAT_SERVER_ADDRESS;
 
 
 
@@ -22,7 +20,7 @@ export class XmppClient {
     private constructor() {
 
         // بعداً از env می‌خوانیم
-        this.websocketUrl = "ws://130.185.121.173:7070/ws/";
+        this.websocketUrl = chatWebSocketAddress
 
     }
 

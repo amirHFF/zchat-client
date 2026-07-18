@@ -1,4 +1,5 @@
 import type { ConversationModel } from "../model/ConversationModel";
+const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
 
 export class OrchestratorRestClient {
 
@@ -6,7 +7,7 @@ export class OrchestratorRestClient {
 
         try {
             const response = await fetch(
-                `http://localhost:8090/conversations/${username}`,
+                `${orchestratorUrl}/conversations/${username}`,
                 {
                     method: "GET",
                     headers: {
@@ -49,7 +50,7 @@ export class OrchestratorRestClient {
     }
     static async addConversation(jids: string[] , text:string) {
         try {
-            const response = await fetch('http://localhost:8090/conversations', {
+            const response = await fetch(`${orchestratorUrl}/conversations`, {
                 method: "PUT",
                 headers: {
                     "Accept": "application/json",

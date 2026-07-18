@@ -7,8 +7,11 @@ export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<LandingPage />} />
+                    <Route > 
+<Route path="/" element={<LandingPage />} />
                 <Route path="/chat" element={<App />} />
+                    </Route>
+                
             </Routes>
         </BrowserRouter>
     );
