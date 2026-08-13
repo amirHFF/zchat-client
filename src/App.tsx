@@ -78,7 +78,7 @@ export default function App() {
                         const currentJid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
                         const chatStore = useChatStore.getState();
 
-                        const conversations = await OrchestratorRestClient.addConversation([username.concat("@zchat.ir"),
+                        await OrchestratorRestClient.addConversation([username.concat("@zchat.ir"),
                              currentJid] , "");
 
                         const newConversation:ConversationModel={

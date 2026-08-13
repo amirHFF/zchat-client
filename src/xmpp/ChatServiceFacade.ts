@@ -51,7 +51,7 @@ export class ChatServiceFacade {
 
     public async login(
         jid: string,
-        password: string
+        password: string|undefined
     ): Promise<void> {
         ChatServiceFacade.currentJid = jid;
         console.log("login jid : " + jid);
@@ -60,7 +60,7 @@ export class ChatServiceFacade {
             jid,
             password
         );
-        console.log("jid : " + jid +"connected ...");
+        console.log("jid : " + jid + "connected ...");
 
         this.registerMessageHandler();
 
@@ -143,9 +143,9 @@ export class ChatServiceFacade {
     public setListener(): void {
 
         this.client.addMessageListener(message => {
-            console.log("received message : "+message);
+            console.log("received message : " + message);
 
-            message.from = message.from.substring(0 , message.from.indexOf('/'));
+            message.from = message.from.substring(0, message.from.indexOf('/'));
             this.messageDisplayHandler.onIncomingMessage(
                 message
             );
@@ -213,8 +213,20 @@ export class ChatServiceFacade {
                     body:
                         bodyNode.textContent || "",
 
-                    timestamp:
-                        new Date()
+                    id:
+                        stanza.getAttribute(
+                            "id"
+                        ) || "",
+                    type:
+                        stanza.getAttribute(
+                            "type"
+                        ) || "",
+                    xmlns:
+                        stanza.getAttribute(
+                            "xmlns"
+                        ) || "",
+
+
 
                 };
 
@@ -353,8 +365,8 @@ export class ChatServiceFacade {
         });
 
     }
-    public loadChatHistory(targetJid: string ,conversationId:string): void {
-        console.log("loadChatHistory jid ="+targetJid +" "+conversationId)
+    public loadChatHistory(targetJid: string, conversationId: string): void {
+        console.log("loadChatHistory jid =" + targetJid + " " + conversationId)
 
         this.xmppMamClient.loadHistory(
 
@@ -364,7 +376,7 @@ export class ChatServiceFacade {
             conversationId,
 
             messages => {
-                console.log("loaded history : "+messages);
+                console.log("loaded history : " + messages);
                 this.messageDisplayHandler.onHistoryLoaded(
                     messages
                 );

@@ -3,7 +3,6 @@ import type { ChatMessage } from "../model/ChatMessage";
 import type { ConversationModel } from "../model/ConversationModel";
 import type { XmppMessage } from "../model/XmppMessage";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
-import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 
 export class MessageEventHandler {
 
@@ -46,7 +45,7 @@ export class MessageEventHandler {
     }
 
     public onOutgoingMessage(
-        toJid: string,
+        _toJid: string,
         body: string
     ): void {
 
@@ -56,7 +55,7 @@ export class MessageEventHandler {
 
             id: crypto.randomUUID(),
 
-            conversationId: state.selectedConversation.jid,
+            conversationId: state.selectedConversation?.jid,
 
             text: body,
 
@@ -72,11 +71,11 @@ export class MessageEventHandler {
     }
 
     public onPresenceChanged(
-        jid: string,
-        online: boolean
+        _jid: string,
+        _online: boolean
     ): void {
 
-        const state = useChatStore.getState();
+        useChatStore.getState();
 
     }
 

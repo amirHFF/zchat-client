@@ -31,7 +31,7 @@ export class XmppMamClient {
         this.mamHandler =
             this.client.addHandler(
 
-                stanza => {
+                (                stanza: { getElementsByTagNameNS: (arg0: string, arg1: string) => any[]; }) => {
 
                     const result =
                         stanza.getElementsByTagNameNS(
@@ -94,7 +94,7 @@ export class XmppMamClient {
                 queryId
             ),
 
-            stanza => {
+            (_stanza :Element) => {
 
                 messages.sort((a, b) => a.timestamp - b.timestamp);
                 callback(messages);

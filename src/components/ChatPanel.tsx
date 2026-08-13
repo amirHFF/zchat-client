@@ -9,7 +9,6 @@ import React, { useEffect, useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { useChatStore } from "../chatStore/ChatStore";
-import type { ChatMessage } from "../model/ChatMessage";
 
 
 
@@ -30,9 +29,9 @@ export default function ChatPanel() {
         state => state.messages
     );
 
-    const addMessage = useChatStore(
-        state => state.addMessage
-    );
+    // const _addMessage = useChatStore(
+    //     state => state.addMessage
+    // );
     useEffect(() => {
 
         if (!conversation) {
@@ -51,10 +50,16 @@ export default function ChatPanel() {
         if (!value.trim())
             return;
 
+        debugger
+
         chatServiceFacade.sendMessage(
             conversation.targetJid,
             value
         );
+    
+        console.log(value);
+        setText("");
+
 
     };
 

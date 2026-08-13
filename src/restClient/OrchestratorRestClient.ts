@@ -1,11 +1,13 @@
+import type { ChatBot } from "../model/ChatBot";
 import type { ConversationModel } from "../model/ConversationModel";
 const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
 
 export class OrchestratorRestClient {
 
-    static async fetchConversations(username: string): Promise<ConversationModel[]> {
+    static async fetchConversations(username: string): Promise<ConversationModel[]|undefined> {
 
         try {
+            debugger
             const response = await fetch(
                 `${orchestratorUrl}/conversations/${username}`,
                 {
@@ -45,7 +47,7 @@ export class OrchestratorRestClient {
             }
         } catch (error) {
             console.error("Error fetchingconversations:", error);
-            return null;
+            return undefined;
         }
     }
     static async addConversation(jids: string[] , text:string) {
@@ -56,7 +58,7 @@ export class OrchestratorRestClient {
                     "Accept": "application/json",
                     "Content-Type": "application/json"   // ← خیلی مهمه!
                 },
-                body: JSON.stringify({
+                                body: JSON.stringify({
                     participants: jids,
                     lastMessage: text
                 })
@@ -75,14 +77,40 @@ export class OrchestratorRestClient {
             throw error; // یا مدیریت خطا به هر شکلی که می‌خوای
         }
     }
+static async getAllChatBots(): Promise<ChatBot[]> {
+    try {
+        const response = await fetch(
+            `${orchestratorUrl}/bot/list`,
+            {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (response.ok) {
+            const bots: ChatBot[] = await response.json();
+
+            return bots.map(c => ({
+                botID: c.botID,
+                name: c.name,
+                displayName: c.displayName,
+                description: "nothing yet"
+            }));
+        } else {
+            console.error("fetching chatbots failed");
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching chatbot:", error);
+        return [];
+    }
+}
 }
 
 class FetchedConversation {
-    public participants: string[];
-    public lastMessage: string;
-    public lastMessageTime: string;
-}
-class SaveConversation {
-    public participants: string[];
-    public lastMessage: string;
+    public participants: string[] = [];
+    public lastMessage: string | undefined;
+    public lastMessageTime: string = "";
 }

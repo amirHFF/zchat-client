@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 
@@ -15,58 +15,80 @@ import {
     Typography
 } from "@mui/material";
 import React from "react";
+import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
+import type { ChatBot } from "../model/ChatBot";
 
 interface NewConversationProps {
 
     onCreateConversation: (username: string) => void;
 
 }
+let bots: any[] = [];
 
 export default function NewConversation(
     {
         onCreateConversation
     }: NewConversationProps
 ) {
-    const [hoveredBot, setHoveredBot] = useState<typeof bots[number] | null>(null);
+    // const state = useChatStore.getState();
 
+    const [hoveredBot, setHoveredBot] = useState<ChatBot | null>(null);
 
-    const bots = [
-        {
-            id: 1,
-            code: "drunk",
+    useEffect(() => {
 
-            title: "معلم مست",
-            name: "سهیل",
-            description: "به جدیت میتونم بگم بهترین معلممونه و خیلی خوب بهت بهت آموزش میده اما در مستی و زیاد صحبت هم میکنه . اخطار : سعی کن باهاش مودب باشی وگرنه مستیش گل میکنه و به مسخره بازی دی میاره"
-        },
-        // {
-        //     id: 2,
-        //     title: "The Hopeless Teacher",
-        //     name: "منصور",
-        //     description: "این معلم اخیرا تو زندگی شکست زیاد خورده و اصولا خیلی در درس دادن اشتیاق به خرج نمیده ، فقط دوست داره زود بهت درس بده و پولش رو از ما بگیره و بره سر بدبختیش"
-        // },
-        {
-            id: 3,
-            code: "Clingy",
+        fetchBots();
 
-            title: "معلم آویزون",
-            name: "آزیتا",
-            description: " راستش بسیار خانم معلم خوبیه ولی الان مجرد و تنهاست .کلی خواستکار داشته در دوران قدیم اما یه مقدار سطح انتظاراتش بالا بوده . یه مقدار هم شیطونه و لطفا سعی کنید در صحبت باهاش خیلی صمیمی نشید ، (زود وابسته میشه)"
-        },
-        // {
-        //     id: 4,
-        //     // title: "The Arzash (Propaganda) Teacher",
-        //     name: "سید علی",
-        //     description: "این بنده خدا 20 سالشه اما به اندازه 21 سال خاطره جنگ براتون تعریف میکنه تلاش زیاد داره که شما رو بیاره تو خط ولایت و اینحور حرفا .درس های دینی رو عالی جواب میده"
-        // },
-        {
-            id: 5,
-            code: "jerk",
-            title: "معلم عوضی",
-            name: "امیر ",
-            description: "لطفا با این معلم صحبت نکنید"
+    }, []);
+
+    async function fetchBots() {
+        try {
+
+            bots = await OrchestratorRestClient.getAllChatBots();
+            console.log("bots: " + bots)
+
+        } catch (err) {
+            console.error("Error loading bots:", err);
+
         }
-    ];
+    }
+
+
+    //     {
+    //         id: 1,
+    //         code: "drunk",
+
+    //         title: "معلم مست",
+    //         name: "سهیل",
+    //         description: "به جدیت میتونم بگم بهترین معلممونه و خیلی خوب بهت بهت آموزش میده اما در مستی و زیاد صحبت هم میکنه . اخطار : سعی کن باهاش مودب باشی وگرنه مستیش گل میکنه و به مسخره بازی دی میاره"
+    //     },
+    //     // {
+    //     //     id: 2,
+    //     //     title: "The Hopeless Teacher",
+    //     //     name: "منصور",
+    //     //     description: "این معلم اخیرا تو زندگی شکست زیاد خورده و اصولا خیلی در درس دادن اشتیاق به خرج نمیده ، فقط دوست داره زود بهت درس بده و پولش رو از ما بگیره و بره سر بدبختیش"
+    //     // },
+    //     {
+    //         id: 3,
+    //         code: "Clingy",
+
+    //         title: "معلم آویزون",
+    //         name: "آزیتا",
+    //         description: " راستش بسیار خانم معلم خوبیه ولی الان مجرد و تنهاست .کلی خواستکار داشته در دوران قدیم اما یه مقدار سطح انتظاراتش بالا بوده . یه مقدار هم شیطونه و لطفا سعی کنید در صحبت باهاش خیلی صمیمی نشید ، (زود وابسته میشه)"
+    //     },
+    //     // {
+    //     //     id: 4,
+    //     //     // title: "The Arzash (Propaganda) Teacher",
+    //     //     name: "سید علی",
+    //     //     description: "این بنده خدا 20 سالشه اما به اندازه 21 سال خاطره جنگ براتون تعریف میکنه تلاش زیاد داره که شما رو بیاره تو خط ولایت و اینحور حرفا .درس های دینی رو عالی جواب میده"
+    //     // },
+    //     {
+    //         id: 5,
+    //         code: "jerk",
+    //         title: "معلم عوضی",
+    //         name: "امیر ",
+    //         description: "لطفا با این معلم صحبت نکنید"
+    //     }
+    // ];
     const [open, setOpen] = useState(false);
 
     const [username, setUsername] = useState("");
@@ -166,15 +188,15 @@ export default function NewConversation(
                         <Stack
                             direction="row"
                             spacing={2}
-                            flexWrap="wrap"
+                              sx={{ flexWrap: 'wrap' }}
                         >
 
                             {bots.map(bot => (
 
                                 <Box
-                                    key={bot.id}
+                                    key={bot.botID}
                                     onMouseEnter={() => setHoveredBot(bot)}
-                                    onClick={() => onCreateConversation("chat-bot")}
+                                    onClick={() => onCreateConversation(bot.botID)}
                                     sx={{
                                         display: "flex",
                                         flexDirection: "column",
@@ -200,7 +222,7 @@ export default function NewConversation(
                                             }
                                         }}
                                     >
-                                        {bot.name}
+                                        {bot.displayName}
                                     </Avatar>
                                 </Box>
 
@@ -221,8 +243,8 @@ export default function NewConversation(
                         >
                             {hoveredBot ? (
                                 <>
-                                    <Typography variant="subtitle1" fontWeight="bold">
-                                        {hoveredBot.name}
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                        {hoveredBot.displayName}
                                     </Typography>
 
                                     <Typography variant="body2" color="text.secondary">

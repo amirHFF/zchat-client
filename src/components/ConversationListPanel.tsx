@@ -14,8 +14,8 @@ import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 
 export default function ConversationListPanel() {
     const conversations = useChatStore(state => state.conversations);
-    const addConversation = useChatStore(state => state.addConversation);
-    const setConversations = useChatStore(state => state.setConversations); // ← بهتره این رو داشته باشی
+    // const addConversation = useChatStore(state => state.addConversation);
+    const setConversations = useChatStore(state => state.setConversations) ; // ← بهتره این رو داشته باشی
     const setSelectedConversation = useChatStore(state => state.setSelectedConversation);
     const selectedConversation = useChatStore(state => state.selectedConversation);
 
@@ -31,11 +31,13 @@ export default function ConversationListPanel() {
             const fetched = await OrchestratorRestClient.fetchConversations(username);
 
             console.log("fetched size : " + fetched)
+            if(fetched !== undefined){
             setConversations(fetched);                    // ← مهم
 
             if (fetched.length > 0) {
                 setSelectedConversation(fetched[0]);
             }
+        }
 
             console.log("conversations chatstore size " + conversations.length)
             hasLoaded.current = true;
@@ -45,6 +47,7 @@ export default function ConversationListPanel() {
     }, [setConversations, setSelectedConversation]);
 
     const handleSelect = (conversation: ConversationModel) => {
+        if(selectedConversation!==undefined)
         if (!selectedConversation.targetJid.includes(conversation.targetJid)) {
 
             setSelectedConversation(conversation);

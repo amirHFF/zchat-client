@@ -2,7 +2,7 @@ export  interface ChatMessage {
 
     id:string;
 
-    conversationId:any;
+    conversationId:any|undefined;
 
     text:string;
 

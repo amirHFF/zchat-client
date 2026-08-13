@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 import type { ConversationModel } from "../model/ConversationModel";
 import type { ChatMessage } from "../model/ChatMessage";
+import type { ChatBot } from "../model/ChatBot";
 
 export type ConnectionStatus =
     | "disconnected"
@@ -15,6 +16,8 @@ interface ChatStore {
     selectedConversation?: ConversationModel;
 
     messages: ChatMessage[];
+
+    bots: ChatBot[];
 
     connectionStatus: ConnectionStatus;
 
@@ -39,6 +42,10 @@ interface ChatStore {
     setConnectionStatus(
         status: ConnectionStatus
     ): void;
+
+    setBots(
+        bots: ChatBot[]
+    ): void;
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
@@ -48,6 +55,8 @@ export const useChatStore = create<ChatStore>((set) => ({
     selectedConversation: undefined,
 
     messages: [],
+
+    bots :[],
 
     connectionStatus: "disconnected",
 
@@ -87,6 +96,8 @@ export const useChatStore = create<ChatStore>((set) => ({
     setConnectionStatus: (status) =>
         set({
             connectionStatus: status
-        })
+        }),
+    setBots: (bots)=>
+        set({bots})
 
 }));

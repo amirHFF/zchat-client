@@ -57,9 +57,9 @@ export class XmppClient {
      */
     public connect(
         jid: string,
-        password: string
+        password: string | undefined
     ): Promise<void> {
-        Strophe.log = function (level, msg) {
+        Strophe.log = function (level: any, msg: any) {
             console.log(level, msg);
         };
         this.createConnection();
@@ -225,7 +225,7 @@ export class XmppClient {
 
         this.addHandler(
 
-            stanza => {
+            (stanza :Element) => {
 
                 const body =
                     stanza.getElementsByTagName("body")[0]
@@ -261,7 +261,7 @@ export class XmppClient {
 
         return this.addHandler(
 
-            stanza => {
+            (stanza: Element) => {
 
                 listener(stanza);
 
@@ -281,7 +281,7 @@ export class XmppClient {
 
         return this.addHandler(
 
-            stanza => {
+            (stanza :Element) => {
 
                 listener(stanza);
 
@@ -296,7 +296,7 @@ export class XmppClient {
 
     }
     public addHandler(
-        handler: InstanceType<typeof Strophe.handler>,
+        handler?: InstanceType<typeof Strophe.handler>,
         ns?: string,
         name?: string,
         type?: string,
