@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+    --bg:#F6F5F0;
+    --navy:#0F2A4A;
+    --navy-strong:#0A1D34;
+    --teal:#1FA6A6;
+    --teal-soft:rgba(31,166,166,.14);
+    --gold:#C9A227;
+    --text-secondary:#55627A;
+    --line:rgba(15,42,74,.12);
+    --font-display:'Sora',sans-serif;
+    --font-body:'Inter',sans-serif;
+}

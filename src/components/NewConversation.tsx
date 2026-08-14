@@ -9,8 +9,6 @@ import {
     DialogContent,
     DialogTitle,
     Fab,
-    Paper,
-    Stack,
     TextField,
     Typography
 } from "@mui/material";
@@ -19,90 +17,40 @@ import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import type { ChatBot } from "../model/ChatBot";
 
 interface NewConversationProps {
-
     onCreateConversation: (username: string) => void;
-
 }
-let bots: any[] = [];
 
 export default function NewConversation(
     {
         onCreateConversation
     }: NewConversationProps
 ) {
-    // const state = useChatStore.getState();
 
+    const [bots, setBots] = useState<ChatBot[]>([]);
     const [hoveredBot, setHoveredBot] = useState<ChatBot | null>(null);
+    const [open, setOpen] = useState(false);
+    const [username, setUsername] = useState("");
 
     useEffect(() => {
-
         fetchBots();
-
     }, []);
 
     async function fetchBots() {
         try {
-
-            bots = await OrchestratorRestClient.getAllChatBots();
-            console.log("bots: " + bots)
-
+            const fetched = await OrchestratorRestClient.getAllChatBots();
+            setBots(fetched ?? []);
         } catch (err) {
             console.error("Error loading bots:", err);
-
         }
     }
 
-
-    //     {
-    //         id: 1,
-    //         code: "drunk",
-
-    //         title: "معلم مست",
-    //         name: "سهیل",
-    //         description: "به جدیت میتونم بگم بهترین معلممونه و خیلی خوب بهت بهت آموزش میده اما در مستی و زیاد صحبت هم میکنه . اخطار : سعی کن باهاش مودب باشی وگرنه مستیش گل میکنه و به مسخره بازی دی میاره"
-    //     },
-    //     // {
-    //     //     id: 2,
-    //     //     title: "The Hopeless Teacher",
-    //     //     name: "منصور",
-    //     //     description: "این معلم اخیرا تو زندگی شکست زیاد خورده و اصولا خیلی در درس دادن اشتیاق به خرج نمیده ، فقط دوست داره زود بهت درس بده و پولش رو از ما بگیره و بره سر بدبختیش"
-    //     // },
-    //     {
-    //         id: 3,
-    //         code: "Clingy",
-
-    //         title: "معلم آویزون",
-    //         name: "آزیتا",
-    //         description: " راستش بسیار خانم معلم خوبیه ولی الان مجرد و تنهاست .کلی خواستکار داشته در دوران قدیم اما یه مقدار سطح انتظاراتش بالا بوده . یه مقدار هم شیطونه و لطفا سعی کنید در صحبت باهاش خیلی صمیمی نشید ، (زود وابسته میشه)"
-    //     },
-    //     // {
-    //     //     id: 4,
-    //     //     // title: "The Arzash (Propaganda) Teacher",
-    //     //     name: "سید علی",
-    //     //     description: "این بنده خدا 20 سالشه اما به اندازه 21 سال خاطره جنگ براتون تعریف میکنه تلاش زیاد داره که شما رو بیاره تو خط ولایت و اینحور حرفا .درس های دینی رو عالی جواب میده"
-    //     // },
-    //     {
-    //         id: 5,
-    //         code: "jerk",
-    //         title: "معلم عوضی",
-    //         name: "امیر ",
-    //         description: "لطفا با این معلم صحبت نکنید"
-    //     }
-    // ];
-    const [open, setOpen] = useState(false);
-
-    const [username, setUsername] = useState("");
-
     function closeDialog() {
-
         setOpen(false);
-
         setUsername("");
-
+        setHoveredBot(null);
     }
 
     function handleSubmit() {
-
         const value = username.trim();
 
         if (value.length === 0) {
@@ -110,23 +58,21 @@ export default function NewConversation(
         }
 
         onCreateConversation(value);
-
         closeDialog();
+    }
 
+    function handleBotSelect(bot: ChatBot) {
+        onCreateConversation(bot.botID);
+        closeDialog();
     }
 
     function handleKeyDown(
         event: React.KeyboardEvent<HTMLInputElement>
     ) {
-
         if (event.key === "Enter") {
-
             event.preventDefault();
-
             handleSubmit();
-
         }
-
     }
 
     return (
@@ -135,8 +81,9 @@ export default function NewConversation(
                 color="primary"
                 sx={{
                     position: "fixed",
-                    bottom: 50,
-                    right: 24
+                    bottom: 32,
+                    right: 32,
+                    boxShadow: "0 12px 28px rgba(15,42,74,.28)",
                 }}
                 onClick={() => setOpen(true)}
             >
@@ -147,20 +94,28 @@ export default function NewConversation(
                 open={open}
                 onClose={closeDialog}
                 maxWidth="xs"
+                fullWidth
+                slotProps={{
+                    paper: {
+                        sx: { borderRadius: "18px" }
+                    }
+                }}
             >
-                <DialogTitle>
-
+                <DialogTitle
+                    sx={{
+                        fontFamily: "var(--font-display)",
+                        fontWeight: 700,
+                        color: "var(--navy)",
+                    }}
+                >
                     New Conversation
-
                 </DialogTitle>
 
                 <DialogContent>
 
                     <Typography
                         variant="body2"
-                        sx={{
-                            mb: 2
-                        }}
+                        sx={{ mb: 2, color: "var(--text-secondary)" }}
                     >
                         Enter the username of the person you want to chat with.
                     </Typography>
@@ -171,98 +126,128 @@ export default function NewConversation(
                         label="Username"
                         placeholder="Example: ali"
                         value={username}
-                        onChange={(e) =>
-                            setUsername(e.target.value)
-                        }
+                        onChange={(e) => setUsername(e.target.value)}
                         onKeyDown={handleKeyDown}
                     />
+
                     <Box sx={{ mt: 3 }}>
 
-                        <Typography
-                            variant="subtitle2"
-                            sx={{ mb: 1 }}
-                        >
-                            AI Bots
-                        </Typography>
-
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                              sx={{ flexWrap: 'wrap' }}
-                        >
-
-                            {bots.map(bot => (
-
-                                <Box
-                                    key={bot.botID}
-                                    onMouseEnter={() => setHoveredBot(bot)}
-                                    onClick={() => onCreateConversation(bot.botID)}
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center",
-                                        cursor: "pointer"
-                                    }}
-                                >
-                                    <Avatar
-                                        // onClick={() => {
-                                        //     onCreateConversation("chat-bot")
-                                        //     closeDialog();
-                                        // }}
-
-                                        sx={{
-                                            width: 86,
-                                            height: 86,
-                                            fontSize: 18,
-                                            bgcolor: "primary.main",
-                                            transition: "0.2s",
-                                            "&:hover": {
-                                                transform: "scale(1.20)",
-                                                boxShadow: 4
-                                            }
-                                        }}
-                                    >
-                                        {bot.displayName}
-                                    </Avatar>
-                                </Box>
-
-
-                            ))}
-
-
-                        </Stack>
-                        <Paper
-                            variant="outlined"
+                        <Box
                             sx={{
-                                mt: 3,
-                                p: 2,
-                                minHeight: 90,
-                                borderRadius: 2,
-                                bgcolor: "grey.50"
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                mb: 1.5,
                             }}
                         >
-                            {hoveredBot ? (
-                                <>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                        {hoveredBot.displayName}
-                                    </Typography>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontFamily: "var(--font-display)",
+                                    fontWeight: 600,
+                                    color: "var(--navy)",
+                                }}
+                            >
+                                AI Bots
+                            </Typography>
 
-                                    <Typography variant="body2" color="text.secondary">
-                                        {hoveredBot.description}
-                                    </Typography>
-                                </>
-                            ) : (
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                >
-                                    Hover over an AI bot to see its description.
-                                </Typography>
-                            )}
-                        </Paper>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    color: "var(--teal)",
+                                    fontWeight: 600,
+                                    fontSize: "12.5px",
+                                    opacity: hoveredBot ? 1 : 0,
+                                    transition: "opacity 0.15s",
+                                }}
+                            >
+                                {hoveredBot?.displayName}
+                            </Typography>
+                        </Box>
+
+                        {bots.length === 0 ? (
+                            <Typography
+                                variant="body2"
+                                sx={{ color: "var(--text-secondary)" }}
+                            >
+                                No bots available right now.
+                            </Typography>
+                        ) : (
+                            <Box
+                                sx={{
+                                    maxHeight: 260,
+                                    overflowY: "auto",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 1,
+                                    pr: 0.5,
+                                    "&::-webkit-scrollbar": {
+                                        width: "6px",
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        background: "var(--line)",
+                                        borderRadius: "6px",
+                                    },
+                                }}
+                            >
+                                {bots.map(bot => (
+                                    <Box
+                                        key={bot.botID}
+                                        onClick={() => handleBotSelect(bot)}
+                                        onMouseEnter={() => setHoveredBot(bot)}
+                                        onMouseLeave={() => setHoveredBot(null)}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "flex-start",
+                                            gap: 1.5,
+                                            p: 1.25,
+                                            borderRadius: "12px",
+                                            border: "1px solid var(--line)",
+                                            cursor: "pointer",
+                                            transition: "0.2s",
+                                            "&:hover": {
+                                                background: "var(--teal-soft)",
+                                                borderColor: "var(--teal)",
+                                            },
+                                        }}
+                                    >
+                                        <Avatar
+                                            sx={{
+                                                width: 44,
+                                                height: 44,
+                                                fontSize: 14,
+                                                bgcolor: "secondary.main",
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            {bot.displayName}
+                                        </Avatar>
+
+                                        <Box sx={{ minWidth: 0 }}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{ fontWeight: 700, color: "var(--navy)" }}
+                                            >
+                                                {bot.displayName}
+                                            </Typography>
+
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    color: "var(--text-secondary)",
+                                                    fontSize: "12.5px",
+                                                    lineHeight: 1.5,
+                                                }}
+                                            >
+                                                {bot.description}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
 
                     </Box>
-
 
                 </DialogContent>
 
@@ -270,5 +255,4 @@ export default function NewConversation(
 
         </>
     );
-
 }

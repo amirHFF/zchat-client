@@ -12,10 +12,11 @@ import keycloak from "../auth/Keycloak";
 import type { ConversationModel } from "../model/ConversationModel";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 
+import "./ConversationListPanel.css";
+
 export default function ConversationListPanel() {
     const conversations = useChatStore(state => state.conversations);
-    // const addConversation = useChatStore(state => state.addConversation);
-    const setConversations = useChatStore(state => state.setConversations) ; // ← بهتره این رو داشته باشی
+    const setConversations = useChatStore(state => state.setConversations);
     const setSelectedConversation = useChatStore(state => state.setSelectedConversation);
     const selectedConversation = useChatStore(state => state.selectedConversation);
 
@@ -30,16 +31,14 @@ export default function ConversationListPanel() {
 
             const fetched = await OrchestratorRestClient.fetchConversations(username);
 
-            console.log("fetched size : " + fetched)
-            if(fetched !== undefined){
-            setConversations(fetched);                    // ← مهم
+            if (fetched !== undefined) {
+                setConversations(fetched);
 
-            if (fetched.length > 0) {
-                setSelectedConversation(fetched[0]);
+                if (fetched.length > 0) {
+                    setSelectedConversation(fetched[0]);
+                }
             }
-        }
 
-            console.log("conversations chatstore size " + conversations.length)
             hasLoaded.current = true;
         };
 
@@ -47,52 +46,44 @@ export default function ConversationListPanel() {
     }, [setConversations, setSelectedConversation]);
 
     const handleSelect = (conversation: ConversationModel) => {
-        if(selectedConversation!==undefined)
-        if (!selectedConversation.targetJid.includes(conversation.targetJid)) {
-
-            setSelectedConversation(conversation);
-
-            ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
-        }
+        if (selectedConversation !== undefined)
+            if (!selectedConversation.targetJid.includes(conversation.targetJid)) {
+                setSelectedConversation(conversation);
+                ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
+            }
     };
 
     return (
-        <Sidebar
-            position="left"
-            style={{ width: 380, background: "#ffffff" }}
-        >
-            <div
-                style={{
-                    padding: "18px",
-                    fontSize: "24px",
-                    fontWeight: 700,
-                    color: "#4f46e5",
-                    borderBottom: "1px solid #eee",
-                    textAlign: "center",
-                    letterSpacing: "1px"
-                }}
-            >
-                ZChat
+        <Sidebar position="left" style={{ width: 380 }}>
+
+            <div className="sidebar-header">
+                <div className="mark">S</div>
+                <div className="title">Simorq</div>
             </div>
-            
-            <Search placeholder="Search..." />
+
+            <Search placeholder="Search conversations" />
 
             <ConversationList>
-                {conversations?.map((conversation) => (
-                    <Conversation
-                        key={conversation.targetJid}                    // خیلی مهم!
-                        name={conversation.targetJid}
-                        info={conversation.lastMessage || "No messages yet"}
-                        active={selectedConversation?.jid === conversation.jid}
-                        onClick={() => handleSelect(conversation)}
-                    >
-                        <UserAvatar
+                {conversations?.length ? (
+                    conversations.map((conversation) => (
+                        <Conversation
+                            key={conversation.targetJid}
                             name={conversation.targetJid}
-                            online={true}
-                        />
-                    </Conversation>
-                ))}
+                            info={conversation.lastMessage || "No messages yet"}
+                            active={selectedConversation?.jid === conversation.jid}
+                            onClick={() => handleSelect(conversation)}
+                        >
+                            <UserAvatar
+                                name={conversation.targetJid}
+                                online={true}
+                            />
+                        </Conversation>
+                    ))
+                ) : (
+                    <div className="empty-list">No conversations yet</div>
+                )}
             </ConversationList>
+
         </Sidebar>
     );
 }

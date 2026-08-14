@@ -1,0 +1,85 @@
+.sidebar-header{
+    padding:22px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.sidebar-header .mark{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    background:var(--navy);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    flex-shrink:0;
+}
+
+.sidebar-header .title{
+    font-family:var(--font-display);
+    font-size:19px;
+    font-weight:700;
+    color:var(--navy);
+    letter-spacing:-.2px;
+}
+
+.cs-sidebar.cs-sidebar--left{
+    background:#ffffff;
+    border-right:1px solid var(--line) !important;
+}
+
+.cs-search{
+    background:var(--bg) !important;
+    border-radius:10px !important;
+    margin:14px 16px !important;
+    border:1px solid var(--line) !important;
+}
+
+.cs-search__input{
+    background:transparent !important;
+    font-family:var(--font-body) !important;
+    color:var(--navy) !important;
+}
+
+.cs-conversation{
+    padding:10px 16px !important;
+    border-bottom:1px solid var(--line) !important;
+}
+
+.cs-conversation:hover{
+    background:var(--teal-soft) !important;
+}
+
+.cs-conversation--active{
+    background:var(--teal-soft) !important;
+    border-right:3px solid var(--teal) !important;
+}
+
+.cs-conversation__name{
+    font-family:var(--font-body) !important;
+    font-weight:600 !important;
+    color:var(--navy) !important;
+}
+
+.cs-conversation__info{
+    color:var(--text-secondary) !important;
+    font-size:13px !important;
+}
+
+.cs-avatar{
+    border:2px solid var(--teal-soft) !important;
+}
+
+.empty-list{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--text-secondary);
+    font-size:13px;
+    font-family:var(--font-body);
+}

@@ -4,7 +4,7 @@ const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
 
 export class OrchestratorRestClient {
 
-    static async fetchConversations(username: string): Promise<ConversationModel[]|undefined> {
+    static async fetchConversations(username: string): Promise<ConversationModel[] | undefined> {
 
         try {
             debugger
@@ -50,7 +50,7 @@ export class OrchestratorRestClient {
             return undefined;
         }
     }
-    static async addConversation(jids: string[] , text:string) {
+    static async addConversation(jids: string[], text: string) {
         try {
             const response = await fetch(`${orchestratorUrl}/conversations`, {
                 method: "PUT",
@@ -58,7 +58,7 @@ export class OrchestratorRestClient {
                     "Accept": "application/json",
                     "Content-Type": "application/json"   // ← خیلی مهمه!
                 },
-                                body: JSON.stringify({
+                body: JSON.stringify({
                     participants: jids,
                     lastMessage: text
                 })
@@ -77,36 +77,36 @@ export class OrchestratorRestClient {
             throw error; // یا مدیریت خطا به هر شکلی که می‌خوای
         }
     }
-static async getAllChatBots(): Promise<ChatBot[]> {
-    try {
-        const response = await fetch(
-            `${orchestratorUrl}/bot/list`,
-            {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json"
+    static async getAllChatBots(): Promise<ChatBot[]> {
+        try {
+            const response = await fetch(
+                `${orchestratorUrl}/bot/list`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
                 }
+            );
+
+            if (response.ok) {
+                const bots: ChatBot[] = await response.json();
+
+                return bots.map(c => ({
+                    botID: c.botID,
+                    name: c.name,
+                    displayName: c.displayName,
+                    description: "nothing yet"
+                }));
+            } else {
+                console.error("fetching chatbots failed");
+                return [];
             }
-        );
-
-        if (response.ok) {
-            const bots: ChatBot[] = await response.json();
-
-            return bots.map(c => ({
-                botID: c.botID,
-                name: c.name,
-                displayName: c.displayName,
-                description: "nothing yet"
-            }));
-        } else {
-            console.error("fetching chatbots failed");
+        } catch (error) {
+            console.error("Error fetching chatbot:", error);
             return [];
         }
-    } catch (error) {
-        console.error("Error fetching chatbot:", error);
-        return [];
     }
-}
 }
 
 class FetchedConversation {

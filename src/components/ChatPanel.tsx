@@ -9,11 +9,9 @@ import React, { useEffect, useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { useChatStore } from "../chatStore/ChatStore";
-
-
+import "./ChatPanel.css";
 
 export default function ChatPanel() {
-
 
     const [text, setText] = useState("");
 
@@ -29,16 +27,13 @@ export default function ChatPanel() {
         state => state.messages
     );
 
-    // const _addMessage = useChatStore(
-    //     state => state.addMessage
-    // );
     useEffect(() => {
 
         if (!conversation) {
             return;
         }
 
-        chatServiceFacade.loadChatHistory(conversation.targetJid , conversation.targetJid);
+        chatServiceFacade.loadChatHistory(conversation.targetJid, conversation.targetJid);
 
     }, [conversation]);
 
@@ -50,34 +45,22 @@ export default function ChatPanel() {
         if (!value.trim())
             return;
 
-        debugger
-
         chatServiceFacade.sendMessage(
             conversation.targetJid,
             value
         );
-    
-        console.log(value);
+
         setText("");
-
-
     };
 
     if (!conversation) {
-
         return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%"
-                }}
-            >
-                Select Conversation
+            <div className="empty-chat">
+                <div className="mark">S</div>
+                <div className="title">No conversation selected</div>
+                <div className="subtitle">Pick someone from the list to start chatting</div>
             </div>
         );
-
     }
 
     return (
