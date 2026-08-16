@@ -75,6 +75,23 @@
 .cs-avatar{
     border:2px solid var(--teal-soft) !important;
 }
+.conversation-sidebar{
+    display:flex !important;
+    flex-direction:column !important;
+    width:380px !important;
+    max-width:380px !important;
+    flex:0 0 380px !important;
+    height:100% !important;
+}
+
+.conversation-sidebar .cs-search{
+    flex:0 0 auto !important;
+}
+
+.conversation-sidebar .cs-conversation-list{
+    flex:1 1 auto !important;
+    overflow-y:auto !important;
+}
 
 .empty-list{
     padding:40px 20px;

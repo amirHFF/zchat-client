@@ -45,16 +45,22 @@ export default function ConversationListPanel() {
         loadConversations();
     }, [setConversations, setSelectedConversation]);
 
-    const handleSelect = (conversation: ConversationModel) => {
-        if (selectedConversation !== undefined)
-            if (!selectedConversation.targetJid.includes(conversation.targetJid)) {
-                setSelectedConversation(conversation);
-                ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
-            }
-    };
+const setMobileView = useChatStore(state => state.setMobileView);
+
+const handleSelect = (conversation: ConversationModel) => {
+    if (
+        selectedConversation === undefined ||
+        !selectedConversation.targetJid.includes(conversation.targetJid)
+    ) {
+        setSelectedConversation(conversation);
+        ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
+    }
+
+    setMobileView("chat");
+};
 
     return (
-        <Sidebar position="left" style={{ width: 380 }}>
+        <Sidebar position="left" className="conversation-sidebar">
 
             <div className="sidebar-header">
                 <div className="mark">S</div>

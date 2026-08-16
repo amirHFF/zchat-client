@@ -12,6 +12,7 @@ import { useChatStore } from "../chatStore/ChatStore";
 import "./ChatPanel.css";
 
 export default function ChatPanel() {
+    const setMobileView = useChatStore(state => state.setMobileView);
 
     const [text, setText] = useState("");
 
@@ -69,7 +70,7 @@ export default function ChatPanel() {
 
             <ConversationHeader>
 
-                <ConversationHeader.Back />
+                <ConversationHeader.Back onClick={() => setMobileView("list")} />
 
                 <UserAvatar
                     name={conversation.targetJid}

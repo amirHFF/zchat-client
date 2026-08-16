@@ -10,6 +10,9 @@ export type ConnectionStatus =
     | "connected";
 
 interface ChatStore {
+    mobileView: "list" | "chat";
+    
+    setMobileView: (view: "list" | "chat") => void;
 
     conversations: ConversationModel[];
 
@@ -49,6 +52,8 @@ interface ChatStore {
 }
 
 export const useChatStore = create<ChatStore>((set) => ({
+    mobileView: "list",
+setMobileView: (view) => set({ mobileView: view }),
 
     conversations: [],
 

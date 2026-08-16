@@ -81,3 +81,33 @@
 @keyframes spin{
     to{ transform:rotate(360deg); }
 }
+@media (max-width: 768px){
+
+    .chat-frame[data-mobile-view="list"] .conversation-sidebar{
+        display:flex !important;
+        flex-direction:column !important;
+        flex:1 1 100% !important;
+        width:100% !important;
+        max-width:100% !important;
+        height:100% !important;
+    }
+
+    .chat-frame[data-mobile-view="list"] .conversation-sidebar .cs-search,
+    .chat-frame[data-mobile-view="list"] .conversation-sidebar .cs-conversation-list{
+        width:100% !important;
+        max-width:100% !important;
+    }
+
+    .chat-frame[data-mobile-view="list"] .cs-chat-container{
+        display:none !important;
+    }
+
+    .chat-frame[data-mobile-view="chat"] .conversation-sidebar{
+        display:none !important;
+    }
+
+    .chat-frame[data-mobile-view="chat"] .cs-chat-container{
+        display:flex !important;
+        width:100% !important;
+    }
+}

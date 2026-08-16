@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
 
 export default function App() {
+    const mobileView = useChatStore(state => state.mobileView);
     const navigate = useNavigate();
 
     const [connected, setConnected] = useState(false);
@@ -57,7 +58,7 @@ export default function App() {
 
     return (
         <div className="app-shell">
-            <div className="chat-frame">
+            <div className="chat-frame" data-mobile-view={mobileView}>
 
                 <NewConversation onCreateConversation={async function (username: string): Promise<void> {
                     console.log("converstion will be added " + username);
