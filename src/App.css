@@ -72,7 +72,18 @@
     color:var(--navy);
     letter-spacing:.2px;
 }
-
+.creating-conversation-overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(2px);
+    z-index:50;
+}
 .connecting-sub{
     font-size:13px;
     color:var(--text-secondary);

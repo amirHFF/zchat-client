@@ -5,7 +5,7 @@ import {
     MessageInput,
     MessageList
 } from "@chatscope/chat-ui-kit-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { useChatStore } from "../chatStore/ChatStore";
@@ -28,15 +28,6 @@ export default function ChatPanel() {
         state => state.messages
     );
 
-    useEffect(() => {
-
-        if (!conversation) {
-            return;
-        }
-
-        chatServiceFacade.loadChatHistory(conversation.targetJid, conversation.targetJid);
-
-    }, [conversation]);
 
     const handleSend = (value: string) => {
 
@@ -90,7 +81,6 @@ export default function ChatPanel() {
             >
 
                 {messages.map(message => (
-
                     <Message
                         key={message.id}
                         model={{

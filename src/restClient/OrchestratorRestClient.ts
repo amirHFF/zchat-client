@@ -1,3 +1,4 @@
+import keycloak from "../auth/Keycloak";
 import type { ChatBot } from "../model/ChatBot";
 import type { ConversationModel } from "../model/ConversationModel";
 const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
@@ -13,7 +14,8 @@ export class OrchestratorRestClient {
                 {
                     method: "GET",
                     headers: {
-                        "Accept": "application/json"
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${keycloak.token}`
                     }
                 }
             );
@@ -27,7 +29,7 @@ export class OrchestratorRestClient {
                     .filter(c => c.participants.length === 2)
                     .map(c => {
 
-                        let jid = username.concat("@zchat.ir");
+                        let jid = username;
 
                         const targetJid = c.participants.find(
                             participant => participant !== jid
@@ -56,7 +58,8 @@ export class OrchestratorRestClient {
                 method: "PUT",
                 headers: {
                     "Accept": "application/json",
-                    "Content-Type": "application/json"   // ← خیلی مهمه!
+                    "Content-Type": "application/json" ,
+                    "Authorization": `Bearer ${keycloak.token}`
                 },
                 body: JSON.stringify({
                     participants: jids,
@@ -84,7 +87,8 @@ export class OrchestratorRestClient {
                 {
                     method: "GET",
                     headers: {
-                        "Accept": "application/json"
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${keycloak.token}`
                     }
                 }
             );
@@ -96,7 +100,7 @@ export class OrchestratorRestClient {
                     botID: c.botID,
                     name: c.name,
                     displayName: c.displayName,
-                    description: "nothing yet"
+                    description: c.description ?? "nothing yet"
                 }));
             } else {
                 console.error("fetching chatbots failed");

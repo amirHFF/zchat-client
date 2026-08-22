@@ -17,7 +17,7 @@ export class XmppMamClient {
     public loadHistory(
         ownerJid: string,
         targetJid: string,
-        conversationId:string,
+        conversationId: string,
         callback: (messages: ChatMessage[]) => void
     ): void {
 
@@ -31,7 +31,7 @@ export class XmppMamClient {
         this.mamHandler =
             this.client.addHandler(
 
-                (                stanza: { getElementsByTagNameNS: (arg0: string, arg1: string) => any[]; }) => {
+                (stanza: Element) => {
 
                     const result =
                         stanza.getElementsByTagNameNS(
@@ -42,6 +42,10 @@ export class XmppMamClient {
                     if (!result) {
                         return true;
                     }
+
+                    // این id یکتا و پایدار از سمت سرور (archive id) می‌آد
+                    const archiveId =
+                        result.getAttribute("id");
 
                     const forwarded =
                         result.getElementsByTagNameNS(
@@ -65,16 +69,20 @@ export class XmppMamClient {
                     const chatMessage =
                         this.parseMamMessage(
                             ownerJid,
-                            message
-                            ,conversationId
+                            message,
+                            conversationId,
+                            archiveId
                         );
 
                     if (chatMessage) {
+                        console.log("mam id: " + chatMessage.id);
+                        console.log("mam text: " + chatMessage.text);
+                        console.log("mam outgoing: " + chatMessage.outgoing);
+                        console.log("mam timestamp: " + chatMessage.timestamp);
 
                         messages.push(
                             chatMessage
                         );
-
                     }
 
                     return true;
@@ -94,7 +102,7 @@ export class XmppMamClient {
                 queryId
             ),
 
-            (_stanza :Element) => {
+            (_stanza: Element) => {
 
                 messages.sort((a, b) => a.timestamp - b.timestamp);
                 callback(messages);
@@ -190,8 +198,9 @@ export class XmppMamClient {
 
     private parseMamMessage(
         ownerJid: string,
-        message: Element ,
-        conversationId:string
+        message: Element,
+        conversationId: string,
+        archiveId: string | null
     ): ChatMessage | null {
 
         const body =
@@ -200,9 +209,7 @@ export class XmppMamClient {
             )[0];
 
         if (!body) {
-
             return null;
-
         }
 
         const from =
@@ -214,11 +221,15 @@ export class XmppMamClient {
                 "delay"
             )[0];
 
+        // اولویت: archive id (از result) -> id خود message -> fallback رندوم
+        const uniqueId =
+            archiveId
+            ?? message.getAttribute("id")
+            ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
         return {
 
-            id: 
-                message.getAttribute("id")
-                ?? Date.now().toString(),
+            id: uniqueId,
 
             conversationId: conversationId,
 
@@ -231,10 +242,10 @@ export class XmppMamClient {
 
             timestamp:
                 delay?.getAttribute("stamp")
-                ? Date.parse(
-                    delay.getAttribute("stamp")!
-                )
-                : Date.now()
+                    ? Date.parse(
+                        delay.getAttribute("stamp")!
+                    )
+                    : Date.now()
 
         };
 

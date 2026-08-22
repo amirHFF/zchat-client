@@ -15,17 +15,15 @@ import { useNavigate } from "react-router-dom";
 
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
-
 export default function App() {
     const mobileView = useChatStore(state => state.mobileView);
     const navigate = useNavigate();
 
     const [connected, setConnected] = useState(false);
+    const [creatingConversation, setCreatingConversation] = useState(false); // ⬅️ استیت جدید
 
     useEffect(() => {
-
         async function init() {
-
             if (!keycloak.authenticated)
                 navigate("/");
 
@@ -43,7 +41,6 @@ export default function App() {
         }
 
         init();
-
     }, []);
 
     if (!connected) {
@@ -64,21 +61,25 @@ export default function App() {
                     console.log("converstion will be added " + username);
 
                     if (username != null) {
-                        const currentJid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
-                        const chatStore = useChatStore.getState();
+                        setCreatingConversation(true); // ⬅️ شروع لودینگ
+                        try {
+                            const currentJid = keycloak.tokenParsed?.preferred_username;
+                            const chatStore = useChatStore.getState();
 
-                        await OrchestratorRestClient.addConversation([username.concat("@zchat.ir"),
-                             currentJid], "");
+                            await OrchestratorRestClient.addConversation([username, currentJid], "");
 
-                        const newConversation: ConversationModel = {
-                            jid: currentJid,
-                            targetJid: username.concat("@zchat.ir"),
-                            lastMessage: "",
-                            lastMessageTime: Date.now().toString()
+                            const newConversation: ConversationModel = {
+                                jid: currentJid,
+                                targetJid: username,
+                                lastMessage: "",
+                                lastMessageTime: Date.now().toString()
+                            }
+                            chatStore.addConversation(newConversation);
+                            chatStore.setSelectedConversation(newConversation);
+                            ChatServiceFacade.getInstance().loadChatHistory(newConversation.targetJid, newConversation.targetJid);
+                        } finally {
+                            setCreatingConversation(false); // ⬅️ پایان لودینگ (چه موفق چه خطا)
                         }
-                        chatStore.addConversation(newConversation);
-                        chatStore.setSelectedConversation(newConversation);
-                        ChatServiceFacade.getInstance().loadChatHistory(newConversation.targetJid, newConversation.targetJid);
                     }
                 }} />
 
@@ -86,6 +87,13 @@ export default function App() {
                     <ConversationListPanel />
                     <ChatPanel />
                 </MainContainer>
+
+                {creatingConversation && ( // ⬅️ اورلی لودینگ
+                    <div className="creating-conversation-overlay">
+                        <div className="connecting-ring"></div>
+                        <div className="connecting-text">Creating conversation…</div>
+                    </div>
+                )}
 
             </div>
         </div>

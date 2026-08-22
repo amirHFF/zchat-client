@@ -1,9 +1,9 @@
 .sidebar-header{
-    padding:22px 20px;
+    padding:14px 20px 14px 8px;
     border-bottom:1px solid var(--line);
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:6px;
 }
 
 .sidebar-header .mark{
@@ -91,6 +91,31 @@
 .conversation-sidebar .cs-conversation-list{
     flex:1 1 auto !important;
     overflow-y:auto !important;
+}
+.conversation-sidebar .cs-conversation{
+    display:flex !important;
+    align-items:center !important;
+    width:100% !important;
+}
+
+.conversation-sidebar .cs-conversation__content{
+    display:flex !important;
+    flex-direction:column !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+}
+
+.conversation-sidebar .cs-conversation__avatar{
+    flex:0 0 auto !important;
+}
+
+.conversation-sidebar .cs-conversation__name,
+.conversation-sidebar .cs-conversation__info{
+    display:block !important;
+    width:100% !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
 }
 
 .empty-list{

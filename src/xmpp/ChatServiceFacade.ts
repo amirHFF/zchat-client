@@ -7,7 +7,7 @@ import { MessageEventHandler } from "../chatStore/MessagEventHandler.ts";
 import { XmppMamClient } from "./XmppMamClient.ts";
 
 export class ChatServiceFacade {
-
+    private xmppDomainName: string = "@zchat.ir";
     private static currentJid: string;
 
     private static instance: ChatServiceFacade;
@@ -51,7 +51,7 @@ export class ChatServiceFacade {
 
     public async login(
         jid: string,
-        password: string|undefined
+        password: string | undefined
     ): Promise<void> {
         ChatServiceFacade.currentJid = jid;
         console.log("login jid : " + jid);
@@ -103,6 +103,8 @@ export class ChatServiceFacade {
         to: string,
         text: string
     ): void {
+        
+        to = to.concat(this.xmppDomainName);
 
         const message =
 
@@ -366,6 +368,7 @@ export class ChatServiceFacade {
 
     }
     public loadChatHistory(targetJid: string, conversationId: string): void {
+        targetJid = targetJid.concat(this.xmppDomainName);
         console.log("loadChatHistory jid =" + targetJid + " " + conversationId)
 
         this.xmppMamClient.loadHistory(

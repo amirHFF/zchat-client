@@ -21,7 +21,7 @@ export default function LandingPage() {
     async function login() {
         if (!keycloak.authenticated) {
             keycloak.login({ redirectUri: apiUrl + "/chat" });
-            const jid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
+            const jid = keycloak.tokenParsed?.preferred_username;
             console.log("user logged in successfully ... : " + jid);
         } else {
             navigate("/chat");
@@ -44,7 +44,7 @@ export default function LandingPage() {
 
                 <p className="eyebrow">Deep Insight</p>
 
-                <h1>Simorq</h1>
+                <h1>SimorQ</h1>
 
                 <p className="subtitle">
                     Secure enterprise messaging, refined by intelligence.

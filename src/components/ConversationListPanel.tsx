@@ -4,17 +4,23 @@ import {
     ConversationList,
     Conversation
 } from "@chatscope/chat-ui-kit-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { useChatStore } from "../chatStore/ChatStore";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import keycloak from "../auth/Keycloak";
 import type { ConversationModel } from "../model/ConversationModel";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
+import ProfileDrawer from "./ProfileDrawer";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+
 
 import "./ConversationListPanel.css";
 
 export default function ConversationListPanel() {
+    const [profileOpen, setProfileOpen] = useState(false);
+
     const conversations = useChatStore(state => state.conversations);
     const setConversations = useChatStore(state => state.setConversations);
     const setSelectedConversation = useChatStore(state => state.setSelectedConversation);
@@ -34,9 +40,6 @@ export default function ConversationListPanel() {
             if (fetched !== undefined) {
                 setConversations(fetched);
 
-                if (fetched.length > 0) {
-                    setSelectedConversation(fetched[0]);
-                }
             }
 
             hasLoaded.current = true;
@@ -45,27 +48,40 @@ export default function ConversationListPanel() {
         loadConversations();
     }, [setConversations, setSelectedConversation]);
 
-const setMobileView = useChatStore(state => state.setMobileView);
+    const setMobileView = useChatStore(state => state.setMobileView);
 
-const handleSelect = (conversation: ConversationModel) => {
-    if (
-        selectedConversation === undefined ||
-        !selectedConversation.targetJid.includes(conversation.targetJid)
-    ) {
-        setSelectedConversation(conversation);
-        ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
-    }
+    const handleSelect = (conversation: ConversationModel) => {
+        if (
+            selectedConversation === undefined ||
+            !selectedConversation.targetJid.includes(conversation.targetJid)
+        ) {
+            setSelectedConversation(conversation);
+            console.log("load shodan az conversation list panel");
+            ChatServiceFacade.getInstance().loadChatHistory(conversation.targetJid, conversation.targetJid);
+        }
 
-    setMobileView("chat");
-};
+        setMobileView("chat");
+    };
 
     return (
         <Sidebar position="left" className="conversation-sidebar">
 
             <div className="sidebar-header">
+                <IconButton
+                    onClick={() => setProfileOpen(true)}
+                    sx={{ color: "var(--navy)" }}
+                >
+                    <MenuIcon />
+                </IconButton>
+
                 <div className="mark">S</div>
-                <div className="title">Simorq</div>
+                <div className="title">SimorQ</div>
             </div>
+
+            <ProfileDrawer
+                open={profileOpen}
+                onClose={() => setProfileOpen(false)}
+            />
 
             <Search placeholder="Search conversations" />
 
