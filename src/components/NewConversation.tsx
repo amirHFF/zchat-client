@@ -79,9 +79,10 @@ export default function NewConversation(
         <>
             <Fab
                 color="primary"
+                className="new-conversation-fab"
                 sx={{
                     position: "fixed",
-                    bottom: 32,
+                    bottom: 50,
                     right: 32,
                     boxShadow: "0 12px 28px rgba(15,42,74,.28)",
                 }}

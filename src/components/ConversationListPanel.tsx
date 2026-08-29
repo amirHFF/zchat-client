@@ -75,7 +75,8 @@ export default function ConversationListPanel() {
                 </IconButton>
 
                 <div className="mark">S</div>
-                <div className="title">SimorQ</div>
+                <div className="title">Simorq</div>
+                <span style={{ marginLeft: 'auto' }}>vld{_APP_VERSION_}</span>
             </div>
 
             <ProfileDrawer

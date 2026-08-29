@@ -121,4 +121,11 @@
         display:flex !important;
         width:100% !important;
     }
+
+    /* fab فقط توی موبایل و فقط وقتی داخل صفحه‌ی چت هستیم مخفی می‌شه؛
+       توی صفحه‌ی لیست کانورسیشن‌ها همچنان نمایش داده می‌شه */
+    .chat-frame[data-mobile-view="chat"] .new-conversation-fab{
+        display:none !important;
+    }
+
 }

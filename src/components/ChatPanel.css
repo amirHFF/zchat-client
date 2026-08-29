@@ -4,9 +4,13 @@
     align-items:center;
     justify-content:center;
     height:100%;
+    width:100%;
+    flex:1 1 auto;
+    min-width:0;
     gap:12px;
     background:var(--bg);
     font-family:var(--font-body);
+    direction:rtl;
 }
 
 .empty-chat .mark{
@@ -50,8 +54,21 @@
     font-size:12px !important;
 }
 
+/* عمداً direction روی این کانتینر rtl نشده، چون علاوه بر جهت متن،
+   چیدمان (چپ/راست بودن حباب outgoing/incoming) رو هم برعکس می‌کنه. */
 .cs-message-list{
     background:var(--bg) !important;
+    direction:ltr !important;
+}
+
+/* نکته‌ی اصلی: به‌جای unicode-bidi:plaintext (که جهت رو حدس می‌زنه و اگر
+   پیام با حرف انگلیسی شروع بشه اشتباه تشخیص می‌ده)، جهت پایه رو صریحاً
+   RTL می‌کنیم. الگوریتم bidi خودش کلمات/اعداد انگلیسیِ وسط متن رو به‌درستی
+   embed می‌کنه؛ فقط جهت پایه باید ثابت و درست باشه. */
+.cs-message__content{
+    direction:rtl !important;
+    unicode-bidi:embed !important;
+    text-align:right !important;
 }
 
 .cs-message--outgoing .cs-message__content{
@@ -83,6 +100,9 @@
     background:transparent !important;
     color:var(--navy) !important;
     font-family:var(--font-body) !important;
+    direction:rtl !important;
+    unicode-bidi:embed !important;
+    text-align:right !important;
 }
 
 .cs-button--send{
@@ -91,17 +111,4 @@
 
 .cs-button--attachment{
     color:var(--text-secondary) !important;
-}
-.empty-chat{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-    width:100%;
-    flex:1 1 auto;
-    min-width:0;
-    gap:12px;
-    background:var(--bg);
-    font-family:var(--font-body);
 }
