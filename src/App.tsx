@@ -66,11 +66,12 @@ export default function App() {
                             const currentJid = keycloak.tokenParsed?.preferred_username;
                             const chatStore = useChatStore.getState();
 
-                            await OrchestratorRestClient.addConversation([username, currentJid], "");
+                            const addedConversation = await OrchestratorRestClient.addConversation([username, currentJid], "");
 
                             const newConversation: ConversationModel = {
                                 jid: currentJid,
                                 targetJid: username,
+                                title: addedConversation.title,
                                 lastMessage: "",
                                 lastMessageTime: Date.now().toString()
                             }

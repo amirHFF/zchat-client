@@ -89,7 +89,7 @@ export default function ChatPanel() {
 
     return (
 
-        <div ref={chatPanelRef} style={{ height: "100%" }}>
+        <div ref={chatPanelRef} style={{ height: "100%", width:"100%" }}>
             <ChatContainer>
 
                 <ConversationHeader>

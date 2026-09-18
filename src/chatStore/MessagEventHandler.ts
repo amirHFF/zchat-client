@@ -25,6 +25,7 @@ export class MessageEventHandler {
             const newConversation:ConversationModel={
                 jid : state.selectedConversation.jid,
                 targetJid : receivedMessage.from,
+                title : receivedMessage.from,
                 lastMessage : receivedMessage.body,
                 lastMessageTime : Date.now().toString()
             } 

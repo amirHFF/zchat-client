@@ -91,13 +91,13 @@ export default function ConversationListPanel() {
                     conversations.map((conversation) => (
                         <Conversation
                             key={conversation.targetJid}
-                            name={conversation.targetJid}
+                            name={conversation.title || conversation.targetJid}
                             info={conversation.lastMessage || "No messages yet"}
                             active={selectedConversation?.jid === conversation.jid}
                             onClick={() => handleSelect(conversation)}
                         >
                             <UserAvatar
-                                name={conversation.targetJid}
+                                name={conversation.title}
                                 online={true}
                             />
                         </Conversation>

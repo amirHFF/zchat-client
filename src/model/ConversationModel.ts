@@ -3,5 +3,5 @@ export interface ConversationModel {
     jid: string;
     lastMessage: string|undefined;
     lastMessageTime: string;
-
+    title:string;
 }

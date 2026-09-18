@@ -38,6 +38,7 @@ export class OrchestratorRestClient {
                         return {
                             jid,
                             targetJid,
+                            title:c.title,
                             lastMessage: c.lastMessage,
                             lastMessageTime: c.lastMessageTime
                         };
@@ -52,7 +53,7 @@ export class OrchestratorRestClient {
             return undefined;
         }
     }
-    static async addConversation(jids: string[], text: string) {
+    static async addConversation(jids: string[], text: string) :Promise<AddConversationResponse> {
         try {
             const response = await fetch(`${orchestratorUrl}/conversations`, {
                 method: "PUT",
@@ -63,17 +64,17 @@ export class OrchestratorRestClient {
                 },
                 body: JSON.stringify({
                     participants: jids,
-                    lastMessage: text
+                    lastMessage: text ,
+                    conversationType:"CHAT"
                 })
             });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            console.log("Conversation added successfully:");
+            return await response.json();
 
-            const data = await response;
-            console.log("Conversation added successfully:", data);
-            return data;
 
         } catch (error) {
             console.error("Error adding conversation:", error);
@@ -115,6 +116,12 @@ export class OrchestratorRestClient {
 
 class FetchedConversation {
     public participants: string[] = [];
+    public title: string= "";
     public lastMessage: string | undefined;
     public lastMessageTime: string = "";
 }
+interface AddConversationResponse { 
+    jid: string;
+    participants: string[],
+    lastmessage: string,
+     title: string; }
