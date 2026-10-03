@@ -1,131 +1,168 @@
-.app-shell{
-    height:100vh;
-    padding:30px;
-    box-sizing:border-box;
-    background:var(--bg);
-    position:relative;
-    overflow:hidden;
+.app-shell {
+  height: 100vh;
+  padding: 30px;
+  box-sizing: border-box;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
 
 .app-shell::before,
-.app-shell::after{
-    content:'';
-    position:absolute;
-    border-radius:50%;
-    filter:blur(120px);
-    opacity:.28;
-    pointer-events:none;
+.app-shell::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.28;
+  pointer-events: none;
 }
 
-.app-shell::before{
-    width:480px;
-    height:480px;
-    background:var(--teal);
-    top:-160px;
-    left:-140px;
+.app-shell::before {
+  width: 480px;
+  height: 480px;
+  background: var(--teal);
+  top: -160px;
+  left: -140px;
 }
 
-.app-shell::after{
-    width:420px;
-    height:420px;
-    background:var(--gold);
-    bottom:-140px;
-    right:-100px;
-    opacity:.18;
+.app-shell::after {
+  width: 420px;
+  height: 420px;
+  background: var(--gold);
+  bottom: -140px;
+  right: -100px;
+  opacity: 0.18;
 }
 
-.chat-frame{
-    position:relative;
-    z-index:1;
-    height:100%;
-    border-radius:20px;
-    overflow:hidden;
-    background:#ffffff;
-    border:1px solid var(--line);
-    box-shadow:0 24px 60px rgba(15,42,74,.14);
+.chat-frame {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(15, 42, 74, 0.14);
 }
 
-.connecting-screen{
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:18px;
-    background:var(--bg);
-    font-family:var(--font-body);
+.connecting-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--bg);
+  font-family: var(--font-body);
 }
 
-.connecting-ring{
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    border:3px solid var(--line);
-    border-top-color:var(--teal);
-    animation:spin .9s linear infinite;
+.connecting-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--teal);
+  animation: spin 0.9s linear infinite;
 }
 
-.connecting-text{
-    font-family:var(--font-display);
-    font-size:16px;
-    font-weight:600;
-    color:var(--navy);
-    letter-spacing:.2px;
+.connecting-text {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.2px;
 }
-.creating-conversation-overlay{
-    position:absolute;
-    inset:0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:14px;
-    background:rgba(255,255,255,.75);
-    backdrop-filter:blur(2px);
-    z-index:50;
+.creating-conversation-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 50;
 }
-.connecting-sub{
-    font-size:13px;
-    color:var(--text-secondary);
+.connecting-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
-@keyframes spin{
-    to{ transform:rotate(360deg); }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
-@media (max-width: 768px){
+@media (max-width: 426px) {
+  .app-shell {
+    padding: 0;
+  }
 
-    .chat-frame[data-mobile-view="list"] .conversation-sidebar{
-        display:flex !important;
-        flex-direction:column !important;
-        flex:1 1 100% !important;
-        width:100% !important;
-        max-width:100% !important;
-        height:100% !important;
-    }
+  .chat-frame {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 
-    .chat-frame[data-mobile-view="list"] .conversation-sidebar .cs-search,
-    .chat-frame[data-mobile-view="list"] .conversation-sidebar .cs-conversation-list{
-        width:100% !important;
-        max-width:100% !important;
-    }
+  .chat-frame .cs-main-container {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
 
-    .chat-frame[data-mobile-view="list"] .cs-chat-container{
-        display:none !important;
-    }
+  .chat-frame[data-mobile-view="list"] .conversation-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100% !important;
+  }
 
-    .chat-frame[data-mobile-view="chat"] .conversation-sidebar{
-        display:none !important;
-    }
+  .chat-frame[data-mobile-view="list"] .conversation-sidebar .cs-search,
+  .chat-frame[data-mobile-view="list"]
+    .conversation-sidebar
+    .cs-conversation-list {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 
-    .chat-frame[data-mobile-view="chat"] .cs-chat-container{
-        display:flex !important;
-        width:100% !important;
-    }
+  /* پنل راست (empty state یا چت) نباید در حالت لیست فضا بگیرد */
+  .chat-frame[data-mobile-view="list"] .chat-panel-root,
+  .chat-frame[data-mobile-view="list"] .empty-chat,
+  .chat-frame[data-mobile-view="list"] .cs-chat-container {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    flex: 0 0 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 
-    /* fab فقط توی موبایل و فقط وقتی داخل صفحه‌ی چت هستیم مخفی می‌شه؛
-       توی صفحه‌ی لیست کانورسیشن‌ها همچنان نمایش داده می‌شه */
-    .chat-frame[data-mobile-view="chat"] .new-conversation-fab{
-        display:none !important;
-    }
+  .chat-frame[data-mobile-view="chat"] .conversation-sidebar {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    flex: 0 0 0 !important;
+  }
 
+  .chat-frame[data-mobile-view="chat"] .chat-panel-root,
+  .chat-frame[data-mobile-view="chat"] .cs-chat-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 100% !important;
+    height: 100% !important;
+  }
+
+  .chat-frame[data-mobile-view="chat"] .new-conversation-fab {
+    display: none !important;
+  }
 }

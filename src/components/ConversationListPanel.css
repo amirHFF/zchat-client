@@ -84,6 +84,14 @@
     height:100% !important;
 }
 
+@media (max-width: 424px){
+    .conversation-sidebar{
+        width:100% !important;
+        max-width:none !important;
+        flex:1 1 auto !important;
+    }
+}
+
 .conversation-sidebar .cs-search{
     flex:0 0 auto !important;
 }

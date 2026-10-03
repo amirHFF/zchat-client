@@ -79,7 +79,7 @@ export default function ChatPanel() {
 
     if (!conversation) {
         return (
-            <div className="empty-chat">
+            <div className="empty-chat chat-panel-root">
                 <div className="mark">S</div>
                 <div className="title">No conversation selected</div>
                 <div className="subtitle">Pick someone from the list to start chatting</div>
@@ -89,7 +89,7 @@ export default function ChatPanel() {
 
     return (
 
-        <div ref={chatPanelRef} style={{ height: "100%", width:"100%" }}>
+        <div ref={chatPanelRef} className="chat-panel-root" style={{ height: "100%", width:"100%" }}>
             <ChatContainer>
 
                 <ConversationHeader>
