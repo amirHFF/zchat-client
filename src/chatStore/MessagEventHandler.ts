@@ -23,6 +23,7 @@ export class MessageEventHandler {
         }
         if (state.selectedConversation.targetJid != receivedMessage.from) {
             const newConversation:ConversationModel={
+                hash: "",
                 jid : state.selectedConversation.jid,
                 targetJid : receivedMessage.from,
                 title : receivedMessage.from,
@@ -36,7 +37,7 @@ export class MessageEventHandler {
 
         const message: ChatMessage = {
             id: receivedMessage.id,
-            conversationId: state.selectedConversation.targetJid,
+            conversationId: state.selectedConversation.hash || state.selectedConversation.targetJid,
             text: receivedMessage.body,
             outgoing: false,
             timestamp: Date.now()
@@ -56,7 +57,7 @@ export class MessageEventHandler {
 
             id: crypto.randomUUID(),
 
-            conversationId: state.selectedConversation?.jid,
+            conversationId: state.selectedConversation?.hash || state.selectedConversation?.jid,
 
             text: body,
 

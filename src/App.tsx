@@ -69,6 +69,7 @@ export default function App() {
                             const addedConversation = await OrchestratorRestClient.addConversation([username, currentJid], "");
 
                             const newConversation: ConversationModel = {
+                                hash: addedConversation.hash,
                                 jid: currentJid,
                                 targetJid: username,
                                 title: addedConversation.title,
@@ -77,7 +78,11 @@ export default function App() {
                             }
                             chatStore.addConversation(newConversation);
                             chatStore.setSelectedConversation(newConversation);
-                            ChatServiceFacade.getInstance().loadChatHistory(newConversation.targetJid, newConversation.targetJid);
+                            chatStore.setMessages([]);
+                            if (newConversation.hash) {
+                                const messages = await OrchestratorRestClient.loadConversationMessages(newConversation.hash);
+                                chatStore.setMessages(messages);
+                            }
                         } finally {
                             setCreatingConversation(false); // ⬅️ پایان لودینگ (چه موفق چه خطا)
                         }

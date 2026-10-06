@@ -1,4 +1,5 @@
 export interface ConversationModel {
+    hash: string;
     targetJid: string;
     jid: string;
     lastMessage: string|undefined;

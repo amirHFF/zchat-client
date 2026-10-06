@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import UserAvatar from "./UserAvatar";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { useChatStore } from "../chatStore/ChatStore";
+import { formatMessageTime } from "../utils/formatTimestamp";
 import "./ChatPanel.css";
 
 export default function ChatPanel() {
@@ -118,20 +119,29 @@ export default function ChatPanel() {
                     }
                 >
 
-                    {messages.map(message => (
+                    {messages.map(message => {
+                        // timeStamp from server, shown under each bubble
+                        const sentTime = formatMessageTime(message.timestamp);
+
+                        return (
                         <Message
                             key={message.id}
                             model={{
                                 message: message.text,
+                                sentTime,
                                 direction:
                                     message.outgoing
                                         ? "outgoing"
                                         : "incoming",
                                 position: "single"
                             }}
-                        />
-
-                    ))}
+                        >
+                            {sentTime ? (
+                                <Message.Footer sentTime={sentTime} />
+                            ) : null}
+                        </Message>
+                        );
+                    })}
 
                 </MessageList>
 

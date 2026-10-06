@@ -126,6 +126,20 @@
     text-overflow:ellipsis !important;
 }
 
+.conversation-sidebar .cs-conversation__operations{
+    flex:0 0 auto !important;
+    margin-inline-start:auto !important;
+    align-self:flex-start !important;
+    padding-top:2px !important;
+}
+
+.conversation-sidebar .cs-conversation__last-activity-time{
+    font-family:var(--font-body) !important;
+    font-size:11px !important;
+    color:var(--text-secondary) !important;
+    white-space:nowrap !important;
+}
+
 .empty-list{
     padding:40px 20px;
     text-align:center;

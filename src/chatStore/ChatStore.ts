@@ -69,7 +69,9 @@ setMobileView: (view) => set({ mobileView: view }),
         set((state) => {
             // جلوگیری از اضافه شدن تکراری
             const exists = state.conversations.some(
-                (c) => c.targetJid === conversation.targetJid
+                (c) =>
+                    (conversation.hash && c.hash === conversation.hash) ||
+                    c.targetJid === conversation.targetJid
             );
             if (exists) return state;
 

@@ -84,6 +84,21 @@
     border-radius:14px 14px 14px 2px !important;
 }
 
+.cs-message__footer{
+    font-family:var(--font-body) !important;
+    font-size:11px !important;
+    color:var(--text-secondary) !important;
+    margin-top:4px !important;
+}
+
+.cs-message--outgoing .cs-message__footer{
+    justify-content:flex-end !important;
+}
+
+.cs-message--incoming .cs-message__footer{
+    justify-content:flex-start !important;
+}
+
 .cs-message-input{
     background:#ffffff !important;
     border-top:1px solid var(--line) !important;
