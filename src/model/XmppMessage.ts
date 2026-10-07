@@ -1,6 +1,8 @@
 export interface XmppMessage {
     id: string;
 
+    hash:string;
+
     from: string;
 
     to?: string;

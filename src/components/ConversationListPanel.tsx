@@ -33,6 +33,21 @@ export default function ConversationListPanel() {
   );
   const setMessages = useChatStore((state) => state.setMessages);
 
+const isActive = (conversation: ConversationModel) => {
+  if (!selectedConversation) return false;
+
+  // اگر هر دو hash دارند، فقط با hash مقایسه کن
+  if (selectedConversation.hash && conversation.hash) {
+    return selectedConversation.hash === conversation.hash;
+  }
+
+  // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
+  return (
+    !selectedConversation.hash &&
+    !conversation.hash &&
+    selectedConversation.targetJid === conversation.targetJid
+  );
+};
   useEffect(() => {
     const loadConversations = async () => {
       if (conversationsFetchStarted) return;
@@ -107,11 +122,7 @@ export default function ConversationListPanel() {
               lastActivityTime={formatConversationTime(
                 conversation.lastMessageTime,
               )}
-              active={
-                selectedConversation?.hash
-                  ? selectedConversation.hash === conversation.hash
-                  : selectedConversation?.targetJid === conversation.targetJid
-              }
+              active={isActive(conversation)}
               onClick={() => handleSelect(conversation)}
             >
               <UserAvatar name={conversation.title} online={true} />

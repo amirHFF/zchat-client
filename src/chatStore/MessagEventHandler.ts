@@ -22,17 +22,21 @@ export class MessageEventHandler {
             return;
         }
         if (state.selectedConversation.targetJid != receivedMessage.from) {
-            const newConversation:ConversationModel={
-                hash: "",
-                jid : state.selectedConversation.jid,
-                targetJid : receivedMessage.from,
-                title : receivedMessage.from,
-                lastMessage : receivedMessage.body,
-                lastMessageTime : Date.now().toString()
-            } 
-            OrchestratorRestClient.addConversation([receivedMessage.from , state.selectedConversation.jid] , receivedMessage.body);
+            const newConversation: ConversationModel = {
+                hash: receivedMessage.hash,
+                jid: state.selectedConversation.jid,
+                targetJid: receivedMessage.from,
+                title: receivedMessage.from,
+                lastMessage: receivedMessage.body,
+                lastMessageTime: Date.now().toString()
+            }
 
-            state.addConversation(newConversation)
+            if (state.conversations.find((conv) => conv.hash !== newConversation.hash)){
+
+                OrchestratorRestClient.addConversation([receivedMessage.from, state.selectedConversation.jid], receivedMessage.body);
+
+                state.addConversation(newConversation)
+            }
         }
 
         const message: ChatMessage = {

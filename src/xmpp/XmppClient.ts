@@ -219,13 +219,15 @@ export class XmppClient {
         );
 
     }
-    public addMessageListener(
-        listener: (message: XmppMessage) => void
-    ) {
+    public addMessageListener(listener: (message: XmppMessage) => void) {
 
         this.addHandler(
 
-            (stanza :Element) => {
+            (stanza: Element) => {
+                const conversationHash = stanza.getElementsByTagNameNS(
+                    "urn:zchat:message",
+                    "zchat"
+                )[0].textContent
 
                 const body =
                     stanza.getElementsByTagName("body")[0]
@@ -233,6 +235,8 @@ export class XmppClient {
 
                 listener({
                     id: stanza.getAttribute("id") ?? "",
+
+                    hash: conversationHash ?? "",
 
                     from: stanza.getAttribute("from") ?? "",
 
@@ -281,7 +285,7 @@ export class XmppClient {
 
         return this.addHandler(
 
-            (stanza :Element) => {
+            (stanza: Element) => {
 
                 listener(stanza);
 
