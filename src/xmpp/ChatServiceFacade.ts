@@ -103,7 +103,7 @@ export class ChatServiceFacade {
         to: string,
         text: string
     ): void {
-        
+
         to = to.concat(this.xmppDomainName);
 
         const message =
@@ -188,7 +188,10 @@ export class ChatServiceFacade {
         this.client.addHandler(
 
             (stanza: Element) => {
-
+                const conversationHash = stanza.getElementsByTagNameNS(
+                    "urn:zchat:message",
+                    "zchat"
+                )[0].textContent;
                 const bodyNode =
                     stanza.getElementsByTagName(
                         "body"
@@ -214,6 +217,8 @@ export class ChatServiceFacade {
 
                     body:
                         bodyNode.textContent || "",
+                        
+                    hash: conversationHash || "",
 
                     id:
                         stanza.getAttribute(
