@@ -143,7 +143,7 @@ export class OrchestratorRestClient {
 
   static async getAllChatBots(): Promise<ChatBot[]> {
     try {
-      const response = await fetch(`${orchestratorUrl}/bot/list`, {
+      const response = await fetch(`${orchestratorUrl}/bot/list?enabled=true`, {
         method: "GET",
         headers: {
           Accept: "application/json",
