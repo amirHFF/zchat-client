@@ -10,12 +10,15 @@ import ProfileDrawer from "./ProfileDrawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton";
 import { useChatStore } from "../chatStore/ChatStore";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { ConversationModel } from "../model/ConversationModel";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import { formatConversationTime } from "../utils/formatTimestamp";
 
 import "./ConversationListPanel.css";
+
+// module-level: survives StrictMode remount (useRef does not)
+let conversationsFetchStarted = false;
 
 export default function ConversationListPanel() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -30,26 +33,24 @@ export default function ConversationListPanel() {
   );
   const setMessages = useChatStore((state) => state.setMessages);
 
-  const hasLoaded = useRef(false); // جلوگیری از دو بار لود در StrictMode
-
   useEffect(() => {
     const loadConversations = async () => {
-      if (hasLoaded.current) return;
+      if (conversationsFetchStarted) return;
 
       const username = keycloak.tokenParsed?.preferred_username;
       if (!username) return;
+
+      conversationsFetchStarted = true; // lock before await
 
       const fetched = await OrchestratorRestClient.fetchConversations(username);
 
       if (fetched !== undefined) {
         setConversations(fetched);
       }
-
-      hasLoaded.current = true;
     };
 
     loadConversations();
-  }, [setConversations, setSelectedConversation]);
+  }, [setConversations]);
 
   const setMobileView = useChatStore((state) => state.setMobileView);
   const handleSelect = async (conversation: ConversationModel) => {
