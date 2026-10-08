@@ -141,6 +141,7 @@ button{
     border-radius:50%;
     filter:blur(130px);
     opacity:.35;
+    pointer-events:none;
     animation:float 16s ease-in-out infinite alternate;
 }
 
