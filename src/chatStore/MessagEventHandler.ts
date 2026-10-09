@@ -21,29 +21,34 @@ export class MessageEventHandler {
             console.warn(`Conversation not found for jid: ${receivedMessage.from}`);
             return;
         }
-        if (state.selectedConversation.targetJid != receivedMessage.from) {
-            const newConversation:ConversationModel={
-                hash: "",
-                jid : state.selectedConversation.jid,
-                targetJid : receivedMessage.from,
-                title : receivedMessage.from,
-                lastMessage : receivedMessage.body,
-                lastMessageTime : Date.now().toString()
-            } 
-            OrchestratorRestClient.addConversation([receivedMessage.from , state.selectedConversation.jid] , receivedMessage.body);
+        // if (state.selectedConversation.targetJid.concat("@zchat.ir") == receivedMessage.from) {
+        const newConversation: ConversationModel = {
+            hash: receivedMessage.hash,
+            jid: state.selectedConversation.jid,
+            targetJid: receivedMessage.from,
+            title: receivedMessage.from,
+            lastMessage: receivedMessage.body,
+            lastMessageTime: Date.now().toString()
+        }
+
+        if (!state.conversations.find((conv) => conv.hash !== newConversation.hash)) {
+
+            OrchestratorRestClient.addConversation([receivedMessage.from, state.selectedConversation.jid], receivedMessage.body);
 
             state.addConversation(newConversation)
         }
+        // }
+        if (state.selectedConversation.targetJid.concat("@zchat.ir") == receivedMessage.from) {
+            const message: ChatMessage = {
+                id: receivedMessage.id,
+                conversationId: state.selectedConversation.hash || state.selectedConversation.targetJid,
+                text: receivedMessage.body,
+                outgoing: false,
+                timestamp: Date.now()
+            };
 
-        const message: ChatMessage = {
-            id: receivedMessage.id,
-            conversationId: state.selectedConversation.hash || state.selectedConversation.targetJid,
-            text: receivedMessage.body,
-            outgoing: false,
-            timestamp: Date.now()
-        };
-
-        state.addMessage(message);
+            state.addMessage(message);
+        }
     }
 
     public onOutgoingMessage(

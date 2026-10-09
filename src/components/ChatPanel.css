@@ -1,129 +1,167 @@
-.empty-chat{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-    width:100%;
-    flex:1 1 auto;
-    min-width:0;
-    gap:12px;
-    background:var(--bg);
-    font-family:var(--font-body);
-    direction:rtl;
+.empty-chat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 12px;
+    background: var(--bg);
+    font-family: var(--font-body);
+    direction: rtl;
 }
 
-.empty-chat .mark{
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    background:var(--teal-soft);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--teal);
-    font-size:22px;
+.empty-chat .mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--teal-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal);
+    font-size: 22px;
 }
 
-.empty-chat .title{
-    font-family:var(--font-display);
-    font-size:16px;
-    font-weight:600;
-    color:var(--navy);
+.empty-chat .title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
 }
 
-.empty-chat .subtitle{
-    font-size:13px;
-    color:var(--text-secondary);
+.empty-chat .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
 }
 
-.cs-conversation-header{
-    background:#ffffff !important;
-    border-bottom:1px solid var(--line) !important;
-    padding:14px 18px !important;
+.cs-conversation-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--line) !important;
+    padding: 14px 18px !important;
 }
 
-.cs-conversation-header__user-name{
-    font-family:var(--font-display) !important;
-    font-weight:600 !important;
-    color:var(--navy) !important;
+.cs-conversation-header__user-name {
+    font-family: var(--font-display) !important;
+    font-weight: 600 !important;
+    color: var(--navy) !important;
 }
 
-.cs-conversation-header__info{
-    color:var(--teal) !important;
-    font-size:12px !important;
+.cs-conversation-header__info {
+    color: var(--teal) !important;
+    font-size: 12px !important;
 }
 
 /* عمداً direction روی این کانتینر rtl نشده، چون علاوه بر جهت متن،
    چیدمان (چپ/راست بودن حباب outgoing/incoming) رو هم برعکس می‌کنه. */
-.cs-message-list{
-    background:var(--bg) !important;
-    direction:ltr !important;
+.cs-message-list {
+    background: var(--bg) !important;
+    direction: ltr !important;
 }
 
 /* نکته‌ی اصلی: به‌جای unicode-bidi:plaintext (که جهت رو حدس می‌زنه و اگر
    پیام با حرف انگلیسی شروع بشه اشتباه تشخیص می‌ده)، جهت پایه رو صریحاً
    RTL می‌کنیم. الگوریتم bidi خودش کلمات/اعداد انگلیسیِ وسط متن رو به‌درستی
    embed می‌کنه؛ فقط جهت پایه باید ثابت و درست باشه. */
-.cs-message__content{
-    direction:rtl !important;
-    unicode-bidi:embed !important;
-    text-align:right !important;
+.cs-message__content {
+    direction: rtl !important;
+    unicode-bidi: embed !important;
+    text-align: right !important;
 }
 
-.cs-message--outgoing .cs-message__content{
-    background:var(--navy) !important;
-    color:#ffffff !important;
-    border-radius:14px 14px 2px 14px !important;
+.cs-message--outgoing .cs-message__content {
+    background: var(--navy) !important;
+    color: #ffffff !important;
+    border-radius: 14px 14px 2px 14px !important;
 }
 
-.cs-message--incoming .cs-message__content{
-    background:#ffffff !important;
-    color:var(--navy) !important;
-    border:1px solid var(--line) !important;
-    border-radius:14px 14px 14px 2px !important;
+.cs-message--incoming .cs-message__content {
+    background: #ffffff !important;
+    color: var(--navy) !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 14px 14px 14px 2px !important;
 }
 
-.cs-message__footer{
-    font-family:var(--font-body) !important;
-    font-size:11px !important;
-    color:var(--text-secondary) !important;
-    margin-top:4px !important;
+.cs-message__footer {
+    font-family: var(--font-body) !important;
+    font-size: 11px !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
 }
 
-.cs-message--outgoing .cs-message__footer{
-    justify-content:flex-end !important;
+.cs-message--outgoing .cs-message__footer {
+    justify-content: flex-end !important;
 }
 
-.cs-message--incoming .cs-message__footer{
-    justify-content:flex-start !important;
+.cs-message--incoming .cs-message__footer {
+    justify-content: flex-start !important;
 }
 
-.cs-message-input{
-    background:#ffffff !important;
-    border-top:1px solid var(--line) !important;
-    padding:12px 16px !important;
+.cs-message-input {
+    background: #ffffff !important;
+    border-top: 1px solid var(--line) !important;
+    padding: 12px 16px !important;
 }
 
-.cs-message-input__content-editor-wrapper{
-    background:var(--bg) !important;
-    border-radius:12px !important;
-    border:1px solid var(--line) !important;
+.cs-message-input__content-editor-wrapper {
+    background: var(--bg) !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--line) !important;
 }
 
-.cs-message-input__content-editor{
-    background:transparent !important;
-    color:var(--navy) !important;
-    font-family:var(--font-body) !important;
-    direction:rtl !important;
-    unicode-bidi:embed !important;
-    text-align:right !important;
+.cs-message-input__content-editor {
+    background: transparent !important;
+    color: var(--navy) !important;
+    font-family: var(--font-body) !important;
+    direction: rtl !important;
+    unicode-bidi: embed !important;
+    text-align: right !important;
 }
 
-.cs-button--send{
-    color:var(--teal) !important;
+.cs-button--send {
+    color: var(--teal) !important;
 }
 
-.cs-button--attachment{
-    color:var(--text-secondary) !important;
+.cs-button--attachment {
+    color: var(--text-secondary) !important;
+}
+
+/* حالت عادی: انیمیشن نرم برای تغییر رنگ */
+.conversation-sidebar .cs-conversation {
+    position: relative;
+    transition: background-color 0.15s ease;
+    border-radius: 10px !important;
+    margin: 2px 8px !important;
+    cursor: pointer;
+}
+
+/* Hover: هایلایت ملایم */
+.conversation-sidebar .cs-conversation:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* گفت‌وگوی انتخاب‌شده: پس‌زمینه‌ی متمایز + نوار رنگی کنار آیتم */
+.conversation-sidebar .cs-conversation--active,
+.conversation-sidebar .cs-conversation--active:hover {
+    background: var(--teal-soft) !important;
+    box-shadow: inset 0 0 0 1px var(--teal) !important;
+}
+
+.conversation-sidebar .cs-conversation--active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--teal);
+}
+
+/* متن گفت‌وگوی انتخاب‌شده پررنگ‌تر */
+.conversation-sidebar .cs-conversation--active .cs-conversation__name {
+    color: var(--navy) !important;
+    font-weight: 700 !important;
 }
