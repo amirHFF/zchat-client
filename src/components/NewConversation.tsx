@@ -60,8 +60,7 @@ export default function NewConversation({
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [bots, setBots] = useState<ChatBot[]>([]);
-  const isMobile = useMediaQuery("(max-width:426px)");
-  const isWideLayout = useMediaQuery("(min-width:427px)");
+  const isMobile = useMediaQuery("(max-width:426px)", { noSsr: true });
   const selectedConversation = useChatStore(
     (state) => state.selectedConversation,
   );
@@ -82,7 +81,7 @@ export default function NewConversation({
     moved: boolean;
   } | null>(null);
   const suppressClickRef = useRef(false);
-  const liftFab = isWideLayout && Boolean(selectedConversation);
+  const liftFab = !isMobile && Boolean(selectedConversation);
   const showDragHint = liftFab && !hintDismissed;
 
   useEffect(() => {
@@ -121,58 +120,55 @@ export default function NewConversation({
     if (!liftFab || event.button !== 0) return;
 
     const origin = dragPosition ?? defaultLiftPosition();
-    dragRef.current = {
+    const drag = {
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
       originX: origin.x,
       originY: origin.y,
       moved: false,
+      latest: origin,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
+    dragRef.current = drag;
 
-  function handleFabPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
+    function onMove(moveEvent: PointerEvent) {
+      if (moveEvent.pointerId !== drag.pointerId) return;
 
-    const dx = event.clientX - drag.startX;
-    const dy = event.clientY - drag.startY;
-    if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      const dx = moveEvent.clientX - drag.startX;
+      const dy = moveEvent.clientY - drag.startY;
+      if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
 
-    if (!drag.moved) {
-      localStorage.setItem(FAB_HINT_KEY, "1");
-      setHintDismissed(true);
-    }
-    drag.moved = true;
-    setDragging(true);
-    setDragPosition(
-      clampFabPosition({
+      if (!drag.moved) {
+        localStorage.setItem(FAB_HINT_KEY, "1");
+        setHintDismissed(true);
+        setDragging(true);
+      }
+      drag.moved = true;
+      drag.latest = clampFabPosition({
         x: drag.originX + dx,
         y: drag.originY + dy,
-      }),
-    );
-  }
-
-  function handleFabPointerUp(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-
-    if (drag.moved) {
-      suppressClickRef.current = true;
-      setDragPosition((current) => {
-        if (current) {
-          localStorage.setItem(FAB_POSITION_KEY, JSON.stringify(current));
-        }
-        return current;
       });
+      setDragPosition(drag.latest);
     }
-    dragRef.current = null;
-    setDragging(false);
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    function onUp(upEvent: PointerEvent) {
+      if (upEvent.pointerId !== drag.pointerId) return;
+
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      dragRef.current = null;
+
+      if (!drag.moved) return;
+
+      suppressClickRef.current = true;
+      localStorage.setItem(FAB_POSITION_KEY, JSON.stringify(drag.latest));
+      setDragging(false);
     }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
 
   async function fetchBots() {
@@ -279,9 +275,6 @@ export default function NewConversation({
             cursor: liftFab ? (dragging ? "grabbing" : "grab") : "pointer",
           }}
           onPointerDown={handleFabPointerDown}
-          onPointerMove={handleFabPointerMove}
-          onPointerUp={handleFabPointerUp}
-          onPointerCancel={handleFabPointerUp}
           onClick={() => {
             if (suppressClickRef.current) {
               suppressClickRef.current = false;
