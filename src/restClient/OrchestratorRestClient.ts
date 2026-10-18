@@ -2,6 +2,7 @@ import keycloak from "../auth/Keycloak";
 import type { ChatBot } from "../model/ChatBot";
 import type { ChatMessage } from "../model/ChatMessage";
 import type { ConversationModel } from "../model/ConversationModel";
+import type { UserProfile } from "../model/UserProfile";
 const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
 
 function resolveConversationHash(conversation: {
@@ -103,6 +104,60 @@ export class OrchestratorRestClient {
       throw error; // یا مدیریت خطا به هر شکلی که می‌خوای
     }
   }
+
+  static async addBotConversation(
+    botId: string,
+    currentUsername: string,
+    botParticipationCode: string,
+  ): Promise<AddConversationResponse> {
+    const applyBot = botParticipationCode.trim().length > 0;
+
+    const response = await fetch(
+      `${orchestratorUrl}/conversations/v1?applyBot=${applyBot}`,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+        body: JSON.stringify({
+          participants: [botId, currentUsername],
+          lastMessage: "",
+          conversationType: "CHAT",
+          botParticipationCode,
+        }),
+      },
+    );
+
+    const body = (await response.json().catch(() => null)) as
+      | (AddConversationResponse & {
+          successful?: boolean;
+          message?: string;
+          content?: AddConversationResponse & {
+            errorCode?: string;
+            errorDescription?: string;
+          };
+        })
+      | null;
+
+    const failed = !response.ok || body?.successful === false;
+    if (failed) {
+      const description =
+        body?.content?.errorDescription ||
+        body?.message ||
+        `HTTP error! status: ${response.status}`;
+      throw new Error(description);
+    }
+
+    const added =
+      body?.content && !body.content.errorCode ? body.content : body;
+    return {
+      ...(added as AddConversationResponse),
+      hash: resolveConversationHash(added ?? {}),
+    };
+  }
+
   static async loadConversationMessages(
     conversationHash: string,
   ): Promise<ChatMessage[]> {
@@ -139,6 +194,29 @@ export class OrchestratorRestClient {
       console.error("Error loading conversation messages:", error);
       return [];
     }
+  }
+
+  static async searchProfiles(username: string): Promise<UserProfile[]> {
+    const query = username.trim();
+    if (!query) return [];
+
+    const response = await fetch(
+      `${orchestratorUrl}/profiles/search?username=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const profiles: UserProfile[] = await response.json();
+    return profiles ?? [];
   }
 
   static async getAllChatBots(): Promise<ChatBot[]> {

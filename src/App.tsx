@@ -42,6 +42,36 @@ export default function App() {
 
         init();
     }, []);
+//create conversation bot with bot id and bot participation code
+    async function openCreatedConversation(
+        targetJid: string,
+        create: () => Promise<{ hash: string; title: string }>,
+    ) {
+        setCreatingConversation(true);
+        try {
+            const currentJid = keycloak.tokenParsed?.preferred_username;
+            const chatStore = useChatStore.getState();
+            const addedConversation = await create();
+
+            const newConversation: ConversationModel = {
+                hash: addedConversation.hash,
+                jid: currentJid,
+                targetJid,
+                title: addedConversation.title,
+                lastMessage: "",
+                lastMessageTime: Date.now().toString(),
+            };
+            chatStore.addConversation(newConversation);
+            chatStore.setSelectedConversation(newConversation);
+            chatStore.setMessages([]);
+            if (newConversation.hash) {
+                const messages = await OrchestratorRestClient.loadConversationMessages(newConversation.hash);
+                chatStore.setMessages(messages);
+            }
+        } finally {
+            setCreatingConversation(false);
+        }
+    }
 
     if (!connected) {
         return (
@@ -57,37 +87,25 @@ export default function App() {
         <div className="app-shell">
             <div className="chat-frame" data-mobile-view={mobileView}>
 
-                <NewConversation onCreateConversation={async function (username: string): Promise<void> {
-                    console.log("converstion will be added " + username);
-
-                    if (username != null) {
-                        setCreatingConversation(true); // ⬅️ شروع لودینگ
-                        try {
-                            const currentJid = keycloak.tokenParsed?.preferred_username;
-                            const chatStore = useChatStore.getState();
-
-                            const addedConversation = await OrchestratorRestClient.addConversation([username, currentJid], "");
-
-                            const newConversation: ConversationModel = {
-                                hash: addedConversation.hash,
-                                jid: currentJid,
-                                targetJid: username,
-                                title: addedConversation.title,
-                                lastMessage: "",
-                                lastMessageTime: Date.now().toString()
-                            }
-                            chatStore.addConversation(newConversation);
-                            chatStore.setSelectedConversation(newConversation);
-                            chatStore.setMessages([]);
-                            if (newConversation.hash) {
-                                const messages = await OrchestratorRestClient.loadConversationMessages(newConversation.hash);
-                                chatStore.setMessages(messages);
-                            }
-                        } finally {
-                            setCreatingConversation(false); // ⬅️ پایان لودینگ (چه موفق چه خطا)
-                        }
+                <NewConversation
+                    onCreateConversation={(username) =>
+                        openCreatedConversation(username, () =>
+                            OrchestratorRestClient.addConversation(
+                                [username, keycloak.tokenParsed?.preferred_username ?? ""],
+                                "",
+                            ),
+                        )
                     }
-                }} />
+                    onCreateBotConversation={(botId, botParticipationCode) =>
+                        openCreatedConversation(botId, () =>
+                            OrchestratorRestClient.addBotConversation(
+                                botId,
+                                keycloak.tokenParsed?.preferred_username ?? "",
+                                botParticipationCode,
+                            ),
+                        )
+                    }
+                />
 
                 <MainContainer responsive>
                     <ConversationListPanel />

@@ -6,26 +6,38 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Fab,
   Box,
+  Tab,
+  Tabs,
+  Button,
   Dialog,
   Avatar,
   TextField,
   Typography,
   IconButton,
   DialogTitle,
+  DialogActions,
   DialogContent,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import React from "react";
 import type { ChatBot } from "../model/ChatBot";
-import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
+import type { UserProfile } from "../model/UserProfile";
 import { useChatStore } from "../chatStore/ChatStore";
+import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 
 interface NewConversationProps {
   onCreateConversation: (username: string) => void;
+  onCreateBotConversation: (
+    botId: string,
+    botParticipationCode: string,
+  ) => void;
 }
 
 const FAB_SIZE = 56;
 const DRAG_THRESHOLD = 6;
+const SEARCH_MIN_LENGTH = 4;
+const SEARCH_DEBOUNCE_MS = 400;
 const FAB_POSITION_KEY = "zchat.newConversationFab";
 const FAB_HINT_KEY = "zchat.fabDragHint";
 
@@ -54,11 +66,33 @@ function clampFabPosition(point: FabPoint): FabPoint {
   };
 }
 
+function botMatchesQuery(bot: ChatBot, query: string) {
+  const normalized = query.toLowerCase();
+  return [bot.displayName, bot.name, bot.botID, bot.description].some((value) =>
+    value?.toLowerCase().includes(normalized),
+  );
+}
+
 export default function NewConversation({
   onCreateConversation,
+  onCreateBotConversation,
 }: NewConversationProps) {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState(0);
   const [username, setUsername] = useState("");
+  //search users and bots
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const [pendingProfile, setPendingProfile] = useState<UserProfile | null>(
+    null,
+  );
+  const [botQuery, setBotQuery] = useState("");
+  const [appliedBotQuery, setAppliedBotQuery] = useState("");
+  const [botSearching, setBotSearching] = useState(false);
+  const [pendingBot, setPendingBot] = useState<ChatBot | null>(null);
+  const [participationCode, setParticipationCode] = useState("");
   const [bots, setBots] = useState<ChatBot[]>([]);
   const isMobile = useMediaQuery("(max-width:426px)", { noSsr: true });
   const selectedConversation = useChatStore(
@@ -81,6 +115,7 @@ export default function NewConversation({
     moved: boolean;
   } | null>(null);
   const suppressClickRef = useRef(false);
+  const searchRequestRef = useRef(0);
   const liftFab = !isMobile && Boolean(selectedConversation);
   const showDragHint = liftFab && !hintDismissed;
 
@@ -182,33 +217,122 @@ export default function NewConversation({
 
   //method
   function closeDialog() {
+    searchRequestRef.current += 1;
     setOpen(false);
+    setTab(0);
     setUsername("");
+    //reset search results
+    setProfiles([]);
+    setSearching(false);
+    setSearched(false);
+    setSearchError("");
+    setPendingProfile(null);
+    //reset bot search results
+    setBotQuery("");
+    setAppliedBotQuery("");
+    setBotSearching(false);
+    setPendingBot(null);
+    setParticipationCode("");
     setHoveredBot(null);
   }
 
-  function handleSubmit() {
-    const value = username.trim();
+  function handleUsernameChange(value: string) {
+    setUsername(value);
+    if (value.trim().length >= SEARCH_MIN_LENGTH) return;
 
-    if (value.length === 0) {
+    searchRequestRef.current += 1;
+    setProfiles([]);
+    setSearching(false);
+    setSearched(false);
+    setSearchError("");
+  }
+
+  useEffect(() => {
+    if (!open || tab !== 0) return;
+
+    const value = username.trim();
+    if (value.length < SEARCH_MIN_LENGTH) return;
+
+    const requestId = ++searchRequestRef.current;
+    const timer = window.setTimeout(async () => {
+      setSearching(true);
+      setSearchError("");
+      try {
+        const found = await OrchestratorRestClient.searchProfiles(value);
+        if (requestId !== searchRequestRef.current) return;
+        setProfiles(found);
+        setSearched(true);
+      } catch (err) {
+        if (requestId !== searchRequestRef.current) return;
+        console.error("Error searching profiles:", err);
+        setSearchError("Could not search users. Try again.");
+      } finally {
+        if (requestId === searchRequestRef.current) setSearching(false);
+      }
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [username, open, tab]);
+
+  function handleBotQueryChange(value: string) {
+    setBotQuery(value);
+    if (value.trim().length >= SEARCH_MIN_LENGTH) {
+      setBotSearching(true);
       return;
     }
 
-    onCreateConversation(value);
+    setAppliedBotQuery("");
+    setBotSearching(false);
+  }
+
+  useEffect(() => {
+    if (!open || tab !== 1) return;
+
+    const value = botQuery.trim();
+    if (value.length < SEARCH_MIN_LENGTH) return;
+
+    const timer = window.setTimeout(() => {
+      setAppliedBotQuery(value);
+      setBotSearching(false);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [botQuery, open, tab]);
+
+  function profileLabel(profile: UserProfile) {
+    const displayName = profile.displayName?.trim();
+    if (displayName) return displayName;
+
+    const fullName = [profile.firstName, profile.lastname]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    return fullName || profile.username;
+  }
+
+  function confirmAddProfile() {
+    if (!pendingProfile) return;
+
+    onCreateConversation(pendingProfile.username);
     closeDialog();
   }
 
-  function handleBotSelect(bot: ChatBot) {
-    onCreateConversation(bot.botID);
+  function confirmAddBot() {
+    if (!pendingBot) return;
+
+    onCreateBotConversation(pendingBot.botID, participationCode.trim());
     closeDialog();
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleSubmit();
-    }
-  }
+  const usernameLength = username.trim().length;
+  const usernameTooShort =
+    usernameLength > 0 && usernameLength < SEARCH_MIN_LENGTH;
+  const botQueryLength = botQuery.trim().length;
+  const botQueryTooShort =
+    botQueryLength > 0 && botQueryLength < SEARCH_MIN_LENGTH;
+  const visibleBots = appliedBotQuery
+    ? bots.filter((bot) => botMatchesQuery(bot, appliedBotQuery))
+    : bots;
 
   return (
     <>
@@ -312,6 +436,7 @@ export default function NewConversation({
         }}
       >
         <DialogTitle
+          component="div"
           sx={{
             display: "flex",
             alignItems: "center",
@@ -330,7 +455,31 @@ export default function NewConversation({
               <ArrowBackIcon />
             </IconButton>
           )}
-          New Conversation
+          <Tabs
+            value={tab}
+            onChange={(_, next) => setTab(next)}
+            variant="fullWidth"
+            sx={{
+              flex: 1,
+              minHeight: 40,
+              "& .MuiTab-root": {
+                minHeight: 40,
+                textTransform: "none",
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                color: "var(--text-secondary)",
+              },
+              "& .Mui-selected": {
+                color: "var(--navy)",
+              },
+              "& .MuiTabs-indicator": {
+                backgroundColor: "var(--teal)",
+              },
+            }}
+          >
+            <Tab label="New Conversation" />
+            <Tab label="New Bot" />
+          </Tabs>
         </DialogTitle>
 
         <DialogContent
@@ -346,154 +495,405 @@ export default function NewConversation({
               : undefined
           }
         >
-          <Typography
-            variant="body2"
-            sx={{ mb: 2, color: "var(--text-secondary)" }}
-          >
-            Enter the username of the person you want to chat with.
-          </Typography>
-
-          <TextField
-            autoFocus
-            fullWidth
-            label="Username"
-            placeholder="Example: ali"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-
-          <Box
-            sx={
-              isMobile
-                ? {
-                    display: "flex",
-                    flex: "1 1 auto",
-                    flexDirection: "column",
-                    minHeight: 0,
-                    mt: 3,
-                  }
-                : { mt: 3 }
-            }
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 1.5,
-              }}
-            >
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 600,
-                  color: "var(--navy)",
-                }}
-              >
-                AI Bots
-              </Typography>
-
+          {tab === 1 ? (
+            <>
               <Typography
                 variant="body2"
-                sx={{
-                  color: "var(--teal)",
-                  fontWeight: 600,
-                  fontSize: "12.5px",
-                  opacity: hoveredBot ? 1 : 0,
-                  transition: "opacity 0.15s",
-                }}
+                sx={{ mb: 2, color: "var(--text-secondary)" }}
               >
-                {hoveredBot?.displayName}
+                Search a bot, then choose the one you want to chat with.
               </Typography>
-            </Box>
 
-            {bots.length === 0 ? (
-              <Typography
-                variant="body2"
-                sx={{ color: "var(--text-secondary)" }}
-              >
-                No bots available right now.
-              </Typography>
-            ) : (
+              <TextField
+                fullWidth
+                label="Bot"
+                placeholder="Example: flame"
+                value={botQuery}
+                onChange={(e) => handleBotQueryChange(e.target.value)}
+                helperText={
+                  botQueryTooShort ? "Enter at least 4 characters." : " "
+                }
+                slotProps={{
+                  formHelperText: {
+                    sx: {
+                      color: botQueryTooShort ? "warning.main" : "transparent",
+                      mx: 0,
+                    },
+                  },
+                }}
+              />
+
+              {botSearching && (
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
+                  <CircularProgress size={16} />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "var(--text-secondary)" }}
+                  >
+                    Searching…
+                  </Typography>
+                </Box>
+              )}
+
               <Box
-                sx={{
-                  maxHeight: isMobile ? "none" : 260,
-                  flex: isMobile ? "1 1 auto" : undefined,
-                  minHeight: isMobile ? 0 : undefined,
-                  overflowY: "auto",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                  pr: 0.5,
-                  "&::-webkit-scrollbar": {
-                    width: "6px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "var(--line)",
-                    borderRadius: "6px",
-                  },
-                }}
+                sx={
+                  isMobile
+                    ? {
+                        display: "flex",
+                        flex: "1 1 auto",
+                        flexDirection: "column",
+                        minHeight: 0,
+                        mt: 1,
+                      }
+                    : { mt: 1 }
+                }
               >
-                {bots.map((bot) => (
-                  <Box
-                    key={bot.botID}
-                    onClick={() => handleBotSelect(bot)}
-                    onMouseEnter={() => setHoveredBot(bot)}
-                    onMouseLeave={() => setHoveredBot(null)}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
                     sx={{
+                      fontFamily: "var(--font-display)",
+                      fontWeight: 600,
+                      color: "var(--navy)",
+                    }}
+                  >
+                    AI Bots
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "var(--teal)",
+                      fontWeight: 600,
+                      fontSize: "12.5px",
+                      opacity: hoveredBot ? 1 : 0,
+                      transition: "opacity 0.15s",
+                    }}
+                  >
+                    {hoveredBot?.displayName}
+                  </Typography>
+                </Box>
+
+                {bots.length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "var(--text-secondary)" }}
+                  >
+                    No bots available right now.
+                  </Typography>
+                ) : visibleBots.length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "var(--text-secondary)" }}
+                  >
+                    No bots found.
+                  </Typography>
+                ) : (
+                  <Box
+                    sx={{
+                      maxHeight: isMobile ? "none" : 260,
+                      flex: isMobile ? "1 1 auto" : undefined,
+                      minHeight: isMobile ? 0 : undefined,
+                      overflowY: "auto",
                       display: "flex",
-                      alignItems: "flex-start",
-                      gap: 1.5,
-                      p: 1.25,
-                      borderRadius: "12px",
-                      border: "1px solid var(--line)",
-                      cursor: "pointer",
-                      transition: "0.2s",
-                      "&:hover": {
-                        background: "var(--teal-soft)",
-                        borderColor: "var(--teal)",
+                      flexDirection: "column",
+                      gap: 1,
+                      pr: 0.5,
+                      "&::-webkit-scrollbar": {
+                        width: "6px",
+                      },
+                      "&::-webkit-scrollbar-thumb": {
+                        background: "var(--line)",
+                        borderRadius: "6px",
                       },
                     }}
                   >
-                    <Avatar
-                      sx={{
-                        width: 44,
-                        height: 44,
-                        fontSize: 14,
-                        bgcolor: "secondary.main",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {bot.displayName}
-                    </Avatar>
-
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: 700, color: "var(--navy)" }}
-                      >
-                        {bot.displayName}
-                      </Typography>
-
-                      <Typography
-                        variant="body2"
+                    {visibleBots.map((bot) => (
+                      <Box
+                        key={bot.botID}
+                        onClick={() => {
+                          setParticipationCode("");
+                          setPendingBot(bot);
+                        }}
+                        onMouseEnter={() => setHoveredBot(bot)}
+                        onMouseLeave={() => setHoveredBot(null)}
                         sx={{
-                          color: "var(--text-secondary)",
-                          fontSize: "12.5px",
-                          lineHeight: 1.5,
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 1.5,
+                          p: 1.25,
+                          borderRadius: "12px",
+                          border: "1px solid var(--line)",
+                          cursor: "pointer",
+                          transition: "0.2s",
+                          "&:hover": {
+                            background: "var(--teal-soft)",
+                            borderColor: "var(--teal)",
+                          },
                         }}
                       >
-                        {bot.description}
-                      </Typography>
-                    </Box>
+                        <Avatar
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            fontSize: 14,
+                            bgcolor: "secondary.main",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {bot.displayName}
+                        </Avatar>
+
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 700, color: "var(--navy)" }}
+                          >
+                            {bot.displayName}
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "var(--text-secondary)",
+                              fontSize: "12.5px",
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {bot.description}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
                   </Box>
-                ))}
+                )}
               </Box>
-            )}
-          </Box>
+            </>
+          ) : (
+            <>
+              <Typography
+                variant="body2"
+                sx={{ mb: 2, color: "var(--text-secondary)" }}
+              >
+                Search a username, then choose the person you want to chat with.
+              </Typography>
+
+              <TextField
+                autoFocus
+                fullWidth
+                label="Username"
+                placeholder="Example: nafi"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                helperText={
+                  usernameTooShort ? "Enter at least 4 characters." : " "
+                }
+                slotProps={{
+                  formHelperText: {
+                    sx: {
+                      color: usernameTooShort ? "warning.main" : "transparent",
+                      mx: 0,
+                    },
+                  },
+                }}
+              />
+
+              {searching && (
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
+                  <CircularProgress size={16} />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "var(--text-secondary)" }}
+                  >
+                    Searching…
+                  </Typography>
+                </Box>
+              )}
+
+              {searchError && (
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 1.5, color: "error.main" }}
+                >
+                  {searchError}
+                </Typography>
+              )}
+
+              {searched && profiles.length === 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 1.5, color: "var(--text-secondary)" }}
+                >
+                  No users found.
+                </Typography>
+              )}
+
+              {profiles.length > 0 && (
+                <Box
+                  sx={{
+                    mt: 1.5,
+                    maxHeight: isMobile ? 220 : 180,
+                    overflowY: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    pr: 0.5,
+                  }}
+                >
+                  {profiles.map((profile) => (
+                    <Box
+                      key={profile.username}
+                      onClick={() => setPendingProfile(profile)}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        p: 1.25,
+                        borderRadius: "12px",
+                        border: "1px solid var(--line)",
+                        cursor: "pointer",
+                        transition: "0.2s",
+                        "&:hover": {
+                          background: "var(--teal-soft)",
+                          borderColor: "var(--teal)",
+                        },
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          fontSize: 14,
+                          bgcolor: "primary.main",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {profileLabel(profile).slice(0, 1).toUpperCase()}
+                      </Avatar>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 700, color: "var(--navy)" }}
+                        >
+                          {profileLabel(profile)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "var(--text-secondary)",
+                            fontSize: "12.5px",
+                          }}
+                        >
+                          {profile.username}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </>
+          )}
         </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(pendingProfile)}
+        onClose={() => setPendingProfile(null)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            color: "var(--navy)",
+          }}
+        >
+          Add this user?
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
+            {pendingProfile
+              ? `${profileLabel(pendingProfile)} (${pendingProfile.username}) will be added as a new conversation.`
+              : ""}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setPendingProfile(null)}
+            sx={{ textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={confirmAddProfile}
+            sx={{ textTransform: "none" }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(pendingBot)}
+        onClose={() => setPendingBot(null)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            color: "var(--navy)",
+          }}
+        >
+          Add this bot?
+        </DialogTitle>
+        <DialogContent>
+          <Typography
+            variant="body2"
+            sx={{ color: "var(--text-secondary)", mb: 2 }}
+          >
+            {pendingBot
+              ? `${pendingBot.displayName} (${pendingBot.botID}) will be added as a new conversation.`
+              : ""}
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Participation code"
+            placeholder="Example: 7GP4M"
+            value={participationCode}
+            onChange={(e) => setParticipationCode(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setPendingBot(null)}
+            sx={{ textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={confirmAddBot}
+            sx={{ textTransform: "none" }}
+          >
+            Add
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );
