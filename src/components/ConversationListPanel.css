@@ -21,17 +21,42 @@
     flex-shrink:0;
 }
 
+.sidebar-header .mark-monogram{
+    font-family:var(--font-display);
+    font-size:20px;
+    font-weight:700;
+    line-height:1;
+    transform:translateY(-1px);
+}
+
 .sidebar-header .title{
     font-family:var(--font-display);
     font-size:19px;
     font-weight:700;
     color:var(--navy);
     letter-spacing:-.2px;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 
-.cs-sidebar.cs-sidebar--left{
+.sidebar-header .sidebar-lang-switch {
+    margin-inline-start: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-header .app-version {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cs-sidebar.cs-sidebar--left,
+.cs-sidebar.cs-sidebar--right{
     background:#ffffff;
-    border-right:1px solid var(--line) !important;
+    border-inline-end:1px solid var(--line) !important;
 }
 
 .cs-search{
@@ -47,6 +72,10 @@
     color:var(--navy) !important;
 }
 
+[dir="rtl"] .cs-search__input{
+    text-align:right;
+}
+
 .cs-conversation{
     padding:10px 16px !important;
     border-bottom:1px solid var(--line) !important;
@@ -58,7 +87,7 @@
 
 .cs-conversation--active{
     background:var(--teal-soft) !important;
-    border-right:3px solid var(--teal) !important;
+    border-inline-end:3px solid var(--teal) !important;
 }
 
 .cs-conversation__name{
@@ -90,6 +119,10 @@
         max-width:none !important;
         flex:1 1 auto !important;
     }
+
+    .sidebar-header .app-version {
+        display: none;
+    }
 }
 
 .conversation-sidebar .cs-search{
@@ -104,6 +137,11 @@
     display:flex !important;
     align-items:center !important;
     width:100% !important;
+}
+
+[dir="rtl"] .conversation-sidebar .cs-conversation{
+    direction:rtl;
+    text-align:right;
 }
 
 .conversation-sidebar .cs-conversation__content{
@@ -124,6 +162,12 @@
     white-space:nowrap !important;
     overflow:hidden !important;
     text-overflow:ellipsis !important;
+}
+
+[dir="rtl"] .conversation-sidebar .cs-conversation__name,
+[dir="rtl"] .conversation-sidebar .cs-conversation__info,
+[dir="rtl"] .conversation-sidebar .cs-conversation__last-activity-time{
+    text-align:right;
 }
 
 .conversation-sidebar .cs-conversation__operations{

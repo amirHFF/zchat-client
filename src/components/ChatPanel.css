@@ -10,14 +10,13 @@
     gap:12px;
     background:var(--bg);
     font-family:var(--font-body);
-    direction:rtl;
 }
 
 .empty-chat .mark{
     width:52px;
     height:52px;
     border-radius:14px;
-    background:var(--teal-soft);
+    /* background:var(--teal-soft); */
     display:flex;
     align-items:center;
     justify-content:center;
@@ -66,8 +65,13 @@
    RTL می‌کنیم. الگوریتم bidi خودش کلمات/اعداد انگلیسیِ وسط متن رو به‌درستی
    embed می‌کنه؛ فقط جهت پایه باید ثابت و درست باشه. */
 .cs-message__content{
-    direction:rtl !important;
+    direction:ltr !important;
     unicode-bidi:embed !important;
+    text-align:left !important;
+}
+
+[dir="rtl"] .cs-message__content{
+    direction:rtl !important;
     text-align:right !important;
 }
 
@@ -115,9 +119,19 @@
     background:transparent !important;
     color:var(--navy) !important;
     font-family:var(--font-body) !important;
-    direction:rtl !important;
+    direction:ltr !important;
     unicode-bidi:embed !important;
+    text-align:left !important;
+}
+
+[dir="rtl"] .cs-message-input__content-editor{
+    direction:rtl !important;
     text-align:right !important;
+}
+
+[dir="rtl"] .cs-conversation-header__back-button,
+[dir="rtl"] .cs-button--back {
+    transform: scaleX(-1);
 }
 
 .cs-button--send{

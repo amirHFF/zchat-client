@@ -63,7 +63,7 @@ export default function UserAvatar({ name, online = false }: Props) {
                 <div
                     style={{
                         position: "absolute",
-                        right: 2,
+                        insetInlineEnd: 2,
                         bottom: 2,
                         width: 10,
                         height: 10,

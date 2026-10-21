@@ -78,6 +78,10 @@
   color: var(--navy);
   letter-spacing: 0.2px;
 }
+
+[dir="rtl"] .connecting-text {
+  letter-spacing: 0;
+}
 .creating-conversation-overlay {
   position: absolute;
   inset: 0;

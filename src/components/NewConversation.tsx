@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import {
   Fab,
@@ -25,6 +26,8 @@ import type { ChatBot } from "../model/ChatBot";
 import type { UserProfile } from "../model/UserProfile";
 import { useChatStore } from "../chatStore/ChatStore";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
+import { useLanguageStore } from "../i18n/languageStore";
+import { useT } from "../i18n/useT";
 
 interface NewConversationProps {
   onCreateConversation: (username: string) => void;
@@ -82,9 +85,11 @@ export default function NewConversation({
   const [username, setUsername] = useState("");
   //search users and bots
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const t = useT();
+  const dir = useLanguageStore((state) => state.dir);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [searchError, setSearchError] = useState("");
+  const [searchError, setSearchError] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<UserProfile | null>(
     null,
   );
@@ -145,8 +150,9 @@ export default function NewConversation({
   }, []);
 
   function defaultLiftPosition(): FabPoint {
+    const margin = 32;
     return clampFabPosition({
-      x: window.innerWidth - 32 - FAB_SIZE,
+      x: dir === "rtl" ? margin : window.innerWidth - margin - FAB_SIZE,
       y: Math.round(window.innerHeight / 2 - FAB_SIZE / 2),
     });
   }
@@ -225,7 +231,7 @@ export default function NewConversation({
     setProfiles([]);
     setSearching(false);
     setSearched(false);
-    setSearchError("");
+    setSearchError(false);
     setPendingProfile(null);
     //reset bot search results
     setBotQuery("");
@@ -244,7 +250,7 @@ export default function NewConversation({
     setProfiles([]);
     setSearching(false);
     setSearched(false);
-    setSearchError("");
+    setSearchError(false);
   }
 
   useEffect(() => {
@@ -256,7 +262,7 @@ export default function NewConversation({
     const requestId = ++searchRequestRef.current;
     const timer = window.setTimeout(async () => {
       setSearching(true);
-      setSearchError("");
+      setSearchError(false);
       try {
         const found = await OrchestratorRestClient.searchProfiles(value);
         if (requestId !== searchRequestRef.current) return;
@@ -265,7 +271,7 @@ export default function NewConversation({
       } catch (err) {
         if (requestId !== searchRequestRef.current) return;
         console.error("Error searching profiles:", err);
-        setSearchError("Could not search users. Try again.");
+        setSearchError(true);
       } finally {
         if (requestId === searchRequestRef.current) setSearching(false);
       }
@@ -338,18 +344,24 @@ export default function NewConversation({
     <>
       <Box
         className="new-conversation-fab"
+        style={
+          liftFab && dragPosition
+            ? {
+                left: dragPosition.x,
+                top: dragPosition.y,
+                right: "auto",
+                bottom: "auto",
+                transform: "none",
+              }
+            : undefined
+        }
         sx={{
           position: "fixed",
           zIndex: 1300,
           width: FAB_SIZE,
           height: FAB_SIZE,
           ...(liftFab && dragPosition
-            ? {
-                left: dragPosition.x,
-                top: dragPosition.y,
-                right: "auto",
-                bottom: "auto",
-              }
+            ? {}
             : liftFab
               ? {
                   right: 32,
@@ -386,7 +398,7 @@ export default function NewConversation({
               boxShadow: "0 10px 24px rgba(15,42,74,.22)",
             }}
           >
-            برای جابه‌جایی بکشید
+            {t("newConversation.dragHint")}
           </Box>
         )}
         <Fab
@@ -448,11 +460,11 @@ export default function NewConversation({
         >
           {isMobile && (
             <IconButton
-              aria-label="Back to contacts"
+              aria-label={t("newConversation.backToContacts")}
               edge="start"
               onClick={closeDialog}
             >
-              <ArrowBackIcon />
+              {dir === "rtl" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
             </IconButton>
           )}
           <Tabs
@@ -477,8 +489,8 @@ export default function NewConversation({
               },
             }}
           >
-            <Tab label="New Conversation" />
-            <Tab label="New Bot" />
+            <Tab label={t("newConversation.tabConversation")} />
+            <Tab label={t("newConversation.tabBot")} />
           </Tabs>
         </DialogTitle>
 
@@ -501,17 +513,17 @@ export default function NewConversation({
                 variant="body2"
                 sx={{ mb: 2, color: "var(--text-secondary)" }}
               >
-                Search a bot, then choose the one you want to chat with.
+                {t("newConversation.searchBot")}
               </Typography>
 
               <TextField
                 fullWidth
-                label="Bot"
-                placeholder="Example: flame"
+                label={t("newConversation.bot")}
+                placeholder={t("newConversation.botPlaceholder")}
                 value={botQuery}
                 onChange={(e) => handleBotQueryChange(e.target.value)}
                 helperText={
-                  botQueryTooShort ? "Enter at least 4 characters." : " "
+                  botQueryTooShort ? t("newConversation.minChars") : " "
                 }
                 slotProps={{
                   formHelperText: {
@@ -532,7 +544,7 @@ export default function NewConversation({
                     variant="body2"
                     sx={{ color: "var(--text-secondary)" }}
                   >
-                    Searching…
+                    {t("newConversation.searching")}
                   </Typography>
                 </Box>
               )}
@@ -566,7 +578,7 @@ export default function NewConversation({
                       color: "var(--navy)",
                     }}
                   >
-                    AI Bots
+                    {t("newConversation.aiBots")}
                   </Typography>
 
                   <Typography
@@ -588,14 +600,14 @@ export default function NewConversation({
                     variant="body2"
                     sx={{ color: "var(--text-secondary)" }}
                   >
-                    No bots available right now.
+                    {t("newConversation.noBots")}
                   </Typography>
                 ) : visibleBots.length === 0 ? (
                   <Typography
                     variant="body2"
                     sx={{ color: "var(--text-secondary)" }}
                   >
-                    No bots found.
+                    {t("newConversation.noBotsFound")}
                   </Typography>
                 ) : (
                   <Box
@@ -684,18 +696,18 @@ export default function NewConversation({
                 variant="body2"
                 sx={{ mb: 2, color: "var(--text-secondary)" }}
               >
-                Search a username, then choose the person you want to chat with.
+                {t("newConversation.searchUser")}
               </Typography>
 
               <TextField
                 autoFocus
                 fullWidth
-                label="Username"
-                placeholder="Example: nafi"
+                label={t("newConversation.username")}
+                placeholder={t("newConversation.usernamePlaceholder")}
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 helperText={
-                  usernameTooShort ? "Enter at least 4 characters." : " "
+                  usernameTooShort ? t("newConversation.minChars") : " "
                 }
                 slotProps={{
                   formHelperText: {
@@ -716,7 +728,7 @@ export default function NewConversation({
                     variant="body2"
                     sx={{ color: "var(--text-secondary)" }}
                   >
-                    Searching…
+                    {t("newConversation.searching")}
                   </Typography>
                 </Box>
               )}
@@ -726,7 +738,7 @@ export default function NewConversation({
                   variant="body2"
                   sx={{ mt: 1.5, color: "error.main" }}
                 >
-                  {searchError}
+                  {t("newConversation.searchError")}
                 </Typography>
               )}
 
@@ -735,7 +747,7 @@ export default function NewConversation({
                   variant="body2"
                   sx={{ mt: 1.5, color: "var(--text-secondary)" }}
                 >
-                  No users found.
+                  {t("newConversation.noUsers")}
                 </Typography>
               )}
 
@@ -820,12 +832,15 @@ export default function NewConversation({
             color: "var(--navy)",
           }}
         >
-          Add this user?
+          {t("newConversation.addUserTitle")}
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
             {pendingProfile
-              ? `${profileLabel(pendingProfile)} (${pendingProfile.username}) will be added as a new conversation.`
+              ? t("newConversation.addUserBody", {
+                  name: profileLabel(pendingProfile),
+                  username: pendingProfile.username,
+                })
               : ""}
           </Typography>
         </DialogContent>
@@ -834,14 +849,14 @@ export default function NewConversation({
             onClick={() => setPendingProfile(null)}
             sx={{ textTransform: "none" }}
           >
-            Cancel
+            {t("newConversation.cancel")}
           </Button>
           <Button
             variant="contained"
             onClick={confirmAddProfile}
             sx={{ textTransform: "none" }}
           >
-            Add
+            {t("newConversation.add")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -859,7 +874,7 @@ export default function NewConversation({
             color: "var(--navy)",
           }}
         >
-          Add this bot?
+          {t("newConversation.addBotTitle")}
         </DialogTitle>
         <DialogContent>
           <Typography
@@ -867,14 +882,17 @@ export default function NewConversation({
             sx={{ color: "var(--text-secondary)", mb: 2 }}
           >
             {pendingBot
-              ? `${pendingBot.displayName} (${pendingBot.botID}) will be added as a new conversation.`
+              ? t("newConversation.addBotBody", {
+                  name: pendingBot.displayName,
+                  id: pendingBot.botID,
+                })
               : ""}
           </Typography>
           <TextField
             autoFocus
             fullWidth
-            label="Participation code"
-            placeholder="Example: 7GP4M"
+            label={t("newConversation.participationCode")}
+            placeholder={t("newConversation.codePlaceholder")}
             value={participationCode}
             onChange={(e) => setParticipationCode(e.target.value)}
           />
@@ -884,14 +902,14 @@ export default function NewConversation({
             onClick={() => setPendingBot(null)}
             sx={{ textTransform: "none" }}
           >
-            Cancel
+            {t("newConversation.cancel")}
           </Button>
           <Button
             variant="contained"
             onClick={confirmAddBot}
             sx={{ textTransform: "none" }}
           >
-            Add
+            {t("newConversation.add")}
           </Button>
         </DialogActions>
       </Dialog>
