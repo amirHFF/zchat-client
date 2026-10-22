@@ -14,14 +14,17 @@ import React, { useEffect, useState } from "react";
 import type { ConversationModel } from "../model/ConversationModel";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import { formatConversationTime } from "../utils/formatTimestamp";
-
+import LanguageSwitch from "./LanguageSwitch";
+import { useT } from "../i18n/useT";
 import "./ConversationListPanel.css";
+import { SimorghIcon } from "../assets/icon/SimorghIcon";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
 
 export default function ConversationListPanel() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const t = useT();
 
   const conversations = useChatStore((state) => state.conversations);
   const setConversations = useChatStore((state) => state.setConversations);
@@ -102,14 +105,22 @@ const isActive = (conversation: ConversationModel) => {
           <MenuIcon />
         </IconButton>
 
-        <div className="mark">S</div>
+        {/* <div className="mark" aria-label="Simorq">
+          <span className="mark-monogram">S</span>
+        </div> */}
+        <div className="mark" aria-label="Simorq">
+          <span className="mark-monogram">
+            <SimorghIcon />
+          </span>
+        </div>
         <div className="title">Simorq</div>
-        <span style={{ marginLeft: "auto" }}>vld{_APP_VERSION_}</span>
+        <LanguageSwitch className="sidebar-lang-switch" />
+        <span className="app-version">vld{_APP_VERSION_}</span>
       </div>
 
       <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
 
-      <Search placeholder="Search conversations" />
+      <Search placeholder={t("sidebar.search")} />
 
       <ConversationList>
         {conversations?.length ? (
@@ -117,7 +128,7 @@ const isActive = (conversation: ConversationModel) => {
             <Conversation
               key={conversation.hash || conversation.targetJid}
               name={conversation.title || conversation.targetJid}
-              info={conversation.lastMessage || "No messages yet"}
+              info={conversation.lastMessage || t("sidebar.noMessages")}
               /* last message time from lastMessageTime / timeStamp */
               lastActivityTime={formatConversationTime(
                 conversation.lastMessageTime,
@@ -129,7 +140,7 @@ const isActive = (conversation: ConversationModel) => {
             </Conversation>
           ))
         ) : (
-          <div className="empty-list">No conversations yet</div>
+          <div className="empty-list">{t("sidebar.noConversations")}</div>
         )}
       </ConversationList>
     </Sidebar>

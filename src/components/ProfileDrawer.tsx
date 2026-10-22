@@ -16,6 +16,8 @@ import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import keycloak from "../auth/Keycloak";
 import React from "react";
+import LanguageSwitch from "./LanguageSwitch";
+import { useT } from "../i18n/useT";
 
 interface ProfileDrawerProps {
     open: boolean;
@@ -23,8 +25,9 @@ interface ProfileDrawerProps {
 }
 
 export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
+    const t = useT();
 
-    const username = keycloak.tokenParsed?.preferred_username ?? "User";
+    const username = keycloak.tokenParsed?.preferred_username ?? t("profile.user");
     const jid = username;
 
     function handleLogout() {
@@ -34,10 +37,10 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
     }
 
     const menuItems = [
-        { icon: <SettingsOutlinedIcon />, label: "Settings" },
-        { icon: <BookmarkBorderOutlinedIcon />, label: "Saved Messages" },
-        { icon: <PeopleOutlineOutlinedIcon />, label: "Contacts" },
-        { icon: <HelpOutlineOutlinedIcon />, label: "Help" },
+        { icon: <SettingsOutlinedIcon />, label: t("profile.settings") },
+        { icon: <BookmarkBorderOutlinedIcon />, label: t("profile.savedMessages") },
+        { icon: <PeopleOutlineOutlinedIcon />, label: t("profile.contacts") },
+        { icon: <HelpOutlineOutlinedIcon />, label: t("profile.help") },
     ];
 
     return (
@@ -68,7 +71,7 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
                     sx={{
                         position: "absolute",
                         top: 8,
-                        right: 8,
+                        insetInlineEnd: 8,
                         color: "rgba(255,255,255,.75)",
                     }}
                 >
@@ -94,6 +97,22 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
                 <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,.7)" }}>
                     {jid}
                 </Typography>
+            </Box>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: 2,
+                    pt: 1.5,
+                    pb: 0.5,
+                }}
+            >
+                <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "var(--navy)" }}>
+                    {t("profile.language")}
+                </Typography>
+                <LanguageSwitch />
             </Box>
 
             <List sx={{ py: 1 }}>
@@ -135,7 +154,7 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
                         <LogoutOutlinedIcon />
                     </ListItemIcon>
                     <ListItemText
-                        primary="Log out"
+                        primary={t("profile.logOut")}
                         slotProps={{
                             primary: {
                                 sx: { color: "#d32f2f", fontSize: 14.5, fontWeight: 600 },

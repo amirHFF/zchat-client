@@ -1,7 +1,17 @@
+import { translate, useLanguageStore } from "../i18n/languageStore";
+import type { Locale } from "../i18n/translations";
 import type { ConversationModel } from "../model/ConversationModel";
 
 // UI is still English; switch these locales to fa-IR when the theme is localized.
 const TIME_LOCALE = "en-US";
+
+function timeLocale(locale: Locale): string {
+  return locale === "fa" ? "fa-IR" : "en-US";
+}
+
+function currentLocale(): Locale {
+  return useLanguageStore.getState().locale;
+}
 
 const normalize = (n: number) => (n < 1e11 ? n * 1000 : n);
 
@@ -53,8 +63,8 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
-function formatClock(date: Date): string {
-  return date.toLocaleTimeString(TIME_LOCALE, {
+function formatClock(date: Date, locale = currentLocale()): string {
+  return date.toLocaleTimeString(timeLocale(locale), {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -70,18 +80,19 @@ export function formatConversationTime(
     return "";
   }
 
+  const locale = currentLocale();
   const now = new Date();
   if (isSameDay(date, now)) {
-    return formatClock(date);
+    return formatClock(date, locale);
   }
 
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (isSameDay(date, yesterday)) {
-    return "Yesterday";
+    return translate("time.yesterday", undefined, locale);
   }
 
-  return date.toLocaleDateString(TIME_LOCALE, {
+  return date.toLocaleDateString(timeLocale(locale), {
     month: "short",
     day: "numeric",
   });
@@ -96,12 +107,13 @@ export function formatMessageTime(
     return "";
   }
 
-  const time = formatClock(date);
+  const locale = currentLocale();
+  const time = formatClock(date, locale);
   if (isSameDay(date, new Date())) {
     return time;
   }
 
-  const dateLabel = date.toLocaleDateString(TIME_LOCALE, {
+  const dateLabel = date.toLocaleDateString(timeLocale(locale), {
     month: "short",
     day: "numeric",
   });

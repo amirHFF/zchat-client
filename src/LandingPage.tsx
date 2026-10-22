@@ -3,6 +3,8 @@ import "./LandingPage.css";
 import keycloak from "./auth/Keycloak.ts";
 import { useNavigate } from "react-router-dom";
 import logo from "./assets/simorq-logo.png"; // فایل لوگو رو اینجا قرار بده
+import LanguageSwitch from "./components/LanguageSwitch";
+import { useT } from "./i18n/useT";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 async function register() {
@@ -11,6 +13,7 @@ async function register() {
 
 export default function LandingPage() {
     const navigate = useNavigate();
+    const t = useT();
     
     useEffect(() => {
         if (keycloak.authenticated) {
@@ -35,30 +38,34 @@ export default function LandingPage() {
             <div className="gradient gradient2"></div>
             <div className="gradient gradient3"></div>
 
+            <div className="landing-lang-switch">
+                <LanguageSwitch />
+            </div>
+
             <div className="hero">
 
                 <div className="logo-wrap">
                     <div className="logo-ring"></div>
-                    <img src={logo} alt="Simorq" className="logo-img" />
+                    <img src={logo} alt={t("landing.logoAlt")} className="logo-img" />
                 </div>
 
-                <p className="eyebrow">Deep Insight</p>
+                <p className="eyebrow">{t("landing.eyebrow")}</p>
 
                 <h1>SimorQ</h1>
 
                 <p className="subtitle">
-                    Secure enterprise messaging, refined by intelligence.
+                    {t("landing.subtitle")}
                     <br />
-                    Powered by XMPP &amp; Keycloak.
+                    {t("landing.poweredBy")}
                 </p>
 
                 <div className="buttons">
                     <button className="primary" onClick={login}>
-                        Sign in
+                        {t("landing.signIn")}
                     </button>
 
                     <button className="secondary" onClick={register}>
-                        Sign up
+                        {t("landing.signUp")}
                     </button>
                 </div>
 

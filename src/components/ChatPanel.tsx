@@ -12,11 +12,14 @@ import { useChatStore } from "../chatStore/ChatStore";
 import React, { useEffect, useRef, useState } from "react";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { formatMessageTime } from "../utils/formatTimestamp";
+import { useT } from "../i18n/useT";
+import { SimorghIcon } from "../assets/icon/SimorghIcon";
 
 export default function ChatPanel() {
   const setMobileView = useChatStore((state) => state.setMobileView);
 
   const [text, setText] = useState("");
+  const t = useT();
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const chatPanelRef = useRef<HTMLDivElement | null>(null);
@@ -68,11 +71,14 @@ export default function ChatPanel() {
   if (!conversation) {
     return (
       <div className="empty-chat chat-panel-root">
-        <div className="mark">S</div>
-        <div className="title">No conversation selected</div>
-        <div className="subtitle">
-          Pick someone from the list to start chatting
+        {/* <div className="mark">S</div> */}
+        <div className="mark" aria-label="Simorq">
+          <span className="mark-monogram">
+            <SimorghIcon />
+          </span>
         </div>
+        <div className="title">{t("chat.noConversation")}</div>
+        <div className="subtitle">{t("chat.pickSomeone")}</div>
       </div>
     );
   }
@@ -91,7 +97,7 @@ export default function ChatPanel() {
 
           <ConversationHeader.Content
             userName={conversation.targetJid}
-            info="Online"
+            info={t("chat.online")}
           />
         </ConversationHeader>
 
@@ -100,7 +106,7 @@ export default function ChatPanel() {
           autoScrollToBottom
           typingIndicator={
             isWaitingForReply ? (
-              <TypingIndicator content="در حال تایپ..." />
+              <TypingIndicator content={t("chat.typing")} />
             ) : undefined
           }
         >
@@ -125,7 +131,7 @@ export default function ChatPanel() {
         </MessageList>
 
         <MessageInput
-          placeholder="Type a message..."
+          placeholder={t("chat.typeMessage")}
           value={text}
           onChange={setText}
           onSend={handleSend}
