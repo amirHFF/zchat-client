@@ -11,5 +11,5 @@ body,
 }
 
 body {
-    font-family: sans-serif;
+    font-family: var(--font-body), sans-serif;
 }

@@ -12,96 +12,116 @@ import type { ConversationModel } from "./model/ConversationModel";
 import "./theme.css";
 import "./App.css";
 import { useNavigate } from "react-router-dom";
-
+import { useT } from "./i18n/useT";
+import { SimorghLoader } from "./components/loading/SimorghLoader";
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
 export default function App() {
-    const mobileView = useChatStore(state => state.mobileView);
-    const navigate = useNavigate();
+  const mobileView = useChatStore((state) => state.mobileView);
+  const navigate = useNavigate();
+  const t = useT();
 
-    const [connected, setConnected] = useState(false);
-    const [creatingConversation, setCreatingConversation] = useState(false); // ⬅️ استیت جدید
+  const [connected, setConnected] = useState(false);
+  const [creatingConversation, setCreatingConversation] = useState(false); // ⬅️ استیت جدید
 
-    useEffect(() => {
-        async function init() {
-            if (!keycloak.authenticated)
-                navigate("/");
+  useEffect(() => {
+    async function init() {
+      if (!keycloak.authenticated) navigate("/");
 
-            const jid =
-                `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
+      const jid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
 
-            await chatFacade.login(
-                jid,
-                keycloak.token
-            );
+      await chatFacade.login(jid, keycloak.token);
 
-            console.log("login done");
+      console.log("login done");
 
-            setConnected(true);
-        }
-
-        init();
-    }, []);
-
-    if (!connected) {
-        return (
-            <div className="connecting-screen">
-                <div className="connecting-ring"></div>
-                <div className="connecting-text">Connecting to Simorq</div>
-                <div className="connecting-sub">Setting up your secure session…</div>
-            </div>
-        );
+      setConnected(true);
     }
 
+    init();
+  }, []);
+  //create conversation bot with bot id and bot participation code
+  async function openCreatedConversation(
+    targetJid: string,
+    create: () => Promise<{ hash: string; title: string }>,
+  ) {
+    setCreatingConversation(true);
+    try {
+      const currentJid = keycloak.tokenParsed?.preferred_username;
+      const chatStore = useChatStore.getState();
+      const addedConversation = await create();
+
+      const newConversation: ConversationModel = {
+        hash: addedConversation.hash,
+        jid: currentJid,
+        targetJid,
+        title: addedConversation.title,
+        lastMessage: "",
+        lastMessageTime: Date.now().toString(),
+      };
+      chatStore.addConversation(newConversation);
+      chatStore.setSelectedConversation(newConversation);
+      chatStore.setMessages([]);
+      if (newConversation.hash) {
+        const messages = await OrchestratorRestClient.loadConversationMessages(
+          newConversation.hash,
+        );
+        chatStore.setMessages(messages);
+      }
+    } finally {
+      setCreatingConversation(false);
+    }
+  }
+
+  if (!connected) {
     return (
-        <div className="app-shell">
-            <div className="chat-frame" data-mobile-view={mobileView}>
-
-                <NewConversation onCreateConversation={async function (username: string): Promise<void> {
-                    console.log("converstion will be added " + username);
-
-                    if (username != null) {
-                        setCreatingConversation(true); // ⬅️ شروع لودینگ
-                        try {
-                            const currentJid = keycloak.tokenParsed?.preferred_username;
-                            const chatStore = useChatStore.getState();
-
-                            const addedConversation = await OrchestratorRestClient.addConversation([username, currentJid], "");
-
-                            const newConversation: ConversationModel = {
-                                hash: addedConversation.hash,
-                                jid: currentJid,
-                                targetJid: username,
-                                title: addedConversation.title,
-                                lastMessage: "",
-                                lastMessageTime: Date.now().toString()
-                            }
-                            chatStore.addConversation(newConversation);
-                            chatStore.setSelectedConversation(newConversation);
-                            chatStore.setMessages([]);
-                            if (newConversation.hash) {
-                                const messages = await OrchestratorRestClient.loadConversationMessages(newConversation.hash);
-                                chatStore.setMessages(messages);
-                            }
-                        } finally {
-                            setCreatingConversation(false); // ⬅️ پایان لودینگ (چه موفق چه خطا)
-                        }
-                    }
-                }} />
-
-                <MainContainer responsive>
-                    <ConversationListPanel />
-                    <ChatPanel />
-                </MainContainer>
-
-                {creatingConversation && ( // ⬅️ اورلی لودینگ
-                    <div className="creating-conversation-overlay">
-                        <div className="connecting-ring"></div>
-                        <div className="connecting-text">Creating conversation…</div>
-                    </div>
-                )}
-
-            </div>
-        </div>
+      <div className="connecting-screen">
+        {/* <div className="connecting-ring"></div> */}
+        {/* <div className="connecting-text">{t("app.connecting")}</div> */}
+        <SimorghLoader />
+        <div className="connecting-sub">{t("app.settingUp")}</div>
+      </div>
     );
+  }
+
+  return (
+    <div className="app-shell">
+      <div className="chat-frame" data-mobile-view={mobileView}>
+        <NewConversation
+          onCreateConversation={(username) =>
+            openCreatedConversation(username, () =>
+              OrchestratorRestClient.addConversation(
+                [username, keycloak.tokenParsed?.preferred_username ?? ""],
+                "",
+              ),
+            )
+          }
+          onCreateBotConversation={(botId, botParticipationCode) =>
+            openCreatedConversation(botId, () =>
+              OrchestratorRestClient.addBotConversation(
+                botId,
+                keycloak.tokenParsed?.preferred_username ?? "",
+                botParticipationCode,
+              ),
+            )
+          }
+        />
+
+        <MainContainer responsive>
+          <ConversationListPanel />
+          <ChatPanel />
+        </MainContainer>
+
+        {creatingConversation && ( // ⬅️ اورلی لودینگ
+          <div className="creating-conversation-overlay">
+            {/* <div className="connecting-ring"></div>
+            <div className="connecting-text">
+                
+              {t("app.creatingConversation")}
+            </div> */}
+            <SimorghLoader label={t("app.creatingConversation")} showLabel />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
