@@ -1,5 +1,9 @@
+import type { ConversationModel } from "../model/ConversationModel";
+
 // UI is still English; switch these locales to fa-IR when the theme is localized.
 const TIME_LOCALE = "en-US";
+
+const normalize = (n: number) => (n < 1e11 ? n * 1000 : n);
 
 export function parseTimestamp(
   value: string | number | undefined | null,
@@ -20,6 +24,26 @@ export function parseTimestamp(
 
   return date;
 }
+export function toMillis(value?: string | number | null): number {
+  if (value === undefined || value === null || value === "") return 0;
+  if (typeof value === "number") return normalize(value);
+
+  const trimmed = value.trim();
+  if (/^\d+(\.\d+)?$/.test(trimmed)) return normalize(Number(trimmed));
+
+  const parsed = Date.parse(trimmed);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+// جدیدترین فعالیت اول؛ مرتب‌سازی پایدار است، پس موارد بدون زمان ترتیبشان حفظ می‌شود
+export function sortConversations(
+  list: ConversationModel[],
+): ConversationModel[] {
+  return [...list].sort(
+    (a, b) => toMillis(b.lastMessageTime) - toMillis(a.lastMessageTime),
+  );
+}
+
 
 function isSameDay(a: Date, b: Date): boolean {
   return (
