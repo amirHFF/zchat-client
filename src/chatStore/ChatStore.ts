@@ -15,6 +15,9 @@ interface ChatStore {
     setMobileView: (view: "list" | "chat") => void;
 
     conversations: ConversationModel[];
+    subConversations: Record<string, ConversationModel[]>;
+    setSubConversations: (parentHash: string, list: ConversationModel[]) => void;
+    addSubConversation: (parentHash: string, item: ConversationModel) => void;
 
     selectedConversation?: ConversationModel;
 
@@ -56,6 +59,16 @@ export const useChatStore = create<ChatStore>((set) => ({
 setMobileView: (view) => set({ mobileView: view }),
 
     conversations: [],
+    subConversations: {},
+    setSubConversations: (parentHash, list) => set((state) => ({
+        subConversations: { ...state.subConversations, [parentHash]: list },
+    })),
+    addSubConversation: (parentHash, item) => set((state) => ({
+        subConversations: {
+            ...state.subConversations,
+            [parentHash]: [item, ...(state.subConversations[parentHash] ?? [])],
+        },
+    })),
 
     selectedConversation: undefined,
 

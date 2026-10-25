@@ -191,3 +191,71 @@
     font-size:13px;
     font-family:var(--font-body);
 }
+
+.bot-conversation .cs-conversation__name {
+    display: flex !important;
+    align-items: center;
+    gap: 4px;
+}
+.bot-expand-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: var(--text-secondary);
+    transition: color 140ms ease, transform 140ms ease;
+}
+.bot-conversation:hover .bot-expand-icon { color: var(--teal); }
+.bot-conversation-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cs-conversation.bot-parent-active {
+    background: color-mix(in srgb, var(--teal-soft) 55%, white) !important;
+    border-inline-end: 2px solid color-mix(in srgb, var(--teal) 45%, white) !important;
+}
+.bot-sub-list {
+    position: relative;
+    margin: 0 16px 8px 32px;
+    padding: 5px 0 4px 12px;
+    border-inline-start: 1px solid var(--line);
+}
+[dir="rtl"] .bot-sub-list { margin-inline: 32px 16px; padding-inline: 12px 0; }
+.bot-sub-create, .bot-sub-item {
+    width: 100%;
+    border: 0;
+    color: var(--navy);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+.bot-sub-create {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--teal);
+    font-size: 13px;
+    font-weight: 600;
+}
+.bot-sub-create:hover:not(:disabled) { background: var(--teal-soft); }
+.bot-sub-create:disabled { opacity: .5; cursor: default; }
+.bot-sub-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: transparent;
+}
+.bot-sub-item:hover { background: var(--surface-muted); }
+.bot-sub-item.active { background: var(--teal-soft); }
+.bot-sub-title, .bot-sub-message {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.bot-sub-title { font-size: 13px; font-weight: 550; color: var(--navy); }
+.bot-sub-message, .bot-sub-empty { color: var(--text-secondary); font-size: 12px; }
+.bot-sub-empty { padding: 10px; }
+@media (prefers-reduced-motion: reduce) {
+    .bot-expand-icon, .bot-sub-create, .bot-sub-item { transition: none; }
+}

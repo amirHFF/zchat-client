@@ -1,4 +1,5 @@
 import "./ChatPanel.css";
+import { useT } from "../i18n/useT";
 import {
   ChatContainer,
   ConversationHeader,
@@ -10,10 +11,10 @@ import {
 import UserAvatar from "./UserAvatar";
 import { useChatStore } from "../chatStore/ChatStore";
 import React, { useEffect, useRef, useState } from "react";
-import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { formatMessageTime } from "../utils/formatTimestamp";
-import { useT } from "../i18n/useT";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
+import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
+import { isBotConversation } from "../utils/botConversation";
 
 export default function ChatPanel() {
   const setMobileView = useChatStore((state) => state.setMobileView);
@@ -63,7 +64,17 @@ export default function ChatPanel() {
 
     if (!value.trim()) return;
 
-    chatServiceFacade.sendMessage(conversation.targetJid, value);
+    const shouldSendHash =
+      isBotConversation(conversation) && Boolean(conversation.parentHash);
+    if (shouldSendHash) {
+      chatServiceFacade.sendMessage(
+        conversation.targetJid,
+        value,
+        conversation.hash,
+      );
+    } else {
+      chatServiceFacade.sendMessage(conversation.targetJid, value);
+    }
 
     setText("");
   };
@@ -97,7 +108,9 @@ export default function ChatPanel() {
 
           <ConversationHeader.Content
             userName={conversation.targetJid}
-            info={t("chat.online")}
+            info={
+              conversation.parentHash ? conversation.title : t("chat.online")
+            }
           />
         </ConversationHeader>
 

@@ -1,4 +1,5 @@
 export const messages = {
+  "brand.name": { en: "SimorQ", fa: "سیمرغ" },
   "landing.eyebrow": {
     en: "Deep Insight",
     fa: "بینش عمیق",
@@ -55,6 +56,10 @@ export const messages = {
     en: "No conversations yet",
     fa: "هنوز گفتگویی ندارید",
   },
+  "sidebar.newChat": { en: "New chat", fa: "گفت‌وگوی جدید" },
+  "sidebar.enterChatTitle": { en: "Enter a title for this chat", fa: "عنوان گفت‌وگو را وارد کنید" },
+  "sidebar.noSubConversations": { en: "No chats yet", fa: "هنوز گفت‌وگویی نیست" },
+  "sidebar.loadingChats": { en: "Loading chats…", fa: "در حال بارگذاری گفت‌وگوها…" },
   "chat.noConversation": {
     en: "No conversation selected",
     fa: "گفتگویی انتخاب نشده",

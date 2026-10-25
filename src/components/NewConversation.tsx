@@ -395,7 +395,7 @@ export default function NewConversation({
               fontWeight: 600,
               whiteSpace: "nowrap",
               pointerEvents: "none",
-              boxShadow: "0 10px 24px rgba(15,42,74,.22)",
+              boxShadow: "0 10px 24px rgba(32,48,74,.22)",
             }}
           >
             {t("newConversation.dragHint")}
@@ -406,7 +406,7 @@ export default function NewConversation({
           sx={{
             position: "absolute",
             inset: 0,
-            boxShadow: "0 12px 28px rgba(15,42,74,.28)",
+            boxShadow: "0 12px 28px rgba(32,48,74,.24)",
             touchAction: liftFab ? "none" : "auto",
             cursor: liftFab ? (dragging ? "grabbing" : "grab") : "pointer",
           }}

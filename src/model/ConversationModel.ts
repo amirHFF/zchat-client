@@ -5,4 +5,7 @@ export interface ConversationModel {
     lastMessage: string|undefined;
     lastMessageTime: string;
     title:string;
+    parentHash?: string;
+    conversationType?: string;
+    participants?: string[];
 }

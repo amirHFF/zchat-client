@@ -51,7 +51,7 @@ export default function LandingPage() {
 
                 <p className="eyebrow">{t("landing.eyebrow")}</p>
 
-                <h1>SimorQ</h1>
+                <h1>{t("brand.name")}</h1>
 
                 <p className="subtitle">
                     {t("landing.subtitle")}

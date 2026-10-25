@@ -11,22 +11,22 @@ export function createSimorqTheme(direction: Direction) {
     direction,
     palette: {
       primary: {
-        main: "#0F2A4A",
-        dark: "#0A1D34",
+        main: "#356AE6",
+        dark: "#2457C5",
         contrastText: "#ffffff",
       },
       secondary: {
-        main: "#1FA6A6",
-        light: "#6FE3D9",
-        contrastText: "#ffffff",
+        main: "#20AFA3",
+        light: "#DDF6F2",
+        contrastText: "#17243A",
       },
       background: {
-        default: "#F6F5F0",
+        default: "#FFF9EF",
         paper: "#ffffff",
       },
       text: {
-        primary: "#0F2A4A",
-        secondary: "#55627A",
+        primary: "#20304A",
+        secondary: "#5B6B82",
       },
     },
     typography: {

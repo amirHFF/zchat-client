@@ -1,4 +1,4 @@
-import { $msg, $pres } from "strophe.js";
+import { $msg, $pres, Strophe } from "strophe.js";
 import { XmppClient } from "./XmppClient.ts";
 import { $iq } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage.ts";
@@ -7,387 +7,276 @@ import { MessageEventHandler } from "../chatStore/MessagEventHandler.ts";
 import { XmppMamClient } from "./XmppMamClient.ts";
 
 export class ChatServiceFacade {
-    private xmppDomainName: string = "@zchat.ir";
-    private static currentJid: string;
+  private xmppDomainName: string = "@zchat.ir";
+  private static currentJid: string;
 
-    private static instance: ChatServiceFacade;
+  private static instance: ChatServiceFacade;
 
-    private readonly client: XmppClient;
-    private readonly xmppMamClient: XmppMamClient;
+  private readonly client: XmppClient;
+  private readonly xmppMamClient: XmppMamClient;
 
-    private readonly messageDisplayHandler: MessageEventHandler;
+  private readonly messageDisplayHandler: MessageEventHandler;
 
-    private messageListeners:
-        Array<(message: XmppMessage) => void> = [];
+  private messageListeners: Array<(message: XmppMessage) => void> = [];
 
-    private presenceListeners:
-        Array<(presence: XmppPresence) => void> = [];
+  private presenceListeners: Array<(presence: XmppPresence) => void> = [];
 
-    private constructor() {
+  private constructor() {
+    this.client = XmppClient.getInstance();
+    this.xmppMamClient = new XmppMamClient(this.client);
+    this.messageDisplayHandler = new MessageEventHandler();
+  }
 
-        this.client = XmppClient.getInstance();
-        this.xmppMamClient = new XmppMamClient(this.client);
-        this.messageDisplayHandler = new MessageEventHandler();
-
+  public static getInstance(): ChatServiceFacade {
+    console.log("getindtance 1");
+    if (!ChatServiceFacade.instance) {
+      ChatServiceFacade.instance = new ChatServiceFacade();
     }
 
-    public static getInstance(): ChatServiceFacade {
+    return ChatServiceFacade.instance;
+  }
 
-        console.log("getindtance 1")
-        if (!ChatServiceFacade.instance) {
+  // ------------------------------------
+  // Login
+  // ------------------------------------
 
-            ChatServiceFacade.instance =
-                new ChatServiceFacade();
+  public async login(jid: string, password: string | undefined): Promise<void> {
+    ChatServiceFacade.currentJid = jid;
+    console.log("login jid : " + jid);
 
+    await this.client.connect(jid, password);
+    console.log("jid : " + jid + "connected ...");
+
+    this.registerMessageHandler();
+
+    this.registerPresenceHandler();
+
+    this.sendPresence();
+    console.log("set listener for jid : " + jid);
+    this.setListener();
+  }
+
+  // ------------------------------------
+  // Logout
+  // ------------------------------------
+
+  public logout(): void {
+    this.client.disconnect();
+  }
+
+  // ------------------------------------
+  // Presence
+  // ------------------------------------
+
+  public sendPresence(): void {
+    const presence = $pres().tree();
+
+    this.client.send(presence);
+  }
+
+  // ------------------------------------
+  // Send Message
+  // ------------------------------------
+
+  public sendMessage(to: string, text: string, hash?: string): void {
+    to = to.concat(this.xmppDomainName);
+    const messageBuilder = $msg({
+      to,
+      type: "chat",
+      xmlns: "jabber:client",
+    })
+      .c("body")
+      .t(text)
+      .up();
+
+    if (hash) {
+      messageBuilder
+        .c("zchat", { xmlns: "urn:zchat:message" })
+        .c("hash")
+        .t(hash);
+    }
+
+    const message = messageBuilder.tree();
+
+    // console.log("Sending XMPP message:", {
+    //   to,
+    //   text,
+    //   hash,
+    //   stanza: Strophe.serialize(message),
+    // });
+    // result log example
+    //  {
+    //  "to": "bot-storm-qdhi@zchat.ir",
+    //  "text": "hi chat A",
+    //  "hash": "c9da649841667153e203444bd",
+    //  "stanza": "<message to=\"bot-storm-qdhi@zchat.ir\" type=\"chat\" xmlns=\"jabber:client\"><body>hi chat A</body><zchat xmlns=\"urn:zchat:message\"><hash>c9da649841667153e203444bd</hash></zchat></message>"
+    //  }
+    this.client.send(message);
+    this.messageDisplayHandler.onOutgoingMessage(to, text);
+  }
+
+  // ------------------------------------
+  // Message Listeners
+  // ------------------------------------
+
+  // public addMessageListener(
+  //     listener: (
+  //         message: XmppMessage
+  //     ) => void
+  // ) {
+
+  //     this.messageListeners.push(
+  //         listener
+  //     );
+  //         return () => {
+
+  //     this.messageListeners =
+  //         this.messageListeners.filter(l => l !== listener);
+
+  // };
+
+  // }
+  public setListener(): void {
+    this.client.addMessageListener((message) => {
+      console.log("received message : " + message);
+
+      message.from = message.from.substring(0, message.from.indexOf("/"));
+      this.messageDisplayHandler.onIncomingMessage(message);
+    });
+
+    // this.client.addPresenceListener(presence => {
+
+    //     this.messageDisplayHandler.onPresenceChanged(
+    //         presence
+    //     );
+    // });
+  }
+
+  // ------------------------------------
+  // Presence Listeners
+  // ------------------------------------
+
+  public addPresenceListener(listener: (presence: XmppPresence) => void): void {
+    this.presenceListeners.push(listener);
+  }
+
+  // ------------------------------------
+  // Internal Message Handler
+  // ------------------------------------
+
+  private registerMessageHandler(): void {
+    this.client.addHandler(
+      (stanza: Element) => {
+        const bodyNode = stanza.getElementsByTagName("body")[0];
+
+        if (!bodyNode) {
+          return true;
         }
 
-        return ChatServiceFacade.instance;
+        const message: XmppMessage = {
+          from: stanza.getAttribute("from") || "",
 
-    }
+          to: stanza.getAttribute("to") || "",
 
-    // ------------------------------------
-    // Login
-    // ------------------------------------
+          body: bodyNode.textContent || "",
 
-    public async login(
-        jid: string,
-        password: string | undefined
-    ): Promise<void> {
-        ChatServiceFacade.currentJid = jid;
-        console.log("login jid : " + jid);
+          id: stanza.getAttribute("id") || "",
+          type: stanza.getAttribute("type") || "",
+          xmlns: stanza.getAttribute("xmlns") || "",
+        };
 
-        await this.client.connect(
-            jid,
-            password
-        );
-        console.log("jid : " + jid + "connected ...");
+        this.messageListeners.forEach((listener) => listener(message));
 
-        this.registerMessageHandler();
+        return true;
+      },
 
-        this.registerPresenceHandler();
+      undefined,
 
-        this.sendPresence();
-        console.log("set listener for jid : " + jid);
-        this.setListener();
+      "message",
+    );
+  }
 
-    }
+  // ------------------------------------
+  // Internal Presence Handler
+  // ------------------------------------
 
-    // ------------------------------------
-    // Logout
-    // ------------------------------------
+  private registerPresenceHandler(): void {
+    this.client.addHandler(
+      (stanza: Element) => {
+        const presence: XmppPresence = {
+          from: stanza.getAttribute("from") || "",
 
-    public logout(): void {
+          type: stanza.getAttribute("type") || "available",
+        };
 
-        this.client.disconnect();
+        this.presenceListeners.forEach((listener) => listener(presence));
 
-    }
+        return true;
+      },
 
-    // ------------------------------------
-    // Presence
-    // ------------------------------------
+      undefined,
 
-    public sendPresence(): void {
+      "presence",
+    );
+  }
+  public async isMamSupported(): Promise<boolean> {
+    const features = await this.discoverFeatures();
 
-        const presence =
-            $pres().tree();
+    return (
+      features.includes("urn:xmpp:mam:2") || features.includes("urn:xmpp:mam:1")
+    );
+  }
+  public discoverFeatures(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const iq = $iq({
+        type: "get",
+        to: this.client.getConnection().domain,
+        id: "disco1",
+      })
+        .c("query", {
+          xmlns: "http://jabber.org/protocol/disco#info",
+        })
+        .tree();
 
-        this.client.send(presence);
+      this.client.sendIQ(
+        iq,
 
-    }
+        (result: Element) => {
+          const features: string[] = [];
 
-    // ------------------------------------
-    // Send Message
-    // ------------------------------------
+          const nodes = result.getElementsByTagName("feature");
 
-    public sendMessage(
-        to: string,
-        text: string
-    ): void {
-        
-        to = to.concat(this.xmppDomainName);
+          for (let i = 0; i < nodes.length; i++) {
+            const feature = nodes[i].getAttribute("var");
 
-        const message =
-
-            $msg({
-                to,
-                type: "chat"
-            })
-                .c("body")
-                .t(text)
-                .tree();
-
-        this.client.send(message);
-        this.messageDisplayHandler.onOutgoingMessage(to, text);
-
-    }
-
-    // ------------------------------------
-    // Message Listeners
-    // ------------------------------------
-
-    // public addMessageListener(
-    //     listener: (
-    //         message: XmppMessage
-    //     ) => void
-    // ) {
-
-    //     this.messageListeners.push(
-    //         listener
-    //     );
-    //         return () => {
-
-    //     this.messageListeners =
-    //         this.messageListeners.filter(l => l !== listener);
-
-    // };
-
-    // }
-    public setListener(): void {
-
-        this.client.addMessageListener(message => {
-            console.log("received message : " + message);
-
-            message.from = message.from.substring(0, message.from.indexOf('/'));
-            this.messageDisplayHandler.onIncomingMessage(
-                message
-            );
-
-        });
-
-        // this.client.addPresenceListener(presence => {
-
-        //     this.messageDisplayHandler.onPresenceChanged(
-        //         presence
-        //     );
-        // });
-
-    }
-
-    // ------------------------------------
-    // Presence Listeners
-    // ------------------------------------
-
-    public addPresenceListener(
-        listener: (
-            presence: XmppPresence
-        ) => void
-    ): void {
-
-        this.presenceListeners.push(
-            listener
-        );
-
-    }
-
-    // ------------------------------------
-    // Internal Message Handler
-    // ------------------------------------
-
-    private registerMessageHandler(): void {
-
-        this.client.addHandler(
-
-            (stanza: Element) => {
-
-                const bodyNode =
-                    stanza.getElementsByTagName(
-                        "body"
-                    )[0];
-
-                if (!bodyNode) {
-
-                    return true;
-
-                }
-
-                const message: XmppMessage = {
-
-                    from:
-                        stanza.getAttribute(
-                            "from"
-                        ) || "",
-
-                    to:
-                        stanza.getAttribute(
-                            "to"
-                        ) || "",
-
-                    body:
-                        bodyNode.textContent || "",
-
-                    id:
-                        stanza.getAttribute(
-                            "id"
-                        ) || "",
-                    type:
-                        stanza.getAttribute(
-                            "type"
-                        ) || "",
-                    xmlns:
-                        stanza.getAttribute(
-                            "xmlns"
-                        ) || "",
-
-
-
-                };
-
-                this.messageListeners
-                    .forEach(
-                        listener =>
-                            listener(message)
-                    );
-
-                return true;
-
-            },
-
-            undefined,
-
-            "message"
-
-        );
-
-    }
-
-    // ------------------------------------
-    // Internal Presence Handler
-    // ------------------------------------
-
-    private registerPresenceHandler(): void {
-
-        this.client.addHandler(
-
-            (stanza: Element) => {
-
-                const presence:
-                    XmppPresence = {
-
-                    from:
-                        stanza.getAttribute(
-                            "from"
-                        ) || "",
-
-                    type:
-                        stanza.getAttribute(
-                            "type"
-                        ) || "available"
-
-                };
-
-                this.presenceListeners
-                    .forEach(
-                        listener =>
-                            listener(
-                                presence
-                            )
-                    );
-
-                return true;
-
-            },
-
-            undefined,
-
-            "presence"
-
-        );
-
-    }
-    public async isMamSupported(): Promise<boolean> {
-
-        const features =
-            await this.discoverFeatures();
-
-        return (
-            features.includes("urn:xmpp:mam:2") ||
-            features.includes("urn:xmpp:mam:1")
-        );
-
-    }
-    public discoverFeatures(): Promise<string[]> {
-
-        return new Promise((resolve, reject) => {
-
-            const iq =
-                $iq({
-                    type: "get",
-                    to: this.client
-                        .getConnection()
-                        .domain,
-                    id: "disco1"
-                })
-                    .c("query", {
-                        xmlns: "http://jabber.org/protocol/disco#info"
-                    })
-                    .tree();
-
-            this.client.sendIQ(
-
-                iq,
-
-                (result: Element) => {
-
-                    const features: string[] = [];
-
-                    const nodes =
-                        result.getElementsByTagName(
-                            "feature"
-                        );
-
-                    for (
-                        let i = 0;
-                        i < nodes.length;
-                        i++
-                    ) {
-
-                        const feature =
-                            nodes[i].getAttribute("var");
-
-                        if (feature) {
-
-                            features.push(feature);
-
-                        }
-
-                    }
-
-                    resolve(features);
-
-                },
-
-                (error) => {
-
-                    reject(error);
-
-                }
-
-            );
-
-        });
-
-    }
-    public loadChatHistory(targetJid: string, conversationId: string): void {
-        targetJid = targetJid.concat(this.xmppDomainName);
-        console.log("loadChatHistory jid =" + targetJid + " " + conversationId)
-
-        this.xmppMamClient.loadHistory(
-
-            ChatServiceFacade.currentJid,
-
-            targetJid,
-            conversationId,
-
-            messages => {
-                console.log("loaded history : " + messages);
-                this.messageDisplayHandler.onHistoryLoaded(
-                    messages
-                );
-
+            if (feature) {
+              features.push(feature);
             }
+          }
 
-        );
+          resolve(features);
+        },
 
-    }
+        (error) => {
+          reject(error);
+        },
+      );
+    });
+  }
+  public loadChatHistory(targetJid: string, conversationId: string): void {
+    targetJid = targetJid.concat(this.xmppDomainName);
+    console.log("loadChatHistory jid =" + targetJid + " " + conversationId);
 
+    this.xmppMamClient.loadHistory(
+      ChatServiceFacade.currentJid,
+
+      targetJid,
+      conversationId,
+
+      (messages) => {
+        console.log("loaded history : " + messages);
+        this.messageDisplayHandler.onHistoryLoaded(messages);
+      },
+    );
+  }
 }

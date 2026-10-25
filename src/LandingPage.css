@@ -6,7 +6,7 @@
 
 body{
     font-family:var(--font-body),sans-serif;
-    background:#F6F5F0;
+    background:var(--bg);
 }
 
 .landing-page{
@@ -17,7 +17,7 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    background:#F6F5F0;
+    background:var(--bg);
 }
 
 .hero{
@@ -44,7 +44,7 @@ body{
     height:180px;
     object-fit:contain;
     z-index:2;
-    filter:drop-shadow(0 6px 18px rgba(15,42,74,.18));
+    filter:drop-shadow(0 6px 18px rgba(32,48,74,.18));
 }
 
 .logo-ring{
@@ -54,9 +54,9 @@ body{
     background:conic-gradient(
         from 0deg,
         transparent 0deg,
-        rgba(31,166,166,.55) 60deg,
+        rgba(32,175,163,.55) 60deg,
         transparent 140deg,
-        rgba(201,162,39,.55) 220deg,
+        rgba(255,200,87,.7) 220deg,
         transparent 300deg,
         transparent 360deg
     );
@@ -75,7 +75,7 @@ body{
     font-weight:600;
     letter-spacing:4px;
     text-transform:uppercase;
-    color:#1FA6A6;
+    color:var(--teal);
     margin-bottom:10px;
 }
 
@@ -86,7 +86,7 @@ body{
 
 .hero h1{
     font-family:var(--font-display),sans-serif;
-    color:#0F2A4A;
+    color:var(--navy);
     font-size:72px;
     font-weight:800;
     letter-spacing:-1.5px;
@@ -94,7 +94,7 @@ body{
 }
 
 .subtitle{
-    color:#55627A;
+    color:var(--text-secondary);
     font-size:19px;
     line-height:1.7;
     margin-bottom:46px;
@@ -118,25 +118,25 @@ button{
 }
 
 .primary{
-    background:#0F2A4A;
+    background:var(--blue);
     color:#ffffff;
 }
 
 .primary:hover{
     transform:translateY(-3px);
-    box-shadow:0 16px 34px rgba(15,42,74,.28);
+    box-shadow:0 16px 34px rgba(32,48,74,.24);
 }
 
 .secondary{
     background:#ffffff;
-    color:#0F2A4A;
-    border:1px solid rgba(15,42,74,.18);
+    color:var(--navy);
+    border:1px solid var(--line);
 }
 
 .secondary:hover{
     transform:translateY(-3px);
-    border-color:#C9A227;
-    box-shadow:0 16px 34px rgba(201,162,39,.18);
+    border-color:var(--gold);
+    box-shadow:0 16px 34px rgba(255,200,87,.24);
 }
 
 .gradient{
@@ -151,7 +151,7 @@ button{
 .gradient1{
     width:560px;
     height:560px;
-    background:#1FA6A6;
+    background:var(--teal);
     top:-160px;
     left:-140px;
 }
@@ -159,7 +159,7 @@ button{
 .gradient2{
     width:520px;
     height:520px;
-    background:#0F2A4A;
+    background:var(--blue);
     bottom:-140px;
     right:-100px;
     opacity:.18;
@@ -169,7 +169,7 @@ button{
 .gradient3{
     width:340px;
     height:340px;
-    background:#C9A227;
+    background:var(--gold);
     top:38%;
     left:56%;
     opacity:.22;

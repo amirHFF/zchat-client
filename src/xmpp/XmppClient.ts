@@ -2,340 +2,230 @@ import { Strophe, $pres } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage";
 const chatWebSocketAddress = import.meta.env.VITE_API_CHAT_SERVER_ADDRESS;
 
-
-
 export type ConnectionStatusListener = (status: number) => void;
 
 export class XmppClient {
+  private static instance: XmppClient;
 
-    private static instance: XmppClient;
+  private connection!: InstanceType<typeof Strophe.Connection>;
+  private readonly websocketUrl: string;
 
-    private connection!: InstanceType<typeof Strophe.Connection>;
-    private readonly websocketUrl: string;
+  private connected = false;
 
-    private connected = false;
+  private statusListener?: ConnectionStatusListener;
 
-    private statusListener?: ConnectionStatusListener;
+  private constructor() {
+    // بعداً از env می‌خوانیم
+    this.websocketUrl = chatWebSocketAddress;
+  }
 
-    private constructor() {
-
-        // بعداً از env می‌خوانیم
-        this.websocketUrl = chatWebSocketAddress
-
+  public static getInstance(): XmppClient {
+    if (!XmppClient.instance) {
+      XmppClient.instance = new XmppClient();
     }
 
-    public static getInstance(): XmppClient {
+    return XmppClient.instance;
+  }
 
-        if (!XmppClient.instance) {
+  /**
+   * ایجاد Connection
+   */
+  private createConnection(): void {
+    if (!this.connection) {
+      this.connection = new Strophe.Connection(this.websocketUrl, {
+        mechanisms: [Strophe.SASLPlain], // Force PLAIN
+      });
+    }
+  }
 
-            XmppClient.instance = new XmppClient();
+  /**
+   * اتصال به Openfire
+   */
+  public connect(jid: string, password: string | undefined): Promise<void> {
+    Strophe.log = function (level: any, msg: any) {
+      console.log(level, msg);
+    };
+    this.createConnection();
 
-        }
+    return new Promise((resolve, reject) => {
+      console.log("jid : " + jid);
 
-        return XmppClient.instance;
+      this.connection!.connect(
+        jid,
 
+        password,
+
+        (status: number) => {
+          this.connected = status === Strophe.Status.CONNECTED;
+
+          this.statusListener?.(status);
+
+          switch (status) {
+            case Strophe.Status.CONNECTED:
+              console.log("Connected.");
+              console.log("jid : " + jid);
+
+              resolve();
+
+              break;
+
+            case Strophe.Status.AUTHFAIL:
+              reject(new Error("Authentication failed."));
+
+              break;
+
+            case Strophe.Status.CONNFAIL:
+              reject(new Error("Connection failed."));
+
+              break;
+
+            case Strophe.Status.DISCONNECTED:
+              console.log("Disconnected.");
+
+              break;
+          }
+        },
+      );
+    });
+  }
+
+  /**
+   * قطع اتصال
+   */
+  public disconnect(): void {
+    if (!this.connection) {
+      return;
     }
 
-    /**
-     * ایجاد Connection
-     */
-    private createConnection(): void {
+    this.connection.disconnect();
 
-        if (!this.connection) {
+    this.connected = false;
+  }
 
-            this.connection = new Strophe.Connection(
-                this.websocketUrl, {
-                mechanisms: [Strophe.SASLPlain]   // Force PLAIN
-            }
-            );
+  /**
+   * آیا وصل هستیم؟
+   */
+  public isConnected(): boolean {
+    return this.connected;
+  }
 
-        }
+  /**
+   * دسترسی به Connection
+   */
+  public getConnection(): InstanceType<typeof Strophe.Connection> {
+    if (!this.connection) {
+      throw new Error("Connection has not been created.");
     }
 
-    /**
-     * اتصال به Openfire
-     */
-    public connect(
-        jid: string,
-        password: string | undefined
-    ): Promise<void> {
-        Strophe.log = function (level: any, msg: any) {
-            console.log(level, msg);
-        };
-        this.createConnection();
+    return this.connection;
+  }
 
-        return new Promise((resolve, reject) => {
-            console.log("jid : " + jid);
+  /**
+   * وضعیت اتصال
+   */
+  public getStatus(): number {
+    if (!this.connection) {
+      return Strophe.Status.DISCONNECTED;
+    }
 
-            this.connection!.connect(
+    return this.connection.connected
+      ? Strophe.Status.CONNECTED
+      : Strophe.Status.DISCONNECTED;
+  }
 
-                jid,
+  /**
+   * ثبت Listener وضعیت اتصال
+   */
+  public setStatusListener(listener: ConnectionStatusListener): void {
+    this.statusListener = listener;
+  }
+  public send(stanza: Element): void {
+    if (!this.connected) {
+      throw new Error("Not connected.");
+    }
 
-                password,
+    this.connection.send(stanza);
+  }
+  public sendIQ(
+    stanza: Element,
+    success?: (result: Element) => void,
+    error?: (error: Element) => void,
+  ): void {
+    if (!this.connected) {
+      throw new Error("Not connected.");
+    }
 
-                (status: number) => {
+    this.connection.sendIQ(stanza, success, error);
+  }
+  public addMessageListener(listener: (message: XmppMessage) => void) {
+    this.addHandler(
+      (stanza: Element) => {
+        const body = stanza.getElementsByTagName("body")[0]?.textContent ?? "";
 
-                    this.connected =
-                        status === Strophe.Status.CONNECTED;
+        console.log("Received XMPP message body:", body);
 
-                    this.statusListener?.(status);
+        listener({
+          id: stanza.getAttribute("id") ?? "",
 
-                    switch (status) {
+          from: stanza.getAttribute("from") ?? "",
 
-                        case Strophe.Status.CONNECTED:
+          to: stanza.getAttribute("to") ?? "",
 
-                            console.log("Connected.");
-                            console.log("jid : " + jid);
+          type: stanza.getAttribute("type") ?? "",
 
-
-                            resolve();
-
-                            break;
-
-                        case Strophe.Status.AUTHFAIL:
-
-                            reject(
-                                new Error("Authentication failed.")
-                            );
-
-                            break;
-
-                        case Strophe.Status.CONNFAIL:
-
-                            reject(
-                                new Error("Connection failed.")
-                            );
-
-                            break;
-
-                        case Strophe.Status.DISCONNECTED:
-
-                            console.log("Disconnected.");
-
-                            break;
-
-                    }
-
-                }
-
-            );
-
+          body,
+          xmlns: stanza.getAttribute("xmlns") ?? "",
         });
-    }
 
-    /**
-     * قطع اتصال
-     */
-    public disconnect(): void {
-
-        if (!this.connection) {
-
-            return;
-
-        }
-
-        this.connection.disconnect();
-
-        this.connected = false;
-
-    }
-
-    /**
-     * آیا وصل هستیم؟
-     */
-    public isConnected(): boolean {
-
-        return this.connected;
-
-    }
-
-    /**
-     * دسترسی به Connection
-     */
-    public getConnection(): InstanceType<typeof Strophe.Connection> {
-
-        if (!this.connection) {
-
-            throw new Error(
-                "Connection has not been created."
-            );
-
-        }
-
-        return this.connection;
-
-    }
-
-    /**
-     * وضعیت اتصال
-     */
-    public getStatus(): number {
-
-        if (!this.connection) {
-
-            return Strophe.Status.DISCONNECTED;
-
-        }
-
-        return this.connection.connected
-            ? Strophe.Status.CONNECTED
-            : Strophe.Status.DISCONNECTED;
-
-    }
-
-    /**
-     * ثبت Listener وضعیت اتصال
-     */
-    public setStatusListener(
-        listener: ConnectionStatusListener
-    ): void {
-
-        this.statusListener = listener;
-
-    }
-    public send(stanza: Element): void {
-
-        if (!this.connected) {
-            throw new Error("Not connected.");
-        }
-
-        this.connection.send(stanza);
-
-    }
-    public sendIQ(
-        stanza: Element,
-        success?: (result: Element) => void,
-        error?: (error: Element) => void
-    ): void {
-
-        if (!this.connected) {
-            throw new Error("Not connected.");
-        }
-
-        this.connection.sendIQ(
-            stanza,
-            success,
-            error
-        );
-
-    }
-    public addMessageListener(
-        listener: (message: XmppMessage) => void
-    ) {
-
-        this.addHandler(
-
-            (stanza :Element) => {
-
-                const body =
-                    stanza.getElementsByTagName("body")[0]
-                        ?.textContent ?? "";
-
-                listener({
-                    id: stanza.getAttribute("id") ?? "",
-
-                    from: stanza.getAttribute("from") ?? "",
-
-                    to: stanza.getAttribute("to") ?? "",
-
-                    type: stanza.getAttribute("type") ?? "",
-
-                    body,
-                    xmlns: stanza.getAttribute("xmlns") ?? ""
-                });
-
-                return true;
-
-            },
-
-            undefined,
-
-            "message"
-
-        );
-
-    }
-    public addPresenceListener(
-        listener: (presence: Element) => void
-    ) {
-
-        return this.addHandler(
-
-            (stanza: Element) => {
-
-                listener(stanza);
-
-                return true;
-
-            },
-
-            undefined,
-            "presence"
-
-        );
-
-    }
-    public addIqListener(
-        listener: (iq: Element) => void
-    ) {
-
-        return this.addHandler(
-
-            (stanza :Element) => {
-
-                listener(stanza);
-
-                return true;
-
-            },
-
-            undefined,
-            "iq"
-
-        );
-
-    }
-    public addHandler(
-        handler?: InstanceType<typeof Strophe.handler>,
-        ns?: string,
-        name?: string,
-        type?: string,
-        id?: string,
-        from?: string
-    ) {
-
-        return this.connection.addHandler(
-            handler,
-            ns,
-            name,
-            type,
-            id,
-            from
-        );
-
-    }
-    public removeHandler(handler: any): void {
-
-        this.connection.deleteHandler(handler);
-
-    }
-    public addTimedHandler(
-        period: number,
-        handler: () => boolean
-    ) {
-
-        return this.connection.addTimedHandler(
-            period,
-            handler
-        );
-
-    }
-    public sendPresence(): void {
-
-        this.send(
-            $pres().tree()
-        );
-
-    }
-
+        return true;
+      },
+
+      undefined,
+
+      "message",
+    );
+  }
+  public addPresenceListener(listener: (presence: Element) => void) {
+    return this.addHandler(
+      (stanza: Element) => {
+        listener(stanza);
+
+        return true;
+      },
+
+      undefined,
+      "presence",
+    );
+  }
+  public addIqListener(listener: (iq: Element) => void) {
+    return this.addHandler(
+      (stanza: Element) => {
+        listener(stanza);
+
+        return true;
+      },
+
+      undefined,
+      "iq",
+    );
+  }
+  public addHandler(
+    handler?: InstanceType<typeof Strophe.handler>,
+    ns?: string,
+    name?: string,
+    type?: string,
+    id?: string,
+    from?: string,
+  ) {
+    return this.connection.addHandler(handler, ns, name, type, id, from);
+  }
+  public removeHandler(handler: any): void {
+    this.connection.deleteHandler(handler);
+  }
+  public addTimedHandler(period: number, handler: () => boolean) {
+    return this.connection.addTimedHandler(period, handler);
+  }
+  public sendPresence(): void {
+    this.send($pres().tree());
+  }
 }

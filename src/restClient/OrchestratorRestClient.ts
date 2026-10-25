@@ -22,6 +22,42 @@ function resolveConversationHash(conversation: {
 }
 
 export class OrchestratorRestClient {
+  static async fetchSubConversations(parentHash: string): Promise<ConversationModel[]> {
+    try {
+      const response = await fetch(`${orchestratorUrl}/conversations/sub/${encodeURIComponent(parentHash)}`, {
+        method: "GET",
+        headers: { Accept: "application/json", Authorization: `Bearer ${keycloak.token}` },
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const items: SubConversationResponse[] = await response.json();
+      return items.map((item) => ({
+        hash: item.hash, parentHash: item.parentHash, title: item.title,
+        lastMessage: item.lastMessage, lastMessageTime: "",
+        conversationType: item.conversationType, participants: item.participants,
+        jid: "", targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
+      }));
+    } catch (error) {
+      console.error("Error fetching sub-conversations:", error);
+      return [];
+    }
+  }
+
+  static async addSubConversation(parentHash: string, title: string): Promise<ConversationModel> {
+    const response = await fetch(`${orchestratorUrl}/conversations/sub`, {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: `Bearer ${keycloak.token}` },
+      body: JSON.stringify({ parentHash, title, lastMessage: "" }),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const item: SubConversationResponse = await response.json();
+    return {
+      hash: item.hash, parentHash: item.parentHash, title: item.title,
+      lastMessage: item.lastMessage, lastMessageTime: "",
+      conversationType: item.conversationType, participants: item.participants,
+      jid: "", targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
+    };
+  }
+
   static async fetchConversations(
     username: string,
   ): Promise<ConversationModel[] | undefined> {
@@ -61,6 +97,8 @@ export class OrchestratorRestClient {
               title: c.title,
               lastMessage: c.lastMessage,
               lastMessageTime: c.lastMessageTime || c.timeStamp || "",
+              participants: c.participants,
+              conversationType: c.conversationType,
             };
           });
       } else {
@@ -249,6 +287,15 @@ export class OrchestratorRestClient {
   }
 }
 
+interface SubConversationResponse {
+  hash: string;
+  parentHash: string;
+  title: string;
+  lastMessage: string | undefined;
+  conversationType: string;
+  participants: string[];
+}
+
 class FetchedConversation {
   public hash?: string;
   public conversationHash?: string;
@@ -259,6 +306,7 @@ class FetchedConversation {
   public lastMessage: string | undefined;
   public lastMessageTime: string = "";
   public timeStamp?: string;
+  public conversationType?: string;
 }
 interface AddConversationResponse {
   hash: string;
