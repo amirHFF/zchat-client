@@ -2,8 +2,7 @@ import { translate, useLanguageStore } from "../i18n/languageStore";
 import type { Locale } from "../i18n/translations";
 import type { ConversationModel } from "../model/ConversationModel";
 
-// UI is still English; switch these locales to fa-IR when the theme is localized.
-const TIME_LOCALE = "en-US";
+
 
 function timeLocale(locale: Locale): string {
   return locale === "fa" ? "fa-IR" : "en-US";
