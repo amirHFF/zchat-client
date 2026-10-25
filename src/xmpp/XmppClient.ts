@@ -160,12 +160,17 @@ export class XmppClient {
   public addMessageListener(listener: (message: XmppMessage) => void) {
     this.addHandler(
       (stanza: Element) => {
-        const body = stanza.getElementsByTagName("body")[0]?.textContent ?? "";
+        const conversationHash = stanza.getElementsByTagNameNS(
+          "urn:zchat:message",
+          "zchat",
+        )[0].textContent;
 
-        console.log("Received XMPP message body:", body);
+        const body = stanza.getElementsByTagName("body")[0]?.textContent ?? "";
 
         listener({
           id: stanza.getAttribute("id") ?? "",
+
+          hash: conversationHash ?? "",
 
           from: stanza.getAttribute("from") ?? "",
 

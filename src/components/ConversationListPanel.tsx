@@ -50,6 +50,21 @@ export default function ConversationListPanel() {
   const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
 
+  const isActive = (conversation: ConversationModel) => {
+    if (!selectedConversation) return false;
+
+    // اگر هر دو hash دارند، فقط با hash مقایسه کن
+    if (selectedConversation.hash && conversation.hash) {
+      return selectedConversation.hash === conversation.hash;
+    }
+
+    // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
+    return (
+      !selectedConversation.hash &&
+      !conversation.hash &&
+      selectedConversation.targetJid === conversation.targetJid
+    );
+  };
   useEffect(() => {
     const loadConversations = async () => {
       if (conversationsFetchStarted) return;
