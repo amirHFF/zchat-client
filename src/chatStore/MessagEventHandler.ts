@@ -18,7 +18,8 @@ export class MessageEventHandler {
             return;
         }
 
-        const ownJid = state.selectedConversation?.jid ?? state.conversations[0]?.jid;
+        // const ownJid = state.selectedConversation?.jid ?? state.conversations[0]?.jid;
+        const ownJid = state.conversations[0]?.jid;
         if (!ownJid) {
             console.warn("Own jid unknown, cannot handle message");
             return;
@@ -48,7 +49,7 @@ export class MessageEventHandler {
             // 3) گفت‌وگوی جدید
             const newConversation: ConversationModel = {
                 hash: receivedMessage.hash,
-                jid: ownJid,
+                jid: receivedMessage.to,
                 targetJid: receivedMessage.from,
                 title: receivedMessage.from,
                 lastMessage: receivedMessage.body,

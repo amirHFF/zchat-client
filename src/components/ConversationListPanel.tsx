@@ -285,11 +285,12 @@ const isActive = (conversation: ConversationModel) => {
                 lastActivityTime={formatConversationTime(
                   conversation.lastMessageTime,
                 )}
-                active={
-                  selectedConversation?.hash
-                    ? selectedConversation.hash === conversation.hash
-                    : selectedConversation?.targetJid === conversation.targetJid
-                }
+                active={isActive(conversation)}
+                // active={
+                //   selectedConversation?.hash
+                //     ? selectedConversation.hash === conversation.hash
+                //     : selectedConversation?.targetJid === conversation.targetJid
+
                 onClick={() => handleSelect(conversation)}
               >
                 <UserAvatar name={conversation.title} online={true} />
