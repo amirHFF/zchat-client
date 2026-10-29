@@ -1,143 +1,148 @@
-.empty-chat{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-    width:100%;
-    flex:1 1 auto;
-    min-width:0;
-    gap:12px;
-    background:var(--bg);
-    font-family:var(--font-body);
+.empty-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 12px;
+  background: var(--bg);
+  font-family: var(--font-body);
 }
 
-.empty-chat .mark{
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    /* background:var(--teal-soft); */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--teal);
-    font-size:22px;
+.empty-chat .mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  /* background:var(--teal-soft); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  font-size: 22px;
 }
 
-.empty-chat .title{
-    font-family:var(--font-display);
-    font-size:16px;
-    font-weight:600;
-    color:var(--navy);
+.empty-chat .title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--navy);
 }
 
-.empty-chat .subtitle{
-    font-size:13px;
-    color:var(--text-secondary);
+.empty-chat .subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
-.cs-conversation-header{
-    background:#ffffff !important;
-    border-bottom:1px solid var(--line) !important;
-    padding:14px 18px !important;
+.cs-conversation-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--line) !important;
+  padding: 14px 18px !important;
 }
 
-.cs-conversation-header__user-name{
-    font-family:var(--font-display) !important;
-    font-weight:600 !important;
-    color:var(--navy) !important;
+.cs-conversation-header__user-name {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  color: var(--navy) !important;
 }
 
-.cs-conversation-header__info{
-    color:var(--teal) !important;
-    font-size:12px !important;
+.cs-conversation-header__info {
+  color: var(--teal) !important;
+  font-size: 12px !important;
 }
 
 /* عمداً direction روی این کانتینر rtl نشده، چون علاوه بر جهت متن،
    چیدمان (چپ/راست بودن حباب outgoing/incoming) رو هم برعکس می‌کنه. */
-.cs-message-list{
-    background:var(--bg) !important;
-    direction:ltr !important;
+.cs-message-list {
+  background: var(--bg) !important;
+  direction: ltr !important;
 }
 
 /* نکته‌ی اصلی: به‌جای unicode-bidi:plaintext (که جهت رو حدس می‌زنه و اگر
    پیام با حرف انگلیسی شروع بشه اشتباه تشخیص می‌ده)، جهت پایه رو صریحاً
    RTL می‌کنیم. الگوریتم bidi خودش کلمات/اعداد انگلیسیِ وسط متن رو به‌درستی
    embed می‌کنه؛ فقط جهت پایه باید ثابت و درست باشه. */
-.cs-message__content{
-    direction:ltr !important;
-    unicode-bidi:embed !important;
-    text-align:left !important;
+.cs-message__content {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+  text-align: left !important;
 }
 
-[dir="rtl"] .cs-message__content{
-    direction:rtl !important;
-    text-align:right !important;
+[dir="rtl"] .cs-message__content {
+  direction: rtl !important;
+  text-align: right !important;
 }
 
-.cs-message--outgoing .cs-message__content{
-    background:var(--blue) !important;
-    color:#ffffff !important;
-    border-radius:14px 14px 2px 14px !important;
+.cs-message--outgoing .cs-message__content {
+  background: var(--blue) !important;
+  color: #ffffff !important;
+  border-radius: 14px 14px 2px 14px !important;
 }
 
-.cs-message--incoming .cs-message__content{
-    background:var(--blue-soft) !important;
-    color:var(--navy) !important;
-    border:1px solid var(--line) !important;
-    border-radius:14px 14px 14px 2px !important;
+.cs-message--incoming .cs-message__content {
+  background: var(--blue-soft) !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px 14px 14px 2px !important;
 }
 
-.cs-message__footer{
-    font-family:var(--font-body) !important;
-    font-size:11px !important;
-    color:var(--text-secondary) !important;
-    margin-top:4px !important;
+.cs-message__footer {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  color: var(--text-secondary) !important;
+  margin-top: 4px !important;
 }
 
-.cs-message--outgoing .cs-message__footer{
-    justify-content:flex-end !important;
+.cs-message--outgoing .cs-message__footer {
+  justify-content: flex-end !important;
 }
 
-.cs-message--incoming .cs-message__footer{
-    justify-content:flex-start !important;
+.cs-message--incoming .cs-message__footer {
+  justify-content: flex-start !important;
 }
 
-.cs-message-input{
-    background:#ffffff !important;
-    border-top:1px solid var(--line) !important;
-    padding:12px 16px !important;
+.cs-message-input {
+  background: #ffffff !important;
+  border-top: 1px solid var(--line) !important;
+  padding: 12px 16px !important;
 }
 
-.cs-message-input__content-editor-wrapper{
-    background:var(--bg) !important;
-    border-radius:12px !important;
-    border:1px solid var(--line) !important;
+.cs-message-input__content-editor-wrapper {
+  background: var(--bg) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--line) !important;
 }
 
-.cs-message-input__content-editor{
-    background:transparent !important;
-    color:var(--navy) !important;
-    font-family:var(--font-body) !important;
-    direction:ltr !important;
-    unicode-bidi:embed !important;
-    text-align:left !important;
+/* The library gives this container a blue default background. */
+.cs-message-input__content-editor-container {
+  background: var(--bg) !important;
 }
 
-[dir="rtl"] .cs-message-input__content-editor{
-    direction:rtl !important;
-    text-align:right !important;
+.cs-message-input__content-editor {
+  background: transparent !important;
+  color: var(--navy) !important;
+  font-family: var(--font-body) !important;
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+  text-align: left !important;
+}
+
+[dir="rtl"] .cs-message-input__content-editor {
+  direction: rtl !important;
+  text-align: right !important;
 }
 
 [dir="rtl"] .cs-conversation-header__back-button,
 [dir="rtl"] .cs-button--back {
-    transform: scaleX(-1);
+  transform: scaleX(-1);
 }
 
-.cs-button--send{
-    color:var(--teal) !important;
+.cs-button--send {
+  color: var(--teal) !important;
 }
 
-.cs-button--attachment{
-    color:var(--text-secondary) !important;
+.cs-button--attachment {
+  color: var(--text-secondary) !important;
 }

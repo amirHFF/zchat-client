@@ -406,6 +406,7 @@ export default function NewConversation({
           sx={{
             position: "absolute",
             inset: 0,
+            bgcolor: "var(--navy-strong)",
             boxShadow: "0 12px 28px rgba(32,48,74,.24)",
             touchAction: liftFab ? "none" : "auto",
             cursor: liftFab ? (dragging ? "grabbing" : "grab") : "pointer",

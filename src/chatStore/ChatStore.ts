@@ -23,6 +23,9 @@ interface ChatStore {
     selectedConversation?: ConversationModel;
 
     messages: ChatMessage[];
+    // وضعیت محلی رابط کاربری؛ در مدل پیام یا payload سرور ذخیره نمی‌شود.
+    waitingForBotReply: boolean;
+    setWaitingForBotReply: (waiting: boolean) => void;
 
     bots: ChatBot[];
 
@@ -78,6 +81,9 @@ export const useChatStore = create<ChatStore>((set) => ({
     selectedConversation: undefined,
 
     messages: [],
+    // تا وقتی پیامی به بات ارسال نشده، نشانگر پاسخ خاموش است.
+    waitingForBotReply: false,
+    setWaitingForBotReply: (waiting) => set({ waitingForBotReply: waiting }),
 
     bots: [],
 
@@ -102,7 +108,9 @@ export const useChatStore = create<ChatStore>((set) => ({
 
     setSelectedConversation: (conversation) =>
         set({
-            selectedConversation: conversation
+            selectedConversation: conversation,
+            // انتظار مربوط به گفتگوی قبلی نباید در گفتگوی جدید نمایش داده شود.
+            waitingForBotReply: false,
         }),
 
     setMessages: (messages) =>

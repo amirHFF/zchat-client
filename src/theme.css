@@ -1,24 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700;800&display=swap");
 
-:root{
-    --bg:#FFF9EF;
-    --surface:#FFFFFF;
-    --surface-muted:#F5F8FC;
-    --navy:#20304A;
-    --navy-strong:#17243A;
-    --blue:#356AE6;
-    --blue-soft:#EAF2FF;
-    --teal:#20AFA3;
-    --teal-soft:rgba(32,175,163,.13);
-    --gold:#FFC857;
-    --coral:#FF7A70;
-    --text-secondary:#5B6B82;
-    --line:rgba(32,48,74,.12);
-    --font-display:'Sora',sans-serif;
-    --font-body:'Inter',sans-serif;
+:root {
+  --bg: #fff9ef;
+  --surface: #ffffff;
+  --surface-muted: #f5f8fc;
+  --navy: #20304a;
+  --navy-strong: #17243a;
+  --blue: #356ae6;
+  --blue-soft: #eaf2ff;
+  --teal: #20afa3;
+  --teal-soft: rgba(32, 175, 163, 0.13);
+  --gold: #ffc857;
+  --coral: #ff7a70;
+  --text-secondary: #5b6b82;
+  --line: rgba(32, 48, 74, 0.12);
+  --font-display: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
 [dir="rtl"] {
-    --font-display:'Vazirmatn',sans-serif;
-    --font-body:'Vazirmatn',sans-serif;
+  --font-display: "Vazirmatn", sans-serif;
+  --font-body: "Vazirmatn", sans-serif;
 }

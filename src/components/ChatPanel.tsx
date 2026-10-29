@@ -56,8 +56,11 @@ export default function ChatPanel() {
     };
   }, [conversation]); // اگه کانورسیشن عوض بشه، editor از نو mount می‌شه
 
-  const lastMessage = messages[messages.length - 1];
-  const isWaitingForReply = Boolean(lastMessage?.outgoing);
+  const waitingForBotReply = useChatStore((state) => state.waitingForBotReply);
+  // نشانگر فقط در گفتگوی بات و تا زمان دریافت پاسخ آن گفتگو نمایش داده می‌شود.
+  const isWaitingForReply = Boolean(
+    conversation && isBotConversation(conversation) && waitingForBotReply,
+  );
 
   const handleSend = (value: string) => {
     if (!conversation) return;

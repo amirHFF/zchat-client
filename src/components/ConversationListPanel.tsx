@@ -50,21 +50,21 @@ export default function ConversationListPanel() {
   const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
 
-const isActive = (conversation: ConversationModel) => {
-  if (!selectedConversation) return false;
+  const isActive = (conversation: ConversationModel) => {
+    if (!selectedConversation) return false;
 
-  // اگر هر دو hash دارند، فقط با hash مقایسه کن
-  if (selectedConversation.hash && conversation.hash) {
-    return selectedConversation.hash === conversation.hash;
-  }
+    // اگر هر دو hash دارند، فقط با hash مقایسه کن
+    if (selectedConversation.hash && conversation.hash) {
+      return selectedConversation.hash === conversation.hash;
+    }
 
-  // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
-  return (
-    !selectedConversation.hash &&
-    !conversation.hash &&
-    selectedConversation.targetJid === conversation.targetJid
-  );
-};
+    // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
+    return (
+      !selectedConversation.hash &&
+      !conversation.hash &&
+      selectedConversation.targetJid === conversation.targetJid
+    );
+  };
   useEffect(() => {
     const loadConversations = async () => {
       if (conversationsFetchStarted) return;
@@ -200,15 +200,18 @@ const isActive = (conversation: ConversationModel) => {
                   className={`bot-conversation${selectedConversation?.parentHash === conversation.hash ? " bot-parent-active" : ""}`}
                   name={
                     <>
+                      <span className="bot-conversation-name">
+                        {conversation.title || conversation.targetJid}
+                      </span>
                       <span className="bot-expand-icon" aria-hidden="true">
                         {expandedBots[conversation.hash] ? (
                           <KeyboardArrowDownIcon fontSize="small" />
                         ) : (
-                          <KeyboardArrowRightIcon fontSize="small" />
+                          <KeyboardArrowRightIcon
+                            className="bot-expand-icon__right"
+                            fontSize="small"
+                          />
                         )}
-                      </span>
-                      <span className="bot-conversation-name">
-                        {conversation.title || conversation.targetJid}
                       </span>
                     </>
                   }
