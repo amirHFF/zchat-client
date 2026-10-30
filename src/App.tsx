@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
-import { MainContainer } from "@chatscope/chat-ui-kit-react";
-import ConversationListPanel from "./components/ConversationListPanel";
-import ChatPanel from "./components/ChatPanel";
-import NewConversation from "./components/NewConversation";
-import { ChatServiceFacade } from "./xmpp/ChatServiceFacade";
-import { useChatStore } from "./chatStore/ChatStore";
-import keycloak from "./auth/Keycloak";
-import { useState } from "react";
-import { OrchestratorRestClient } from "./restClient/OrchestratorRestClient";
-import type { ConversationModel } from "./model/ConversationModel";
-import "./theme.css";
 import "./App.css";
-import { useNavigate } from "react-router-dom";
+import "./theme.css";
+import { useState } from "react";
 import { useT } from "./i18n/useT";
+import keycloak from "./auth/Keycloak";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ChatPanel from "./components/ChatPanel";
+import { useChatStore } from "./chatStore/ChatStore";
+import NewConversation from "./components/NewConversation";
+import { MainContainer } from "@chatscope/chat-ui-kit-react";
+import { ChatServiceFacade } from "./xmpp/ChatServiceFacade";
+import type { ConversationModel } from "./model/ConversationModel";
 import { SimorghLoader } from "./components/loading/SimorghLoader";
+import ConversationListPanel from "./components/ConversationListPanel";
+import { OrchestratorRestClient } from "./restClient/OrchestratorRestClient";
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
 export default function App() {
@@ -22,7 +22,7 @@ export default function App() {
   const t = useT();
 
   const [connected, setConnected] = useState(false);
-  const [creatingConversation, setCreatingConversation] = useState(false); // ⬅️ استیت جدید
+  const [creatingConversation, setCreatingConversation] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -38,6 +38,7 @@ export default function App() {
     }
 
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   //create conversation bot with bot id and bot participation code
   async function openCreatedConversation(

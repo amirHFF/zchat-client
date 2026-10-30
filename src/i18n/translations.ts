@@ -48,6 +48,8 @@ export const messages = {
     en: "Search conversations",
     fa: "جستجوی گفتگوها",
   },
+  "sidebar.bots": { en: "Bots", fa: "بات‌ها" },
+  "sidebar.otherUsers": { en: "Other users", fa: "کاربران دیگر" },
   "sidebar.noMessages": {
     en: "No messages yet",
     fa: "هنوز پیامی نیست",
@@ -57,9 +59,18 @@ export const messages = {
     fa: "هنوز گفتگویی ندارید",
   },
   "sidebar.newChat": { en: "New chat", fa: "گفت‌وگوی جدید" },
-  "sidebar.enterChatTitle": { en: "Enter a title for this chat", fa: "عنوان گفت‌وگو را وارد کنید" },
-  "sidebar.noSubConversations": { en: "No chats yet", fa: "هنوز گفت‌وگویی نیست" },
-  "sidebar.loadingChats": { en: "Loading chats…", fa: "در حال بارگذاری گفت‌وگوها…" },
+  "sidebar.enterChatTitle": {
+    en: "Enter a title for this chat",
+    fa: "عنوان گفت‌وگو را وارد کنید",
+  },
+  "sidebar.noSubConversations": {
+    en: "No chats yet",
+    fa: "هنوز گفت‌وگویی نیست",
+  },
+  "sidebar.loadingChats": {
+    en: "Loading chats…",
+    fa: "در حال بارگذاری گفت‌وگوها…",
+  },
   "chat.noConversation": {
     en: "No conversation selected",
     fa: "گفتگویی انتخاب نشده",

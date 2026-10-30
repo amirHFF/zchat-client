@@ -192,6 +192,47 @@
   font-family: var(--font-body);
 }
 
+.conversation-category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--navy);
+  font: 600 13px var(--font-body);
+  text-align: start;
+  cursor: pointer;
+}
+
+.conversation-category-toggle:hover {
+  background: var(--teal-soft);
+}
+
+.conversation-category-count {
+  margin-inline-start: auto;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.conversation-category-chevron-right {
+  transform: none;
+}
+
+[dir="rtl"] .conversation-category-chevron-right {
+  transform: scaleX(-1);
+}
+
+.conversation-category-empty {
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
 .bot-conversation .cs-conversation__name {
   display: flex !important;
   align-items: center;
