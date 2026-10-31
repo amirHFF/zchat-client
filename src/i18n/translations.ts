@@ -2,15 +2,15 @@ export const messages = {
   "brand.name": { en: "SimorQ", fa: "سیمرغ" },
   "landing.eyebrow": {
     en: "Deep Insight",
-    fa: "بینش عمیق",
+    fa: "Deep Insight",
   },
   "landing.subtitle": {
-    en: "Secure enterprise messaging, refined by intelligence.",
-    fa: "پیام‌رسان سازمانی امن، تقویت‌شده با هوش مصنوعی.",
+    en: "Educational Chatbot Platform",
+    fa: "پلتفرم ارائه چت بات های آموزشی",
   },
   "landing.poweredBy": {
-    en: "Powered by XMPP & Keycloak.",
-    fa: "مبتنی بر XMPP و Keycloak.",
+    en: "Powered by AI",
+    fa: "مبتنی بر هوش مصنوعی",
   },
   "landing.signIn": {
     en: "Sign in",
