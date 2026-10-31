@@ -20,6 +20,8 @@ import {
   DialogContent,
   useMediaQuery,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import React from "react";
 import type { ChatBot } from "../model/ChatBot";
@@ -98,6 +100,7 @@ export default function NewConversation({
   const [botSearching, setBotSearching] = useState(false);
   const [pendingBot, setPendingBot] = useState<ChatBot | null>(null);
   const [participationCode, setParticipationCode] = useState("");
+  const [hasParticipationCode, setHasParticipationCode] = useState(false);
   const [bots, setBots] = useState<ChatBot[]>([]);
   const isMobile = useMediaQuery("(max-width:426px)", { noSsr: true });
   const selectedConversation = useChatStore(
@@ -326,7 +329,10 @@ export default function NewConversation({
   function confirmAddBot() {
     if (!pendingBot) return;
 
-    onCreateBotConversation(pendingBot.botID, participationCode.trim());
+    onCreateBotConversation(
+      pendingBot.botID,
+      hasParticipationCode ? participationCode.trim() : "",
+    );
     closeDialog();
   }
 
@@ -635,6 +641,8 @@ export default function NewConversation({
                         key={bot.botID}
                         onClick={() => {
                           setParticipationCode("");
+                          setParticipationCode("");
+                          setHasParticipationCode(false);
                           setPendingBot(bot);
                         }}
                         onMouseEnter={() => setHoveredBot(bot)}
@@ -889,9 +897,36 @@ export default function NewConversation({
                 })
               : ""}
           </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={hasParticipationCode}
+                onChange={(event) => {
+                  setHasParticipationCode(event.target.checked);
+                  if (!event.target.checked) setParticipationCode("");
+                }}
+              />
+            }
+            label={t("newConversation.hasParticipationCode")}
+          />
           <TextField
-            autoFocus
             fullWidth
+            disabled={!hasParticipationCode}
+            helperText={
+              hasParticipationCode
+                ? " "
+                : t("newConversation.enableParticipationCodeHint")
+            }
+            sx={{
+              "& .MuiInputBase-root.Mui-disabled": {
+                backgroundColor: "var(--surface-muted, #f1f3f5)",
+                cursor: "not-allowed",
+              },
+              "& .MuiInputBase-root.Mui-disabled .MuiOutlinedInput-notchedOutline":
+                {
+                  borderStyle: "dashed",
+                },
+            }}
             label={t("newConversation.participationCode")}
             placeholder={t("newConversation.codePlaceholder")}
             value={participationCode}

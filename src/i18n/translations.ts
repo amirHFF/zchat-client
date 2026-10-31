@@ -215,6 +215,14 @@ export const messages = {
     en: "Participation code",
     fa: "کد مشارکت",
   },
+  "newConversation.hasParticipationCode": {
+    en: "I have a referral code",
+    fa: "کد معرف دارم",
+  },
+  "newConversation.enableParticipationCodeHint": {
+    en: "Check the box above to enter a referral code.",
+    fa: "برای وارد کردن کد معرف، گزینه بالا را فعال کنید.",
+  },
   "newConversation.codePlaceholder": {
     en: "Example: 7GP4M",
     fa: "مثال: 7GP4M",
