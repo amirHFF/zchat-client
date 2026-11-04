@@ -15,9 +15,13 @@ import { formatMessageTime } from "../utils/formatTimestamp";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
 import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { isBotConversation } from "../utils/botConversation";
+import { leaveMobileChatHistory } from "../utils/mobileChatHistory";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ChatPanel() {
   const setMobileView = useChatStore((state) => state.setMobileView);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [text, setText] = useState("");
   const t = useT();
@@ -111,7 +115,13 @@ export default function ChatPanel() {
     >
       <ChatContainer>
         <ConversationHeader>
-          <ConversationHeader.Back onClick={() => setMobileView("list")} />
+          <ConversationHeader.Back
+            onClick={() => {
+              if (!leaveMobileChatHistory(navigate, location.state)) {
+                setMobileView("list");
+              }
+            }}
+          />
 
           <UserAvatar name={conversation.targetJid} online={true} />
 

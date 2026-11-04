@@ -22,6 +22,8 @@ import { isBotConversation, getBotId } from "../utils/botConversation";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
+import { enterMobileChatHistory } from "../utils/mobileChatHistory";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
@@ -29,6 +31,8 @@ let conversationsFetchStarted = false;
 export default function ConversationListPanel() {
   const [profileOpen, setProfileOpen] = useState(false);
   const t = useT();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const conversations = useChatStore((state) => state.conversations);
   const setConversations = useChatStore((state) => state.setConversations);
@@ -97,6 +101,13 @@ export default function ConversationListPanel() {
     conversation: ConversationModel,
     loadMessages: boolean,
   ) => {
+    enterMobileChatHistory(
+      navigate,
+      location.pathname,
+      location.search,
+      location.hash,
+      location.state,
+    );
     const selected = {
       ...conversation,
       targetJid: getBotId(conversation) ?? conversation.targetJid,
@@ -149,6 +160,13 @@ export default function ConversationListPanel() {
     }
   };
   const handleSelect = async (conversation: ConversationModel) => {
+    enterMobileChatHistory(
+      navigate,
+      location.pathname,
+      location.search,
+      location.hash,
+      location.state,
+    );
     setSelectedConversation(conversation);
     setMessages([]);
     setMobileView("chat");

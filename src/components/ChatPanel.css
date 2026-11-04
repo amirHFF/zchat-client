@@ -76,7 +76,7 @@
 }
 
 .cs-message--outgoing .cs-message__content {
-  background: var(--blue) !important;
+  background: var(--teal) !important;
   color: #ffffff !important;
   border-radius: 14px 14px 2px 14px !important;
 }
@@ -104,6 +104,8 @@
 }
 
 .cs-message-input {
+  /* Keep the library's tool order stable: attachment left, send button right. */
+  direction: ltr !important;
   background: #ffffff !important;
   border-top: 1px solid var(--line) !important;
   padding: 12px 16px !important;
