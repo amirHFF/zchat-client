@@ -1,9 +1,10 @@
-import { $msg, $pres } from "strophe.js";
+import { $msg, $pres, Strophe } from "strophe.js";
 import { XmppClient } from "./XmppClient.ts";
 import { $iq } from "strophe.js";
 import type { XmppMessage } from "../model/XmppMessage.ts";
 import type { XmppPresence } from "../model/XmppPresence.ts";
 import { MessageEventHandler } from "../chatStore/MessagEventHandler.ts";
+import { useChatStore } from "../chatStore/ChatStore.ts";
 import { XmppMamClient } from "./XmppMamClient.ts";
 
 export class ChatServiceFacade {
@@ -51,14 +52,46 @@ export class ChatServiceFacade {
 
     public async login(
         jid: string,
-        password: string | undefined
+        password: string | undefined,
+        refreshPassword?: () => Promise<string | undefined>
     ): Promise<void> {
         ChatServiceFacade.currentJid = jid;
         console.log("login jid : " + jid);
 
+        let hasLoggedIn = false;
+        this.client.setStatusListener((status) => {
+            const state = useChatStore.getState();
+            if (status === Strophe.Status.CONNECTED) {
+                state.setConnectionStatus("connected");
+                // The initial login sends presence below. Send it again only
+                // after recovery so reconnect does not change message flow.
+                if (hasLoggedIn) {
+                    // Strophe resets stanza handlers on each connect(), so
+                    // restore exactly one copy of each app handler here.
+                    this.registerMessageHandler();
+                    this.registerPresenceHandler();
+                    this.setListener();
+                    this.sendPresence();
+                }
+            } else if (
+                status === Strophe.Status.CONNECTING ||
+                status === Strophe.Status.AUTHENTICATING
+            ) {
+                state.setConnectionStatus("connecting");
+            } else if (
+                status === Strophe.Status.CONNFAIL ||
+                status === Strophe.Status.AUTHFAIL ||
+                status === Strophe.Status.DISCONNECTED
+            ) {
+                state.setConnectionStatus("disconnected");
+            }
+        });
+        useChatStore.getState().setConnectionStatus("connecting");
+
         await this.client.connect(
             jid,
-            password
+            password,
+            refreshPassword
         );
         console.log("jid : " + jid + "connected ...");
 
@@ -69,6 +102,7 @@ export class ChatServiceFacade {
         this.sendPresence();
         console.log("set listener for jid : " + jid);
         this.setListener();
+        hasLoggedIn = true;
 
     }
 

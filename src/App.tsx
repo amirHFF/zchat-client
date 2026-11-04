@@ -16,30 +16,54 @@ import ConversationListPanel from "./components/ConversationListPanel";
 import { OrchestratorRestClient } from "./restClient/OrchestratorRestClient";
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
+// App effects run twice in React StrictMode during development. Share the
+// connection attempt so Strophe.connect() is never started in parallel.
+let chatLoginPromise: Promise<void> | undefined;
 export default function App() {
   const mobileView = useChatStore((state) => state.mobileView);
   const navigate = useNavigate();
   const t = useT();
 
   const [connected, setConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [loginAttempt, setLoginAttempt] = useState(0);
   const [creatingConversation, setCreatingConversation] = useState(false);
 
   useEffect(() => {
     async function init() {
-      if (!keycloak.authenticated) navigate("/");
+      if (!keycloak.authenticated) {
+        navigate("/");
+        return;
+      }
 
       const jid = `${keycloak.tokenParsed?.preferred_username}@zchat.ir`;
+      const loginPromise = chatLoginPromise ?? (chatLoginPromise = chatFacade.login(
+        jid,
+        keycloak.token,
+        async () => {
+          // The Keycloak access token used as the XMPP password can expire while
+          // a mobile browser is suspended; refresh it only when reconnecting.
+          await keycloak.updateToken(30);
+          return keycloak.token;
+        },
+      ));
 
-      await chatFacade.login(jid, keycloak.token);
-
-      console.log("login done");
-
-      setConnected(true);
+      try {
+        await loginPromise;
+        console.log("login done");
+        setConnectionError(null);
+        setConnected(true);
+      } catch (error) {
+        // Clear only this failed attempt. A later retry can create a fresh one.
+        if (chatLoginPromise === loginPromise) chatLoginPromise = undefined;
+        console.error("XMPP login failed:", error);
+        setConnectionError(String(error));
+      }
     }
 
-    init();
+    void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loginAttempt]);
   //create conversation bot with bot id and bot participation code
   async function openCreatedConversation(
     targetJid: string,
@@ -79,7 +103,14 @@ export default function App() {
         {/* <div className="connecting-ring"></div> */}
         {/* <div className="connecting-text">{t("app.connecting")}</div> */}
         <SimorghLoader />
-        <div className="connecting-sub">{t("app.settingUp")}</div>
+        <div className="connecting-sub">
+          {connectionError ?? t("app.settingUp")}
+        </div>
+        {connectionError ? (
+          <button type="button" onClick={() => setLoginAttempt((value) => value + 1)}>
+            Retry connection
+          </button>
+        ) : null}
       </div>
     );
   }

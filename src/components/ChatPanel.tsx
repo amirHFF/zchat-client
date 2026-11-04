@@ -69,17 +69,23 @@ export default function ChatPanel() {
 
     const shouldSendHash =
       isBotConversation(conversation) && Boolean(conversation.parentHash);
-    if (shouldSendHash) {
-      chatServiceFacade.sendMessage(
-        conversation.targetJid,
-        value,
-        conversation.hash,
-      );
-    } else {
-      chatServiceFacade.sendMessage(conversation.targetJid, value);
-    }
+    try {
+      if (shouldSendHash) {
+        chatServiceFacade.sendMessage(
+          conversation.targetJid,
+          value,
+          conversation.hash,
+        );
+      } else {
+        chatServiceFacade.sendMessage(conversation.targetJid, value);
+      }
 
-    setText("");
+      setText("");
+    } catch (error) {
+      // Keep the draft if the XMPP socket dropped. Reconnect runs in the
+      // client, and the user can retry once the connection is back.
+      console.error("Message was not sent:", error);
+    }
   };
 
   if (!conversation) {
