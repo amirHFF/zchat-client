@@ -596,6 +596,7 @@ export default function NewConversation({
                       fontSize: "12.5px",
                       opacity: hoveredBot ? 1 : 0,
                       transition: "opacity 0.15s",
+                      textTransform: "lowercase",
                     }}
                   >
                     {hoveredBot?.displayName}
@@ -669,6 +670,7 @@ export default function NewConversation({
                             fontSize: 14,
                             bgcolor: "secondary.main",
                             flexShrink: 0,
+                            textTransform: "lowercase",
                           }}
                         >
                           {bot.displayName}
@@ -677,7 +679,11 @@ export default function NewConversation({
                         <Box sx={{ minWidth: 0 }}>
                           <Typography
                             variant="subtitle2"
-                            sx={{ fontWeight: 700, color: "var(--navy)" }}
+                            sx={{
+                              fontWeight: 700,
+                              color: "var(--navy)",
+                              textTransform: "lowercase",
+                            }}
                           >
                             {bot.displayName}
                           </Typography>
@@ -805,7 +811,11 @@ export default function NewConversation({
                       <Box sx={{ minWidth: 0 }}>
                         <Typography
                           variant="subtitle2"
-                          sx={{ fontWeight: 700, color: "var(--navy)" }}
+                          sx={{
+                            fontWeight: 700,
+                            color: "var(--navy)",
+                            textTransform: "lowercase",
+                          }}
                         >
                           {profileLabel(profile)}
                         </Typography>
@@ -814,6 +824,7 @@ export default function NewConversation({
                           sx={{
                             color: "var(--text-secondary)",
                             fontSize: "12.5px",
+                            textTransform: "lowercase",
                           }}
                         >
                           {profile.username}
