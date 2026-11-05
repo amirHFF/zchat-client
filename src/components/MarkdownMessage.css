@@ -1,0 +1,90 @@
+.md-message {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    word-break: break-word;
+}
+
+.md-message > *:first-child { margin-top: 0; }
+.md-message > *:last-child { margin-bottom: 0; }
+
+.md-message p { margin: 0.5em 0; }
+
+.md-message h1, .md-message h2, .md-message h3, .md-message h4 {
+    margin: 0.9em 0 0.4em;
+    line-height: 1.4;
+}
+.md-message h1 { font-size: 1.25em; }
+.md-message h2 { font-size: 1.15em; }
+.md-message h3 { font-size: 1.05em; }
+
+.md-message ul, .md-message ol {
+    margin: 0.5em 0;
+    padding-inline-start: 1.5em;   /* به‌جای padding-left برای RTL */
+}
+.md-message li { margin: 0.2em 0; }
+
+.md-message blockquote {
+    margin: 0.6em 0;
+    padding: 0.2em 0.9em;
+    border-inline-start: 3px solid rgba(128, 128, 128, 0.5);
+    background: rgba(128, 128, 128, 0.08);
+    border-radius: 4px;
+}
+
+.md-message a { color: #2f7de1; text-decoration: underline; }
+
+.md-message hr {
+    border: none;
+    border-top: 1px solid rgba(128, 128, 128, 0.3);
+    margin: 0.8em 0;
+}
+
+/* ---------- جدول ---------- */
+.md-table-wrap {
+    overflow-x: auto;
+    margin: 0.7em 0;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 8px;
+}
+.md-message table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9em;
+}
+.md-message th, .md-message td {
+    padding: 8px 12px;
+    text-align: start;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    white-space: nowrap;
+}
+.md-message th {
+    background: rgba(128, 128, 128, 0.12);
+    font-weight: 600;
+}
+.md-message tr:last-child td { border-bottom: none; }
+.md-message tbody tr:nth-child(even) { background: rgba(128, 128, 128, 0.05); }
+
+/* ---------- کد ---------- */
+.md-message code {
+    direction: ltr;
+    unicode-bidi: plaintext;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 0.88em;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    background: rgba(128, 128, 128, 0.18);
+}
+.md-message pre {
+    direction: ltr;
+    text-align: left;
+    margin: 0.7em 0;
+    padding: 0.8em 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    background: #0d1117;
+}
+.md-message pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}

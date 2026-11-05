@@ -17,6 +17,7 @@ import { ChatServiceFacade } from "../xmpp/ChatServiceFacade";
 import { isBotConversation } from "../utils/botConversation";
 import { leaveMobileChatHistory } from "../utils/mobileChatHistory";
 import { useLocation, useNavigate } from "react-router-dom";
+import MarkdownMessage from "./MarkdownMessage.tsx";
 
 export default function ChatPanel() {
   const setMobileView = useChatStore((state) => state.setMobileView);
@@ -145,6 +146,7 @@ export default function ChatPanel() {
           {messages.map((message) => {
             // timeStamp from server, shown under each bubble
             const sentTime = formatMessageTime(message.timestamp);
+            const isOutgoing = message.outgoing;
 
             return (
               <Message
@@ -156,6 +158,11 @@ export default function ChatPanel() {
                   position: "single",
                 }}
               >
+                {!isOutgoing && (
+                    <Message.CustomContent>
+                      <MarkdownMessage content={message.text} />
+                    </Message.CustomContent>
+                )}
                 {sentTime ? <Message.Footer sentTime={sentTime} /> : null}
               </Message>
             );

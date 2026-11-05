@@ -305,7 +305,7 @@ export default function ConversationListPanel() {
         </div>
         <div className="title">{t("brand.name")}</div>
         <LanguageSwitch className="sidebar-lang-switch" />
-        <span className="app-version">vld{_APP_VERSION_}</span>
+        <span className="app-version">v{_APP_VERSION_}</span>
       </div>
 
       <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
