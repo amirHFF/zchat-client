@@ -1,9 +1,9 @@
 import { useChatStore } from "../chatStore/ChatStore";
 import type { ChatMessage } from "../model/ChatMessage";
-import type { ConversationModel } from "../model/ConversationModel";
 import type { XmppMessage } from "../model/XmppMessage";
-import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import { isBotConversation } from "../utils/botConversation";
+import type { ConversationModel } from "../model/ConversationModel";
+import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 
 const localPart = (jid: string) => jid.split("/")[0].split("@")[0];
 
@@ -87,7 +87,11 @@ export class MessageEventHandler {
     }
   }
 
-  public onOutgoingMessage(toJid: string, body: string): void {
+  public onOutgoingMessage(
+    toJid: string,
+    body: string,
+    timestamp = Date.now(),
+  ): void {
     const state = useChatStore.getState();
 
     const target =
@@ -109,7 +113,7 @@ export class MessageEventHandler {
     state.bumpConversation(
       (c) =>
         target.hash ? c.hash === target.hash : c.targetJid === target.targetJid,
-      { lastMessage: body, lastMessageTime: Date.now().toString() },
+      { lastMessage: body, lastMessageTime: timestamp.toString() },
     );
 
     const message: ChatMessage = {
@@ -122,7 +126,7 @@ export class MessageEventHandler {
 
       outgoing: true,
 
-      timestamp: Date.now(),
+      timestamp,
     };
 
     state.addMessage(message);

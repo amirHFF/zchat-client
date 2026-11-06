@@ -1,8 +1,9 @@
 import keycloak from "../auth/Keycloak";
 import type { ChatBot } from "../model/ChatBot";
+import { toMillis } from "../utils/formatTimestamp";
+import type { UserProfile } from "../model/UserProfile";
 import type { ChatMessage } from "../model/ChatMessage";
 import type { ConversationModel } from "../model/ConversationModel";
-import type { UserProfile } from "../model/UserProfile";
 const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
 
 function resolveConversationHash(conversation: {
@@ -22,19 +23,33 @@ function resolveConversationHash(conversation: {
 }
 
 export class OrchestratorRestClient {
-  static async fetchSubConversations(parentHash: string): Promise<ConversationModel[]> {
+  static async fetchSubConversations(
+    parentHash: string,
+  ): Promise<ConversationModel[]> {
     try {
-      const response = await fetch(`${orchestratorUrl}/conversations/sub/${encodeURIComponent(parentHash)}`, {
-        method: "GET",
-        headers: { Accept: "application/json", Authorization: `Bearer ${keycloak.token}` },
-      });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(
+        `${orchestratorUrl}/conversations/sub/${encodeURIComponent(parentHash)}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        },
+      );
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
       const items: SubConversationResponse[] = await response.json();
       return items.map((item) => ({
-        hash: item.hash, parentHash: item.parentHash, title: item.title,
-        lastMessage: item.lastMessage, lastMessageTime: "",
-        conversationType: item.conversationType, participants: item.participants,
-        jid: "", targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
+        hash: item.hash,
+        parentHash: item.parentHash,
+        title: item.title,
+        lastMessage: item.lastMessage,
+        lastMessageTime: "",
+        conversationType: item.conversationType,
+        participants: item.participants,
+        jid: "",
+        targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
       }));
     } catch (error) {
       console.error("Error fetching sub-conversations:", error);
@@ -42,19 +57,31 @@ export class OrchestratorRestClient {
     }
   }
 
-  static async addSubConversation(parentHash: string, title: string): Promise<ConversationModel> {
+  static async addSubConversation(
+    parentHash: string,
+    title: string,
+  ): Promise<ConversationModel> {
     const response = await fetch(`${orchestratorUrl}/conversations/sub`, {
       method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: `Bearer ${keycloak.token}` },
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${keycloak.token}`,
+      },
       body: JSON.stringify({ parentHash, title, lastMessage: "" }),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const item: SubConversationResponse = await response.json();
     return {
-      hash: item.hash, parentHash: item.parentHash, title: item.title,
-      lastMessage: item.lastMessage, lastMessageTime: "",
-      conversationType: item.conversationType, participants: item.participants,
-      jid: "", targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
+      hash: item.hash,
+      parentHash: item.parentHash,
+      title: item.title,
+      lastMessage: item.lastMessage,
+      lastMessageTime: "",
+      conversationType: item.conversationType,
+      participants: item.participants,
+      jid: "",
+      targetJid: item.participants.find((p) => p.startsWith("bot-")) ?? "",
     };
   }
 
@@ -225,7 +252,7 @@ export class OrchestratorRestClient {
           conversationId: conversationHash,
           text: message.content,
           outgoing: message.from === currentUser,
-          timestamp: Number(message.timeStamp) || 0,
+          timestamp: toMillis(message.timestamp),
         }))
         .sort((a, b) => a.timestamp - b.timestamp);
     } catch (error) {
@@ -322,5 +349,5 @@ interface LoadedConversationMessage {
   from: string;
   to: string;
   content: string;
-  timeStamp: string;
+  timestamp: string | number;
 }

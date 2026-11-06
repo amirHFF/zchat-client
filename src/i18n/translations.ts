@@ -91,6 +91,64 @@ export const messages = {
     en: "Type a message...",
     fa: "پیام خود را بنویسید...",
   },
+  "chat.ocr.attachTitle": { en: "Attach an image", fa: "پیوست تصویر" },
+  "chat.ocr.previewTitle": { en: "Image preview", fa: "پیش‌نمایش تصویر" },
+  "chat.ocr.chooseImageHint": {
+    en: "Choose a JPEG, PNG, WebP, or JFIF image.",
+    fa: "یک تصویر JPEG، PNG، WebP یا JFIF انتخاب کنید.",
+  },
+  "chat.ocr.replaceHint": {
+    en: "The extracted text will replace the current message draft.",
+    fa: "متن استخراج‌شده جایگزین متن فعلی ورودی می‌شود.",
+  },
+  "chat.ocr.chooseImage": { en: "Choose image", fa: "انتخاب تصویر" },
+  "chat.ocr.chooseAnotherImage": {
+    en: "Choose another image",
+    fa: "انتخاب تصویر دیگر",
+  },
+  "chat.ocr.cancel": { en: "Cancel", fa: "لغو" },
+  "chat.ocr.extractText": { en: "Extract text", fa: "استخراج متن" },
+  "chat.ocr.extracting": { en: "Extracting…", fa: "در حال استخراج…" },
+  "chat.ocr.attachImageAria": {
+    en: "Attach image",
+    fa: "پیوست تصویر",
+  },
+  "chat.ocr.unsupportedImage": {
+    en: "Choose a JPEG, PNG, WebP, or JFIF image.",
+    fa: "فقط تصویر با فرمت JPEG، PNG، WebP یا JFIF مجاز است.",
+  },
+  "chat.ocr.fileTooLarge": {
+    en: "The image must be no larger than {{maxMB}} MB.",
+    fa: "حجم تصویر نباید بیشتر از {{maxMB}} مگابایت باشد.",
+  },
+  "chat.ocr.missingBaseUrl": {
+    en: "The OCR service URL is not configured.",
+    fa: "نشانی سرویس OCR تنظیم نشده است.",
+  },
+  "chat.ocr.requestFailed": {
+    en: "The OCR service could not process the image.",
+    fa: "ارسال تصویر به سرویس OCR ناموفق بود.",
+  },
+  "chat.ocr.invalidResponse": {
+    en: "The OCR service returned an unreadable response.",
+    fa: "پاسخ سرویس OCR قابل خواندن نیست.",
+  },
+  "chat.ocr.emptyContext": {
+    en: "No text was found in the image.",
+    fa: "متنی از تصویر دریافت نشد.",
+  },
+  "chat.ocr.timeout": {
+    en: "The request timed out. Please try again.",
+    fa: "زمان ارسال تصویر تمام شد. دوباره تلاش کنید.",
+  },
+  "chat.ocr.network": {
+    en: "Could not reach the OCR service. Check the network or CORS settings.",
+    fa: "ارتباط با سرویس OCR برقرار نشد. تنظیمات شبکه یا CORS را بررسی کنید.",
+  },
+  "chat.ocr.unknownError": {
+    en: "An error occurred while processing the image.",
+    fa: "در پردازش تصویر خطایی رخ داد.",
+  },
   "profile.user": {
     en: "User",
     fa: "کاربر",

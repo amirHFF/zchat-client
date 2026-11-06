@@ -1,3 +1,277 @@
+/* ---------- پایه ---------- */
+.md-message {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.md-message > *:first-child {
+  margin-top: 0;
+}
+.md-message > *:last-child {
+  margin-bottom: 0;
+}
+.md-message p {
+  margin: 0.5em 0;
+}
+
+.md-message h1,
+.md-message h2,
+.md-message h3,
+.md-message h4 {
+  margin: 0.9em 0 0.4em;
+  line-height: 1.4;
+}
+.md-message h1 {
+  font-size: 1.25em;
+}
+.md-message h2 {
+  font-size: 1.15em;
+}
+.md-message h3 {
+  font-size: 1.05em;
+}
+
+.md-message ul,
+.md-message ol {
+  margin: 0.5em 0;
+  padding-inline-start: 1.5em;
+}
+.md-message li {
+  margin: 0.2em 0;
+}
+
+.md-message blockquote {
+  margin: 0.6em 0;
+  padding: 0.2em 0.9em;
+  border-inline-start: 3px solid rgba(128, 128, 128, 0.5);
+  background: rgba(128, 128, 128, 0.08);
+  border-radius: 4px;
+}
+
+.md-message a {
+  color: #2f7de1;
+  text-decoration: underline;
+}
+
+.md-message hr {
+  border: none;
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+  margin: 0.8em 0;
+}
+
+/* ---------- جدول داخل چت ---------- */
+.md-table-wrap {
+  display: block;
+  margin: 0.7em 0;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.md-table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.md-table-expand {
+  padding: 2px 10px;
+  font-size: 12px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+.md-table-expand:hover {
+  background: #fff;
+}
+
+/* فقط یک اسکرول: افقی */
+.md-table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+}
+
+.md-message table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.82em;
+}
+
+.md-message th,
+.md-message td {
+  padding: 6px 8px;
+  text-align: start;
+  vertical-align: top;
+  white-space: normal;
+  min-width: 70px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+.md-message th {
+  background: rgba(128, 128, 128, 0.12);
+  font-weight: 600;
+}
+.md-message tr:last-child td {
+  border-bottom: none;
+}
+.md-message tbody tr:nth-child(even) {
+  background: rgba(128, 128, 128, 0.05);
+}
+
+/* ---------- مودال (بزرگ‌نمایی) ---------- */
+.md-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.md-modal-body {
+  position: relative;
+  width: 96vw;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 12px;
+  padding: 56px 12px 12px;
+  display: flex;
+}
+.md-modal-body::before {
+  content: "";
+  position: absolute;
+  top: 44px;
+  inset-inline: 12px;
+  height: 1px;
+  background: rgba(128, 128, 128, 0.22);
+}
+.md-modal-close {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 12px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(128, 128, 128, 0.22);
+  border-radius: 8px;
+  background: #f7f8fa;
+  color: #354052;
+  font-size: 16px;
+  cursor: pointer;
+  align-content: center;
+}
+.md-modal-close:hover {
+  background: #eef1f5;
+}
+.md-modal-close:focus-visible {
+  outline: 2px solid #2f7de1;
+  outline-offset: 2px;
+}
+.md-modal-scroll {
+  width: 100%;
+  overflow: auto;
+}
+.md-modal-scroll table {
+  width: max-content;
+  min-width: 100%;
+  font-size: 0.9em;
+}
+.md-modal-scroll th {
+  position: sticky;
+  top: 0;
+  background: #dfe9f7;
+  z-index: 1;
+}
+.md-modal-scroll th,
+.md-modal-scroll td {
+  white-space: nowrap;
+}
+
+/* ---------- کد ---------- */
+.md-message code {
+  direction: ltr;
+  unicode-bidi: plaintext;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: rgba(128, 128, 128, 0.18);
+}
+.md-message pre {
+  direction: ltr;
+  text-align: left;
+  margin: 0.7em 0;
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  background: #0d1117;
+}
+.md-message pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+/* ---------- موبایل و تبلت (زیر ۹۰۰px): کارت عمودی ---------- */
+@media (max-width: 900px) {
+  .md-table-toolbar {
+    display: none;
+  }
+
+  .md-table-scroll {
+    overflow: visible;
+    border: none;
+  }
+
+  .md-message table,
+  .md-message tbody,
+  .md-message tr,
+  .md-message td {
+    display: block;
+    width: 100%;
+  }
+
+  .md-message thead {
+    display: none;
+  }
+
+  .md-message tbody tr {
+    margin-bottom: 10px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .md-message tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .md-message td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+  }
+  .md-message td:last-child {
+    border-bottom: none;
+  }
+
+  .md-message td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    opacity: 0.7;
+    flex-shrink: 0;
+    max-width: 40%;
+  }
+}
+/*  Before code
 .md-message {
     font-size: 0.95rem;
     line-height: 1.8;
@@ -19,7 +293,7 @@
 
 .md-message ul, .md-message ol {
     margin: 0.5em 0;
-    padding-inline-start: 1.5em;   /* به‌جای padding-left برای RTL */
+    padding-inline-start: 1.5em;   /* به‌جای padding-left برای RTL
 }
 .md-message li { margin: 0.2em 0; }
 
@@ -39,7 +313,7 @@
     margin: 0.8em 0;
 }
 
-/* ---------- جدول ---------- */
+/* ---------- جدول ---------- 
 .md-table-wrap {
     overflow-x: auto;
     margin: 0.7em 0;
@@ -64,7 +338,7 @@
 .md-message tr:last-child td { border-bottom: none; }
 .md-message tbody tr:nth-child(even) { background: rgba(128, 128, 128, 0.05); }
 
-/* ---------- کد ---------- */
+/* ---------- کد ----------
 .md-message code {
     direction: ltr;
     unicode-bidi: plaintext;
@@ -88,3 +362,4 @@
     background: transparent;
     color: inherit;
 }
+ */

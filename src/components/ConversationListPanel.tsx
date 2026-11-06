@@ -212,7 +212,7 @@ export default function ConversationListPanel() {
             </span>
           </>
         }
-        info={conversation.lastMessage || t("sidebar.noMessages")}
+        // info={conversation.lastMessage || t("sidebar.noMessages")}
         active={
           selectedConversation?.hash === conversation.hash ||
           Boolean(selectedConversation?.parentHash === conversation.hash)
@@ -276,7 +276,7 @@ export default function ConversationListPanel() {
     <Conversation
       key={conversation.hash || conversation.targetJid}
       name={conversation.title || conversation.targetJid}
-      info={conversation.lastMessage || t("sidebar.noMessages")}
+      // info={conversation.lastMessage || t("sidebar.noMessages")}
       lastActivityTime={formatConversationTime(conversation.lastMessageTime)}
       active={isActive(conversation)}
       onClick={() => void handleSelect(conversation)}

@@ -61,6 +61,20 @@
   direction: ltr !important;
 }
 
+/* Let chat ancestors shrink to the available width when message content is wide. */
+.chat-panel-root,
+.cs-chat-container,
+.cs-main-container,
+.cs-message-list,
+.cs-message__content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cs-message-list {
+  overflow-x: hidden;
+}
+
 /* نکته‌ی اصلی: به‌جای unicode-bidi:plaintext (که جهت رو حدس می‌زنه و اگر
    پیام با حرف انگلیسی شروع بشه اشتباه تشخیص می‌ده)، جهت پایه رو صریحاً
    RTL می‌کنیم. الگوریتم bidi خودش کلمات/اعداد انگلیسیِ وسط متن رو به‌درستی
@@ -148,4 +162,75 @@
 
 .cs-button--attachment {
   color: var(--text-secondary) !important;
+}
+
+.ocr-file-input {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ocr-dialog-button:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.ocr-error {
+  flex: 0 0 auto;
+  padding: 7px 16px;
+  background: #fff1f0;
+  color: #a12622;
+  font-size: 13px;
+}
+
+.ocr-image-dialog-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.ocr-image-dialog-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: min(55vh, 420px);
+  object-fit: contain;
+}
+
+.ocr-image-dialog-preview small {
+  color: var(--text-secondary);
+}
+
+.ocr-dialog-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ocr-dialog-button--primary {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+.ocr-dialog-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

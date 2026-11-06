@@ -1,8 +1,6 @@
-import { translate, useLanguageStore } from "../i18n/languageStore";
 import type { Locale } from "../i18n/translations";
+import { translate, useLanguageStore } from "../i18n/languageStore";
 import type { ConversationModel } from "../model/ConversationModel";
-
-
 
 function timeLocale(locale: Locale): string {
   return locale === "fa" ? "fa-IR" : "en-US";
@@ -52,7 +50,6 @@ export function sortConversations(
     (a, b) => toMillis(b.lastMessageTime) - toMillis(a.lastMessageTime),
   );
 }
-
 
 function isSameDay(a: Date, b: Date): boolean {
   return (
@@ -116,6 +113,12 @@ export function formatMessageTime(
     month: "short",
     day: "numeric",
   });
+
+  // Keep the Persian date and numeric clock in separate bidi runs so the
+  // day/month order and the clock's digits cannot be visually rearranged.
+  if (locale === "fa") {
+    return `\u2067${dateLabel}\u2069، \u2066${time}\u2069`;
+  }
 
   return `${dateLabel} ${time}`;
 }
