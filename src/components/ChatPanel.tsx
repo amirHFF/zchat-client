@@ -50,6 +50,8 @@ export default function ChatPanel() {
   const [text, setText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<MessageKey | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState<{
     code: OcrErrorCode;
@@ -60,8 +62,20 @@ export default function ChatPanel() {
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const chatPanelRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraVideoRef = useRef<HTMLVideoElement | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const cameraRequestGenerationRef = useRef(0);
   const ocrRequestGenerationRef = useRef(0);
   const chatServiceFacade = ChatServiceFacade.getInstance();
+
+  const stopCamera = () => {
+    cameraRequestGenerationRef.current += 1;
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach((track) => track.stop());
+      cameraStreamRef.current = null;
+      setCameraOpen(false);
+    }
+  };
 
   const conversation = useChatStore((state) => state.selectedConversation);
   const conversationKey = conversation
@@ -72,13 +86,30 @@ export default function ChatPanel() {
   console.log({ messages });
 
   useEffect(() => {
+    stopCamera();
     ocrRequestGenerationRef.current += 1;
     setText("");
     setSelectedImage(null);
     setAttachmentDialogOpen(false);
+    setCameraError(null);
     setOcrError(null);
     setOcrLoading(false);
   }, [conversationKey]);
+
+  useEffect(() => {
+    const video = cameraVideoRef.current;
+    if (cameraOpen && video && cameraStreamRef.current) {
+      video.srcObject = cameraStreamRef.current;
+      void video.play().catch(() => undefined);
+    }
+  }, [cameraOpen]);
+
+  useEffect(() => {
+    return () => {
+      cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+      cameraStreamRef.current = null;
+    };
+  }, []);
 
   const imagePreviewUrl = useMemo(
     () => (selectedImage ? URL.createObjectURL(selectedImage) : ""),
@@ -171,16 +202,77 @@ export default function ChatPanel() {
     }
   };
 
+  const openCamera = async () => {
+    setCameraError(null);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError("chat.ocr.cameraUnavailable");
+      return;
+    }
+    const requestGeneration = ++cameraRequestGenerationRef.current;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+      });
+      if (requestGeneration !== cameraRequestGenerationRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      cameraStreamRef.current = stream;
+      setCameraOpen(true);
+    } catch (error) {
+      setCameraError(
+        error instanceof DOMException &&
+          (error.name === "NotAllowedError" || error.name === "SecurityError")
+          ? "chat.ocr.cameraPermissionDenied"
+          : "chat.ocr.cameraUnavailable",
+      );
+    }
+  };
+
+  const captureCameraImage = () => {
+    const video = cameraVideoRef.current;
+    if (!video?.videoWidth || !video.videoHeight) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      setCameraError("chat.ocr.cameraCaptureFailed");
+      return;
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        setCameraError("chat.ocr.cameraCaptureFailed");
+        return;
+      }
+      setSelectedImage(
+        new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" }),
+      );
+      setOcrError(null);
+      setCameraError(null);
+      stopCamera();
+    }, "image/jpeg", 0.92);
+  };
+
   const openAttachmentDialog = () => {
     setOcrError(null);
+    setCameraError(null);
     setSelectedImage(null);
     setAttachmentDialogOpen(true);
   };
 
   const closeAttachmentDialog = () => {
     if (ocrLoading) return;
+    stopCamera();
     setAttachmentDialogOpen(false);
     setSelectedImage(null);
+    setCameraError(null);
     setOcrError(null);
   };
 
@@ -300,8 +392,7 @@ export default function ChatPanel() {
           value={text}
           onChange={setText}
           onSend={handleSend}
-          //atach file just if bot conversion
-          attachButton={isBotConversation(conversation)}
+          attachButton={true}
           attachDisabled={ocrLoading}
           sendDisabled={ocrLoading || !text.trim()}
           onAttachClick={openAttachmentDialog}
@@ -314,17 +405,32 @@ export default function ChatPanel() {
       </ChatContainer>
       {/* open modal for upload image and extract text from it */}
       <Dialog
+        className="ocr-attachment-dialog"
         open={attachmentDialogOpen}
         onClose={closeAttachmentDialog}
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>
-          {selectedImage
-            ? t("chat.ocr.previewTitle")
-            : t("chat.ocr.attachTitle")}
+        <DialogTitle className="ocr-dialog-title">
+          <span className="ocr-dialog-title__mark" aria-hidden="true" />
+          <span>
+            <strong>
+              {cameraOpen
+                ? t("chat.ocr.cameraPreview")
+                : selectedImage
+                  ? t("chat.ocr.previewTitle")
+                  : t("chat.ocr.attachTitle")}
+            </strong>
+            <small>
+              {cameraOpen
+                ? t("chat.ocr.cameraPreviewHint")
+                : selectedImage
+                  ? t("chat.ocr.replaceHint")
+                  : t("chat.ocr.chooseImageHint")}
+            </small>
+          </span>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent className="ocr-dialog-content">
           <input
             ref={fileInputRef}
             className="ocr-file-input"
@@ -334,11 +440,37 @@ export default function ChatPanel() {
             tabIndex={-1}
             aria-hidden="true"
           />
-          {selectedImage && imagePreviewUrl ? (
+          {cameraOpen ? (
+            <div className="ocr-camera-preview">
+              <video
+                ref={cameraVideoRef}
+                autoPlay
+                playsInline
+                muted
+                aria-label={t("chat.ocr.cameraPreview")}
+              />
+              <button
+                type="button"
+                className="ocr-dialog-button ocr-dialog-button--primary"
+                onClick={captureCameraImage}
+              >
+                {t("chat.ocr.takePhoto")}
+              </button>
+              <button
+                type="button"
+                className="ocr-dialog-button"
+                onClick={() => {
+                  stopCamera();
+                  setCameraError(null);
+                }}
+              >
+                {t("chat.ocr.cancel")}
+              </button>
+            </div>
+          ) : selectedImage && imagePreviewUrl ? (
             <div className="ocr-image-dialog-preview">
               <img src={imagePreviewUrl} alt={t("chat.ocr.previewTitle")} />
               <div>{selectedImage.name}</div>
-              <small>{t("chat.ocr.replaceHint")}</small>
               <button
                 type="button"
                 className="ocr-dialog-button"
@@ -346,17 +478,47 @@ export default function ChatPanel() {
               >
                 {t("chat.ocr.chooseAnotherImage")}
               </button>
+              <button
+                type="button"
+                className="ocr-dialog-button"
+                onClick={() => void openCamera()}
+              >
+                {t("chat.ocr.openCamera")}
+              </button>
             </div>
           ) : (
             <div className="ocr-image-dialog-preview">
-              <p>{t("chat.ocr.chooseImageHint")}</p>
-              <button
-                type="button"
-                className="ocr-dialog-button ocr-dialog-button--primary"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {t("chat.ocr.chooseImage")}
-              </button>
+              <div className="ocr-choice-grid">
+                <button
+                  type="button"
+                  className="ocr-choice-card"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <span
+                    className="ocr-choice-card__icon ocr-choice-card__icon--file"
+                    aria-hidden="true"
+                  />
+                  <strong>{t("chat.ocr.chooseImage")}</strong>
+                  <small>{t("chat.ocr.chooseFileHint")}</small>
+                </button>
+                <button
+                  type="button"
+                  className="ocr-choice-card"
+                  onClick={() => void openCamera()}
+                >
+                  <span
+                    className="ocr-choice-card__icon ocr-choice-card__icon--camera"
+                    aria-hidden="true"
+                  />
+                  <strong>{t("chat.ocr.openCamera")}</strong>
+                  <small>{t("chat.ocr.openCameraHint")}</small>
+                </button>
+              </div>
+            </div>
+          )}
+          {cameraError && (
+            <div className="ocr-error" role="alert">
+              {t(cameraError)}
             </div>
           )}
           {ocrError && (
@@ -367,7 +529,7 @@ export default function ChatPanel() {
             </div>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions className="ocr-dialog-actions">
           <button
             type="button"
             className="ocr-dialog-button"
