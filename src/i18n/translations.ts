@@ -118,6 +118,33 @@ export const messages = {
     en: "Choose another image",
     fa: "انتخاب تصویر دیگر",
   },
+  "chat.ocr.openCamera": { en: "Use camera", fa: "عکس گرفتن با دوربین" },
+  "chat.ocr.chooseFileHint": {
+    en: "Select an image from your device",
+    fa: "یک تصویر از دستگاهتان انتخاب کنید",
+  },
+  "chat.ocr.openCameraHint": {
+    en: "Take a new photo now",
+    fa: "همین حالا عکس تازه بگیرید",
+  },
+  "chat.ocr.takePhoto": { en: "Take photo", fa: "گرفتن عکس" },
+  "chat.ocr.cameraPreview": { en: "Camera preview", fa: "پیش‌نمایش دوربین" },
+  "chat.ocr.cameraPreviewHint": {
+    en: "Frame the text and take a photo",
+    fa: "متن را در کادر قرار دهید و عکس بگیرید",
+  },
+  "chat.ocr.cameraUnavailable": {
+    en: "Camera is unavailable. Check your camera and browser permissions.",
+    fa: "دوربین در دسترس نیست. اتصال دوربین و مجوز مرورگر را بررسی کنید.",
+  },
+  "chat.ocr.cameraPermissionDenied": {
+    en: "Allow camera access in your browser settings, then try again.",
+    fa: "از تنظیمات مرورگر اجازه دسترسی به دوربین را بدهید و دوباره تلاش کنید.",
+  },
+  "chat.ocr.cameraCaptureFailed": {
+    en: "Could not capture the photo. Please try again.",
+    fa: "گرفتن عکس ناموفق بود. دوباره تلاش کنید.",
+  },
   "chat.ocr.cancel": { en: "Cancel", fa: "لغو" },
   "chat.ocr.extractText": { en: "Extract text", fa: "استخراج متن" },
   "chat.ocr.extracting": { en: "Extracting…", fa: "در حال استخراج…" },
