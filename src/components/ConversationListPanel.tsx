@@ -213,6 +213,21 @@ export default function ConversationListPanel() {
           </>
         }
         // info={conversation.lastMessage || t("sidebar.noMessages")}
+        info={
+          <span className="bot-conversation-count">
+            <span className="bot-conversation-count__icon" aria-hidden="true" />
+            {Object.prototype.hasOwnProperty.call(
+              subConversations,
+              conversation.hash,
+            )
+              ? subConversations[conversation.hash].length > 0
+                ? t("sidebar.conversationCount", {
+                    count: subConversations[conversation.hash].length,
+                  })
+                : t("sidebar.startNewConversationHint")
+              : t("sidebar.conversationsLabel")}
+          </span>
+        }
         active={
           selectedConversation?.hash === conversation.hash ||
           Boolean(selectedConversation?.parentHash === conversation.hash)
@@ -276,7 +291,7 @@ export default function ConversationListPanel() {
     <Conversation
       key={conversation.hash || conversation.targetJid}
       name={conversation.title || conversation.targetJid}
-      // info={conversation.lastMessage || t("sidebar.noMessages")}
+      info={conversation.lastMessage || t("sidebar.noMessages")}
       lastActivityTime={formatConversationTime(conversation.lastMessageTime)}
       active={isActive(conversation)}
       onClick={() => void handleSelect(conversation)}

@@ -67,6 +67,18 @@ export const messages = {
     en: "No chats yet",
     fa: "هنوز گفت‌وگویی نیست",
   },
+  "sidebar.conversationCount": {
+    en: "{{count}} chats",
+    fa: "{{count}} گفتگو",
+  },
+  "sidebar.startNewConversationHint": {
+    en: "Create a chat to get started",
+    fa: "برای شروع، گفتگوی جدید بسازید",
+  },
+  "sidebar.conversationsLabel": {
+    en: "Conversations",
+    fa: "گفتگوها",
+  },
   "sidebar.loadingChats": {
     en: "Loading chats…",
     fa: "در حال بارگذاری گفت‌وگوها…",
