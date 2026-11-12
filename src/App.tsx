@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useT } from "./i18n/useT";
 import keycloak from "./auth/Keycloak";
 import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import ChatPanel from "./components/ChatPanel";
 import { useChatStore } from "./chatStore/ChatStore";
+import { useLocation, useNavigate } from "react-router-dom";
 import NewConversation from "./components/NewConversation";
 import { MainContainer } from "@chatscope/chat-ui-kit-react";
 import { ChatServiceFacade } from "./xmpp/ChatServiceFacade";
@@ -69,7 +69,7 @@ export default function App() {
   }, [loginAttempt]);
 
   useEffect(() => {
-    if (!window.matchMedia("(max-width: 426px)").matches) return;
+    if (!window.matchMedia("(max-width: 640px)").matches) return;
 
     // Keep the mobile pane in sync for Back and Forward browser navigation.
     useChatStore

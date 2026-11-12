@@ -18,152 +18,170 @@ import keycloak from "../auth/Keycloak";
 import React from "react";
 import LanguageSwitch from "./LanguageSwitch";
 import { useT } from "../i18n/useT";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileDrawerProps {
-    open: boolean;
-    onClose: () => void;
+  open: boolean;
+  onClose: () => void;
 }
 
 export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
-    const t = useT();
+  const t = useT();
+  const navigate = useNavigate();
 
-    const username = keycloak.tokenParsed?.preferred_username ?? t("profile.user");
-    const jid = username;
+  const username =
+    keycloak.tokenParsed?.preferred_username ?? t("profile.user");
+  const jid = username;
 
-    function handleLogout() {
-        keycloak.logout({
-            redirectUri: window.location.origin + "/",
-        });
-    }
+  function handleLogout() {
+    keycloak.logout({
+      redirectUri: window.location.origin + "/",
+    });
+  }
 
-    const menuItems = [
-        { icon: <SettingsOutlinedIcon />, label: t("profile.settings") },
-        { icon: <BookmarkBorderOutlinedIcon />, label: t("profile.savedMessages") },
-        { icon: <PeopleOutlineOutlinedIcon />, label: t("profile.contacts") },
-        { icon: <HelpOutlineOutlinedIcon />, label: t("profile.help") },
-    ];
+  const menuItems = [
+    { icon: <SettingsOutlinedIcon />, label: t("profile.settings") },
+    { icon: <BookmarkBorderOutlinedIcon />, label: t("profile.savedMessages") },
+    // { icon: <PeopleOutlineOutlinedIcon />, label: t("profile.contacts") },
+    {
+      icon: <PeopleOutlineOutlinedIcon />,
+      label: t("profile.DashboarTeacher"),
+      path: "/chat/dashboard-teacher",
+    },
+    { icon: <HelpOutlineOutlinedIcon />, label: t("profile.help") },
+  ];
 
-    return (
-        <Drawer
-            anchor="left"
-            open={open}
-            onClose={onClose}
-            slotProps={{
-                paper: {
-                    sx: {
-                        width: 300,
-                        maxWidth: "85vw",
-                    },
-                },
-            }}
+  return (
+    <Drawer
+      anchor="left"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            width: 300,
+            maxWidth: "85vw",
+          },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          background: "var(--navy)",
+          color: "#fff",
+          p: 3,
+          pb: 2.5,
+          position: "relative",
+        }}
+      >
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 8,
+            insetInlineEnd: 8,
+            color: "rgba(255,255,255,.75)",
+          }}
         >
-            <Box
-                sx={{
-                    background: "var(--navy)",
-                    color: "#fff",
-                    p: 3,
-                    pb: 2.5,
-                    position: "relative",
-                }}
-            >
-                <IconButton
-                    onClick={onClose}
-                    sx={{
-                        position: "absolute",
-                        top: 8,
-                        insetInlineEnd: 8,
-                        color: "rgba(255,255,255,.75)",
-                    }}
-                >
-                    <CloseIcon fontSize="small" />
-                </IconButton>
+          <CloseIcon fontSize="small" />
+        </IconButton>
 
-                <Avatar
-                    sx={{
-                        width: 64,
-                        height: 64,
-                        bgcolor: "var(--teal)",
-                        fontSize: 24,
-                        mb: 1.5,
-                    }}
-                >
-                    {username?.charAt(0)?.toUpperCase()}
-                </Avatar>
+        <Avatar
+          sx={{
+            width: 64,
+            height: 64,
+            bgcolor: "var(--teal)",
+            fontSize: 24,
+            mb: 1.5,
+          }}
+        >
+          {username?.charAt(0)?.toUpperCase()}
+        </Avatar>
 
-                <Typography sx={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18 }}>
-                    {username}
-                </Typography>
+        <Typography
+          sx={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            fontSize: 18,
+          }}
+        >
+          {username}
+        </Typography>
 
-                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,.7)" }}>
-                    {jid}
-                </Typography>
-            </Box>
+        <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,.7)" }}>
+          {jid}
+        </Typography>
+      </Box>
 
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    px: 2,
-                    pt: 1.5,
-                    pb: 0.5,
-                }}
-            >
-                <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "var(--navy)" }}>
-                    {t("profile.language")}
-                </Typography>
-                <LanguageSwitch />
-            </Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2,
+          pt: 1.5,
+          pb: 0.5,
+        }}
+      >
+        <Typography
+          sx={{ fontSize: 13.5, fontWeight: 600, color: "var(--navy)" }}
+        >
+          {t("profile.language")}
+        </Typography>
+        <LanguageSwitch />
+      </Box>
 
-            <List sx={{ py: 1 }}>
-                {menuItems.map((item) => (
-                    <ListItemButton
-                        key={item.label}
-                        onClick={onClose}
-                        sx={{
-                            py: 1.25,
-                            "&:hover": { background: "var(--teal-soft)" },
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: "var(--navy)", minWidth: 40 }}>
-                            {item.icon}
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={item.label}
-                            slotProps={{
-                                primary: {
-                                    sx: { color: "var(--navy)", fontSize: 14.5, fontWeight: 500 },
-                                },
-                            }}
-                        />
-                    </ListItemButton>
-                ))}
-            </List>
+      <List sx={{ py: 1 }}>
+        {menuItems.map((item) => (
+          <ListItemButton
+            key={item.label}
+            onClick={() => {
+              onClose();
+              if ("path" in item && item.path) navigate(item.path);
+            }}
+            sx={{
+              py: 1.25,
+              "&:hover": { background: "var(--teal-soft)" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "var(--navy)", minWidth: 40 }}>
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText
+              primary={item.label}
+              slotProps={{
+                primary: {
+                  sx: { color: "var(--navy)", fontSize: 14.5, fontWeight: 500 },
+                },
+              }}
+            />
+          </ListItemButton>
+        ))}
+      </List>
 
-            <Divider sx={{ borderColor: "var(--line)" }} />
+      <Divider sx={{ borderColor: "var(--line)" }} />
 
-            <List sx={{ py: 1, mt: "auto" }}>
-                <ListItemButton
-                    onClick={handleLogout}
-                    sx={{
-                        py: 1.25,
-                        "&:hover": { background: "rgba(211,47,47,.08)" },
-                    }}
-                >
-                    <ListItemIcon sx={{ color: "#d32f2f", minWidth: 40 }}>
-                        <LogoutOutlinedIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={t("profile.logOut")}
-                        slotProps={{
-                            primary: {
-                                sx: { color: "#d32f2f", fontSize: 14.5, fontWeight: 600 },
-                            },
-                        }}
-                    />
-                </ListItemButton>
-            </List>
-
-        </Drawer>
-    );
+      <List sx={{ py: 1, mt: "auto" }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            py: 1.25,
+            "&:hover": { background: "rgba(211,47,47,.08)" },
+          }}
+        >
+          <ListItemIcon sx={{ color: "#d32f2f", minWidth: 40 }}>
+            <LogoutOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("profile.logOut")}
+            slotProps={{
+              primary: {
+                sx: { color: "#d32f2f", fontSize: 14.5, fontWeight: 600 },
+              },
+            }}
+          />
+        </ListItemButton>
+      </List>
+    </Drawer>
+  );
 }

@@ -1,0 +1,212 @@
+.teacher-dashboard {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-muted);
+  color: var(--navy);
+  font-family: var(--font-body);
+}
+
+.teacher-dashboard__header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 0 auto;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 28px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.teacher-dashboard__brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.teacher-dashboard__mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--navy);
+  color: #fff;
+}
+
+.teacher-dashboard__mark .simorgh-icon {
+  width: 23px;
+  height: 23px;
+}
+
+.teacher-dashboard__brand-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.teacher-dashboard__divider {
+  width: 1px;
+  height: 24px;
+  margin-inline: 5px;
+  background: var(--line);
+}
+
+.teacher-dashboard__brand h1 {
+  overflow: hidden;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-dashboard__back {
+  display: inline-flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.teacher-dashboard__back:hover {
+  background: var(--teal-soft);
+}
+
+.teacher-dashboard__body {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.teacher-dashboard__nav {
+  padding: 20px 14px;
+  border-inline-end: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.teacher-dashboard__nav-item {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 14px var(--font-body);
+  text-align: start;
+  cursor: pointer;
+}
+
+.teacher-dashboard__nav-item:hover,
+.teacher-dashboard__nav-item.is-active {
+  background: var(--teal-soft);
+  color: var(--navy);
+}
+
+.teacher-dashboard__nav-item.is-active {
+  font-weight: 650;
+}
+
+.teacher-dashboard__nav-item svg {
+  flex: 0 0 auto;
+  color: var(--teal);
+}
+
+.teacher-dashboard__content {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  padding: 36px 28px 28px;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .teacher-dashboard__header {
+    min-height: 66px;
+    gap: 10px;
+    padding: 12px 14px 16px;
+  }
+
+  .teacher-dashboard__brand {
+    gap: 8px;
+  }
+
+  .teacher-dashboard__mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .teacher-dashboard__brand-name {
+    font-size: 15px;
+  }
+
+  .teacher-dashboard__divider {
+    height: 20px;
+    margin-inline: 1px;
+  }
+
+  .teacher-dashboard__brand h1 {
+    font-size: 13px;
+  }
+
+  .teacher-dashboard__back {
+    width: 38px;
+    min-height: 38px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .teacher-dashboard__back span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .teacher-dashboard__body {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .teacher-dashboard__nav {
+    padding: 10px 12px;
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .teacher-dashboard__nav-item {
+    width: auto;
+    min-height: 42px;
+    padding-inline: 12px;
+  }
+
+  .teacher-dashboard__content {
+    padding: 24px 14px 18px;
+  }
+}

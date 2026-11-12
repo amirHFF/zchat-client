@@ -3,7 +3,7 @@
   height: 100dvh;
   height: var(--app-height, 100dvh);
   max-height: var(--app-height, 100dvh);
-  padding: 30px;
+  padding: 0;
   box-sizing: border-box;
   background: var(--bg);
   position: relative;
@@ -42,11 +42,11 @@
   z-index: 1;
   height: 100%;
   min-height: 0;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid var(--line);
-  box-shadow: 0 24px 60px rgba(15, 42, 74, 0.14);
+  border: 0;
+  box-shadow: none;
 }
 
 .connecting-screen {
@@ -104,7 +104,7 @@
     transform: rotate(360deg);
   }
 }
-@media (max-width: 426px) {
+@media (max-width: 640px) {
   .app-shell {
     padding: 0;
   }

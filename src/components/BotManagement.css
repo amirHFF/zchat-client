@@ -1,0 +1,514 @@
+.bot-management {
+  display: flex;
+  width: min(100%, 1100px);
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  margin-inline: auto;
+  overflow: hidden;
+}
+
+.bot-management__heading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.bot-management__heading h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.bot-management__heading p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.bot-management__state {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+
+.bot-management__state--error {
+  color: #b42318;
+}
+
+.bot-management__list {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+  align-content: start;
+  align-items: start;
+  gap: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.bot-management__card {
+  align-self: start;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 5px 18px rgba(32, 48, 74, 0.035);
+}
+
+.bot-management__card.is-selected {
+  border-color: var(--teal);
+}
+
+.bot-management__card:hover {
+  border-color: color-mix(in srgb, var(--teal) 58%, var(--line));
+  box-shadow: 0 8px 22px rgba(32, 48, 74, 0.08);
+}
+
+.bot-management__bot-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.bot-management__bot-button:focus-visible,
+.bot-management__student:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+.bot-management__bot-button:hover .bot-management__bot-action {
+  color: var(--navy);
+}
+
+.bot-management__bot-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 10px;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 600;
+  transition: color 140ms ease;
+}
+
+.bot-management__bot-action svg {
+  transition: transform 140ms ease;
+}
+
+.bot-management__bot-action svg.is-expanded {
+  transform: rotate(180deg);
+}
+
+.bot-management__card-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 8px;
+}
+
+.bot-management__bot-icon {
+  display: grid;
+  width: 42px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.bot-management__bot-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.bot-management__bot-title strong,
+.bot-management__bot-title span {
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-management__bot-title strong {
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.bot-management__bot-title span {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.bot-management__status {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f1f3f6;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bot-management__status.is-enabled {
+  background: rgba(32, 175, 163, 0.12);
+  color: #087f74;
+}
+
+.bot-management__description {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 40px;
+  margin: 16px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.bot-management__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+
+.bot-management__details div {
+  min-width: 0;
+}
+
+.bot-management__details dt {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.bot-management__details dd {
+  overflow: hidden;
+  margin: 4px 0 0;
+  color: var(--navy);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-management__participants {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.bot-management__participants h4 {
+  margin: 0 0 10px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.bot-management__participants-state {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+.bot-management__students-list {
+  display: grid;
+  gap: 6px;
+}
+
+.bot-management__student {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--navy);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.bot-management__student:hover,
+.bot-management__student.is-selected {
+  border-color: var(--line);
+  background: var(--teal-soft);
+}
+
+.bot-management__student-avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bot-management__student-name {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.bot-management__student-name strong,
+.bot-management__student-name small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-management__student-name strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bot-management__student-name small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.bot-management__conversation-list {
+  display: grid;
+  min-height: 0;
+  align-content: start;
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.bot-management__conversation {
+  width: 100%;
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--navy);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.bot-management__conversation:hover,
+.bot-management__conversation.is-selected {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.bot-management__conversation strong,
+.bot-management__conversation span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-management__conversation strong {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.bot-management__conversation span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.bot-management__student-view {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bot-management__student-view-header {
+  display: flex;
+  min-height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.bot-management__back-button {
+  display: inline-flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--navy);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+}
+
+.bot-management__back-button:hover {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+
+[dir="rtl"] .bot-management__back-icon {
+  transform: scaleX(-1);
+}
+
+.bot-management__student-view-title {
+  min-width: 0;
+}
+
+.bot-management__student-view-title h2,
+.bot-management__student-view-title span {
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bot-management__student-view-title h2 {
+  color: var(--navy);
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.bot-management__student-view-title span {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.bot-management__chat-layout {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(190px, 260px) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.bot-management__chat-panel {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.bot-management__chat-container {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.bot-management__message-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bot-management__chat-state,
+.bot-management__chat-empty {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .bot-management__heading {
+    margin-bottom: 14px;
+  }
+
+  .bot-management__heading h2 {
+    font-size: 18px;
+  }
+
+  .bot-management__list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .bot-management__card {
+    padding: 15px;
+  }
+
+  .bot-management__student-view-header {
+    gap: 9px;
+  }
+
+  .bot-management__back-button {
+    padding-inline: 9px;
+  }
+
+  .bot-management__student-view-title h2 {
+    font-size: 15px;
+  }
+
+  .bot-management__chat-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(110px, 30%) minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .bot-management__conversation-list {
+    padding: 7px;
+  }
+}

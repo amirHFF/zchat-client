@@ -102,7 +102,7 @@ export default function NewConversation({
   const [participationCode, setParticipationCode] = useState("");
   const [hasParticipationCode, setHasParticipationCode] = useState(false);
   const [bots, setBots] = useState<ChatBot[]>([]);
-  const isMobile = useMediaQuery("(max-width:426px)", { noSsr: true });
+  const isMobile = useMediaQuery("(max-width:640px)", { noSsr: true });
   const selectedConversation = useChatStore(
     (state) => state.selectedConversation,
   );

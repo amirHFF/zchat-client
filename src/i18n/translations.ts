@@ -208,6 +208,122 @@ export const messages = {
     en: "Contacts",
     fa: "مخاطبین",
   },
+  "profile.DashboarTeacher": {
+    en: "Teacher dashboard",
+    fa: "داشبورد معلم",
+  },
+  "teacherDashboard.title": {
+    en: "Teacher dashboard",
+    fa: "داشبورد معلم",
+  },
+  "teacherDashboard.manageBots": {
+    en: "Manage bots",
+    fa: "مدیریت بات‌ها",
+  },
+  "teacherDashboard.backToChat": {
+    en: "Back to chat",
+    fa: "بازگشت به گفتگو",
+  },
+  "teacherDashboard.botCount": {
+    en: "{{count}} bots",
+    fa: "{{count}} بات",
+  },
+  "teacherDashboard.loadingBots": {
+    en: "Loading your bots…",
+    fa: "در حال دریافت بات‌ها…",
+  },
+  "teacherDashboard.loadBotsError": {
+    en: "Could not load your bots. Please try again later.",
+    fa: "دریافت فهرست بات‌ها ناموفق بود. لطفاً بعداً دوباره تلاش کنید.",
+  },
+  "teacherDashboard.noBots": {
+    en: "You do not have any bots yet.",
+    fa: "هنوز باتی برای شما ثبت نشده است.",
+  },
+  "teacherDashboard.enabled": {
+    en: "Enabled",
+    fa: "فعال",
+  },
+  "teacherDashboard.disabled": {
+    en: "Disabled",
+    fa: "غیرفعال",
+  },
+  "teacherDashboard.model": {
+    en: "Model",
+    fa: "مدل",
+  },
+  "teacherDashboard.scope": {
+    en: "Scope",
+    fa: "حوزه",
+  },
+  "teacherDashboard.students": {
+    en: "Connected students",
+    fa: "دانش‌آموزان متصل",
+  },
+  "teacherDashboard.loadingStudents": {
+    en: "Loading students…",
+    fa: "در حال دریافت دانش‌آموزان…",
+  },
+  "teacherDashboard.loadStudentsError": {
+    en: "Could not load students for this bot.",
+    fa: "دریافت فهرست دانش‌آموزان این بات ناموفق بود.",
+  },
+  "teacherDashboard.noStudents": {
+    en: "No students are connected to this bot.",
+    fa: "دانش‌آموزی به این بات متصل نیست.",
+  },
+  "teacherDashboard.viewStudents": {
+    en: "View connected students",
+    fa: "مشاهدهٔ دانش‌آموزان متصل",
+  },
+  "teacherDashboard.hideStudents": {
+    en: "Hide students",
+    fa: "بستن فهرست دانش‌آموزان",
+  },
+  "teacherDashboard.studentConversations": {
+    en: "Student chats with this bot",
+    fa: "گفتگوهای دانش‌آموز با این بات",
+  },
+  "teacherDashboard.loadingConversations": {
+    en: "Loading conversations…",
+    fa: "در حال دریافت گفتگوها…",
+  },
+  "teacherDashboard.loadConversationsError": {
+    en: "Could not load this student's conversations.",
+    fa: "دریافت گفتگوهای این دانش‌آموز ناموفق بود.",
+  },
+  "teacherDashboard.noConversations": {
+    en: "No conversations found for this student and bot.",
+    fa: "گفتگویی برای این دانش‌آموز و بات پیدا نشد.",
+  },
+  "teacherDashboard.untitledConversation": {
+    en: "Untitled conversation",
+    fa: "گفتگوی بدون عنوان",
+  },
+  "teacherDashboard.loadingMessages": {
+    en: "Loading messages…",
+    fa: "در حال دریافت پیام‌ها…",
+  },
+  "teacherDashboard.loadMessagesError": {
+    en: "Could not load messages for this conversation.",
+    fa: "دریافت پیام‌های این گفتگو ناموفق بود.",
+  },
+  "teacherDashboard.noMessages": {
+    en: "No messages in this conversation.",
+    fa: "پیامی در این گفتگو وجود ندارد.",
+  },
+  "teacherDashboard.botLabel": {
+    en: "Bot",
+    fa: "بات",
+  },
+  "teacherDashboard.backToStudents": {
+    en: "Back to students",
+    fa: "بازگشت",
+  },
+  "teacherDashboard.selectConversation": {
+    en: "Select a conversation to view its messages.",
+    fa: "برای دیدن پیام‌ها یک گفتگو را انتخاب کنید.",
+  },
   "profile.help": {
     en: "Help",
     fa: "راهنما",
