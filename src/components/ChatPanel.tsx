@@ -84,7 +84,6 @@ export default function ChatPanel() {
     : "";
 
   const messages = useChatStore((state) => state.messages);
-  console.log({ messages });
 
   useEffect(() => {
     stopCamera();
@@ -254,18 +253,22 @@ export default function ChatPanel() {
       return;
     }
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        setCameraError("chat.ocr.cameraCaptureFailed");
-        return;
-      }
-      setSelectedImage(
-        new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" }),
-      );
-      setOcrError(null);
-      setCameraError(null);
-      stopCamera();
-    }, "image/jpeg", 0.92);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setCameraError("chat.ocr.cameraCaptureFailed");
+          return;
+        }
+        setSelectedImage(
+          new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" }),
+        );
+        setOcrError(null);
+        setCameraError(null);
+        stopCamera();
+      },
+      "image/jpeg",
+      0.92,
+    );
   };
 
   const openAttachmentDialog = () => {
