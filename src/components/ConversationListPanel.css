@@ -78,7 +78,7 @@
 
 .cs-conversation {
   padding: 10px 16px !important;
-  border-bottom: 1px solid var(--line) !important;
+  border-bottom: 0 !important;
 }
 
 .cs-conversation:hover {

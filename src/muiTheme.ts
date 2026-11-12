@@ -6,27 +6,28 @@ const fontStacks = {
   rtl: "'Vazirmatn', sans-serif",
 } as const;
 
-export function createSimorqTheme(direction: Direction) {
+export function createSimorqTheme(direction: Direction, colors: readonly string[] = ["#356AE6", "#20AFA3", "#FFC857", "#FF7A70"]) {
+  const [primary, secondary] = colors;
   return createTheme({
     direction,
     palette: {
       primary: {
-        main: "#356AE6",
-        dark: "#2457C5",
+        main: primary,
+        dark: primary,
         contrastText: "#ffffff",
       },
       secondary: {
-        main: "#20AFA3",
-        light: "#DDF6F2",
+        main: secondary,
+        light: `${secondary}33`,
         contrastText: "#17243A",
       },
       background: {
-        default: "#FFF9EF",
+        default: "var(--bg, #FFF9EF)",
         paper: "#ffffff",
       },
       text: {
-        primary: "#20304A",
-        secondary: "#5B6B82",
+        primary: "var(--navy, #20304A)",
+        secondary: "var(--text-secondary, #5B6B82)",
       },
     },
     typography: {
