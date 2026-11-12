@@ -30,6 +30,7 @@ let conversationsFetchStarted = false;
 
 export default function ConversationListPanel() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,10 +58,19 @@ export default function ConversationListPanel() {
   });
   const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
-  const botConversations = conversations.filter(isBotConversation);
-  const userConversations = conversations.filter(
-    (conversation) => !isBotConversation(conversation),
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const matchesSearch = (conversation: ConversationModel) =>
+    !normalizedQuery ||
+    [conversation.title, conversation.targetJid, conversation.lastMessage].some(
+      (value) => value?.toLocaleLowerCase().includes(normalizedQuery),
+    );
+  const botConversations = conversations.filter(
+    (conversation) =>
+      isBotConversation(conversation) && matchesSearch(conversation),
   );
+  const userConversations = conversations
+    .filter((conversation) => !isBotConversation(conversation))
+    .filter(matchesSearch);
 
   const isActive = (conversation: ConversationModel) => {
     if (!selectedConversation) return false;
@@ -325,7 +335,11 @@ export default function ConversationListPanel() {
 
       <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
 
-      <Search placeholder={t("sidebar.search")} />
+      <Search
+        placeholder={t("sidebar.search")}
+        value={searchQuery}
+        onChange={setSearchQuery}
+      />
 
       <ConversationList>
         <section className="conversation-category">
@@ -357,6 +371,10 @@ export default function ConversationListPanel() {
             <div className="conversation-category-items">
               {botConversations.length ? (
                 botConversations.map(renderBotConversation)
+              ) : normalizedQuery ? (
+                <div className="conversation-category-empty">
+                  {t("sidebar.noSearchResults")}
+                </div>
               ) : (
                 <div className="conversation-category-empty">
                   {t("sidebar.noConversations")}
@@ -395,6 +413,10 @@ export default function ConversationListPanel() {
             <div className="conversation-category-items">
               {userConversations.length ? (
                 userConversations.map(renderUserConversation)
+              ) : normalizedQuery ? (
+                <div className="conversation-category-empty">
+                  {t("sidebar.noSearchResults")}
+                </div>
               ) : (
                 <div className="conversation-category-empty">
                   {t("sidebar.noConversations")}

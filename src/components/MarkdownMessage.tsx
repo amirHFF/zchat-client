@@ -43,7 +43,6 @@ import rehypeHighlight from "rehype-highlight";
 import { visit } from "unist-util-visit";
 import "highlight.js/styles/github-dark.css";
 import "./MarkdownMessage.css";
-import { Divider } from "@mui/material";
 
 type Props = { content: string };
 

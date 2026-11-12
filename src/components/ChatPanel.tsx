@@ -62,6 +62,7 @@ export default function ChatPanel() {
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const chatPanelRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const cameraVideoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraRequestGenerationRef = useRef(0);
@@ -204,6 +205,13 @@ export default function ChatPanel() {
 
   const openCamera = async () => {
     setCameraError(null);
+    // On phones, let the operating system open its camera app. Browser camera
+    // previews replace the native controls, including focus and zoom.
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouchDevice && cameraInputRef.current) {
+      cameraInputRef.current.click();
+      return;
+    }
     if (!navigator.mediaDevices?.getUserMedia) {
       setCameraError("chat.ocr.cameraUnavailable");
       return;
@@ -440,6 +448,16 @@ export default function ChatPanel() {
             tabIndex={-1}
             aria-hidden="true"
           />
+          <input
+            ref={cameraInputRef}
+            className="ocr-file-input"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelected}
+            tabIndex={-1}
+            aria-hidden="true"
+          />
           {cameraOpen ? (
             <div className="ocr-camera-preview">
               <video
@@ -455,16 +473,6 @@ export default function ChatPanel() {
                 onClick={captureCameraImage}
               >
                 {t("chat.ocr.takePhoto")}
-              </button>
-              <button
-                type="button"
-                className="ocr-dialog-button"
-                onClick={() => {
-                  stopCamera();
-                  setCameraError(null);
-                }}
-              >
-                {t("chat.ocr.cancel")}
               </button>
             </div>
           ) : selectedImage && imagePreviewUrl ? (
