@@ -357,7 +357,8 @@ export class OrchestratorRestClient {
   ): Promise<ConversationModel[]> {
     const query = new URLSearchParams();
     query.append("participants", studentUsername);
-    query.append("participants", `${studentUsername}${botID}`);
+    const botParticipant = botID.startsWith("bot-") ? botID : `bot-${botID}`;
+    query.append("participants", botParticipant);
 
     const response = await fetch(
       `${orchestratorUrl}/conversations/sub?${query.toString()}`,

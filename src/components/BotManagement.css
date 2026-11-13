@@ -326,25 +326,79 @@
   background: var(--surface);
 }
 
+.bot-management__conversation-row {
+  display: flex;
+  min-width: 0;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.bot-management__conversation-row.is-selected {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal-soft) 58%, var(--surface));
+}
+
 .bot-management__conversation {
-  width: 100%;
+  flex: 1 1 auto;
   display: grid;
   min-width: 0;
   gap: 5px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--navy);
   font: inherit;
   text-align: start;
   cursor: pointer;
 }
 
-.bot-management__conversation:hover,
-.bot-management__conversation.is-selected {
-  border-color: var(--teal);
-  background: var(--teal-soft);
+.bot-management__refresh-sub {
+  display: grid;
+  width: 34px;
+  flex: 0 0 34px;
+  align-self: center;
+  height: 34px;
+  margin-inline: 2px 5px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+  cursor: pointer;
+}
+
+.bot-management__refresh-sub:hover {
+  background: color-mix(in srgb, var(--teal-soft) 72%, transparent);
+  color: var(--teal);
+}
+
+.bot-management__conversation-row.is-selected .bot-management__refresh-sub {
+  background: transparent;
+}
+
+.bot-management__refresh-sub:focus {
+  background: transparent;
+  outline: none;
+}
+
+.bot-management__refresh-sub:focus-visible {
+  border-radius: 7px;
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+}
+
+.bot-management__refresh-sub:active {
+  background: transparent;
+}
+
+.bot-management__conversation-row:hover {
+  border-color: color-mix(in srgb, var(--teal) 55%, var(--line));
 }
 
 .bot-management__conversation strong,
@@ -456,6 +510,26 @@
 .bot-management__message-list {
   min-height: 0;
   overflow-y: auto;
+}
+
+.bot-management__refresh-messages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  min-width: 36px;
+  min-height: 36px;
+  margin: 0 12px 8px auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.bot-management__refresh-messages:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .bot-management__chat-state,

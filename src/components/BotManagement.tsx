@@ -18,6 +18,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import type { ConversationModel } from "../model/ConversationModel";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 
 export default function BotManagement() {
@@ -171,6 +172,89 @@ export default function BotManagement() {
     }
   };
 
+  const handleRefreshMessages = async () => {
+    if (!selectedStudent || !selectedConversation || messagesLoading) return;
+    const requestId = ++messagesRequestRef.current;
+    setMessagesError(false);
+    setMessagesLoading(true);
+    try {
+      const items = await OrchestratorRestClient.loadStudentBotMessages(
+        selectedConversation.hash,
+        selectedStudent.username,
+      );
+      if (requestId === messagesRequestRef.current) setMessages(items);
+    } catch (error) {
+      console.error("Error refreshing student bot messages:", error);
+      if (requestId === messagesRequestRef.current) setMessagesError(true);
+    } finally {
+      if (requestId === messagesRequestRef.current) setMessagesLoading(false);
+    }
+  };
+
+  const handleRefreshConversations = async () => {
+    if (!selectedStudent || !selectedBotID || conversationsLoading) return;
+    const requestId = ++conversationsRequestRef.current;
+    setConversationsError(false);
+    setConversationsLoading(true);
+    try {
+      const items = await OrchestratorRestClient.getStudentBotConversations(
+        selectedStudent.username,
+        selectedBotID,
+      );
+      if (requestId === conversationsRequestRef.current) {
+        setStudentConversations(items);
+        if (selectedConversation) {
+          const refreshedSelection = items.find(
+            (item) => item.hash === selectedConversation.hash,
+          );
+          if (!refreshedSelection) {
+            messagesRequestRef.current += 1;
+            setSelectedConversation(null);
+            setMessages([]);
+          } else {
+            setSelectedConversation(refreshedSelection);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing student bot conversations:", error);
+      if (requestId === conversationsRequestRef.current) setConversationsError(true);
+    } finally {
+      if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
+    }
+  };
+
+  const handleRefreshSubConversation = async (
+    conversation: ConversationModel,
+  ) => {
+    if (!selectedStudent) return;
+    const requestId = ++messagesRequestRef.current;
+    try {
+      const items = await OrchestratorRestClient.loadStudentBotMessages(
+        conversation.hash,
+        selectedStudent.username,
+      );
+      setStudentConversations((current) =>
+        current.map((item) =>
+          item.hash === conversation.hash
+            ? { ...item, lastMessage: items.at(-1)?.text ?? item.lastMessage }
+            : item,
+        ),
+      );
+      if (selectedConversation?.hash === conversation.hash && requestId === messagesRequestRef.current) {
+        setMessages(items);
+        setMessagesError(false);
+        setMessagesLoading(false);
+      }
+    } catch (error) {
+      console.error("Error refreshing sub-conversation:", error);
+      if (selectedConversation?.hash === conversation.hash && requestId === messagesRequestRef.current) {
+        setMessagesError(true);
+        setMessagesLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
     let isCurrent = true;
 
@@ -243,20 +327,25 @@ export default function BotManagement() {
                 aria-label={t("teacherDashboard.studentConversations")}
               >
                 {studentConversations.map((conversation) => (
-                  <button
-                    type="button"
-                    className={`bot-management__conversation${selectedConversation?.hash === conversation.hash ? " is-selected" : ""}`}
-                    key={conversation.hash}
-                    onClick={() => void handleConversationClick(conversation)}
-                  >
-                    <strong>
-                      {conversation.title ||
-                        t("teacherDashboard.untitledConversation")}
-                    </strong>
-                    <span>
-                      {conversation.lastMessage || t("sidebar.noMessages")}
-                    </span>
-                  </button>
+                  <div className={`bot-management__conversation-row${selectedConversation?.hash === conversation.hash ? " is-selected" : ""}`} key={conversation.hash}>
+                    <button
+                      type="button"
+                      className="bot-management__conversation"
+                      onClick={() => void handleConversationClick(conversation)}
+                    >
+                      <strong>{conversation.title || t("teacherDashboard.untitledConversation")}</strong>
+                      <span>{conversation.lastMessage || t("sidebar.noMessages")}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="bot-management__refresh-sub"
+                      aria-label={`Refresh ${conversation.title || "conversation"}`}
+                      title="Refresh this conversation"
+                      onClick={() => void handleRefreshSubConversation(conversation)}
+                    >
+                      <RefreshIcon fontSize="small" />
+                    </button>
+                  </div>
                 ))}
               </nav>
 
@@ -273,6 +362,16 @@ export default function BotManagement() {
                         info={selectedStudentName}
                       />
                     </ConversationHeader>
+                    <button
+                      type="button"
+                      className="bot-management__refresh-messages"
+                      onClick={() => void handleRefreshMessages()}
+                      disabled={messagesLoading}
+                      aria-label="Refresh messages"
+                      title="Refresh messages"
+                    >
+                      {messagesLoading ? <CircularProgress size={18} /> : <RefreshIcon fontSize="small" />}
+                    </button>
                     <MessageList
                       className="bot-management__message-list"
                       autoScrollToBottom
@@ -359,30 +458,7 @@ export default function BotManagement() {
             </div>
           ) : (
             <div className="bot-management__list" ref={botListRef}>
-              {[
-                {
-                  botID: "bot-echo-7suf",
-                  name: "luna-gap",
-                  displayName: "لونا",
-                  ownerUserName: null,
-                  promptCode: "BASE_TEMPLATE",
-                  aiModel: "gpt-5.6-luna",
-                  scope: "EDUCATION",
-                  enabled: true,
-                  description: "هوش مصنوعی لونا از مدلهای چت جی پی تی",
-                },
-                {
-                  botID: "bot-flame-r6nn",
-                  name: "Arabic-Agentqwen",
-                  displayName: "Arabic-Agentqwen",
-                  ownerUserName: null,
-                  promptCode: "BASE_PROMPT_AMIN",
-                  aiModel: "qwen3.8-2.4t-a95b",
-                  scope: "",
-                  enabled: false,
-                  description: "",
-                },
-              ].map((bot) => (
+              {bots.map((bot) => (
                 <article
                   className={`bot-management__card${selectedBotID === bot.botID ? " is-selected" : ""}`}
                   key={bot.botID}
