@@ -248,7 +248,7 @@ export class OrchestratorRestClient {
 
       return loadedMessages
         .map((message, index) => ({
-          id: message.id ?? `${conversationHash}-${message.timeStamp}-${index}`,
+          id: message.id ?? `${conversationHash}-${message.timestamp}-${index}`,
           conversationId: conversationHash,
           text: message.content,
           outgoing: message.from === currentUser,

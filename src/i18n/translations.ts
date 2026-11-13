@@ -58,6 +58,10 @@ export const messages = {
     en: "No conversations yet",
     fa: "هنوز گفتگویی ندارید",
   },
+  "sidebar.noSearchResults": {
+    en: "No matching conversations",
+    fa: "گفتگویی مطابقی پیدا نشد",
+  },
   "sidebar.newChat": { en: "New chat", fa: "گفت‌وگوی جدید" },
   "sidebar.enterChatTitle": {
     en: "Enter a title for this chat",
