@@ -78,7 +78,7 @@
 
 .cs-conversation {
   padding: 10px 16px !important;
-  border-bottom: 1px solid var(--line) !important;
+  border-bottom: 0 !important;
 }
 
 .cs-conversation:hover {
@@ -113,7 +113,7 @@
   height: 100% !important;
 }
 
-@media (max-width: 424px) {
+@media (max-width: 640px) {
   .conversation-sidebar {
     width: 100% !important;
     max-width: none !important;

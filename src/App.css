@@ -3,7 +3,7 @@
   height: 100dvh;
   height: var(--app-height, 100dvh);
   max-height: var(--app-height, 100dvh);
-  padding: 30px;
+  padding: 16px;
   box-sizing: border-box;
   background: var(--bg);
   position: relative;
@@ -42,11 +42,22 @@
   z-index: 1;
   height: 100%;
   min-height: 0;
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid var(--line);
-  box-shadow: 0 24px 60px rgba(15, 42, 74, 0.14);
+  border: 1px solid color-mix(in srgb, var(--navy) 10%, transparent);
+  box-shadow: 0 16px 48px rgb(22 39 61 / 12%);
+  background: var(--surface);
+}
+
+.chat-frame::before {
+  position: absolute;
+  z-index: 5;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--teal);
+  content: "";
+  pointer-events: none;
 }
 
 .connecting-screen {
@@ -104,7 +115,7 @@
     transform: rotate(360deg);
   }
 }
-@media (max-width: 426px) {
+@media (max-width: 640px) {
   .app-shell {
     padding: 0;
   }

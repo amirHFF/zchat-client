@@ -312,6 +312,119 @@ export class OrchestratorRestClient {
       return [];
     }
   }
+
+  static async getAcquiredTeacherBots(username: string): Promise<ChatBot[]> {
+    const response = await fetch(
+      `${orchestratorUrl}/bot/acquired-teacher/${encodeURIComponent(username)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const bots: ChatBot[] = await response.json();
+    return Array.isArray(bots) ? bots : [];
+  }
+
+  static async getBotParticipants(botID: string): Promise<UserProfile[]> {
+    const response = await fetch(
+      `${orchestratorUrl}/profiles/bot/participants/${encodeURIComponent(botID)}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const participants: UserProfile[] = await response.json();
+    return Array.isArray(participants) ? participants : [];
+  }
+
+  static async getStudentBotConversations(
+    studentUsername: string,
+    botID: string,
+  ): Promise<ConversationModel[]> {
+    const query = new URLSearchParams();
+    query.append("participants", studentUsername);
+    const botParticipant = botID.startsWith("bot-") ? botID : `bot-${botID}`;
+    query.append("participants", botParticipant);
+
+    const response = await fetch(
+      `${orchestratorUrl}/conversations/sub?${query.toString()}`,
+      {
+        method: "GET",
+        headers: { Accept: "*/*" },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const conversations: SubConversationResponse[] = await response.json();
+    if (!Array.isArray(conversations)) return [];
+
+    return conversations.map((conversation) => ({
+      hash: conversation.hash,
+      parentHash: conversation.parentHash,
+      targetJid: `${studentUsername}${botID}`,
+      jid: studentUsername,
+      title: conversation.title,
+      lastMessage: conversation.lastMessage,
+      lastMessageTime: "",
+      conversationType: conversation.conversationType,
+      participants: conversation.participants,
+    }));
+  }
+
+  static async loadStudentBotMessages(
+    conversationHash: string,
+    studentUsername: string,
+    size = 50,
+    offset = 0,
+  ): Promise<ChatMessage[]> {
+    const query = new URLSearchParams({
+      size: String(size),
+      offset: String(offset),
+    });
+    const response = await fetch(
+      `${orchestratorUrl}/conversations/message/load/${encodeURIComponent(conversationHash)}?${query.toString()}`,
+      {
+        method: "GET",
+        headers: { Accept: "*/*" },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const messages: LoadedConversationMessage[] = await response.json();
+    if (!Array.isArray(messages)) return [];
+
+    return messages
+      .map((message, index) => ({
+        id: message.id ?? `${conversationHash}-${message.timestamp}-${index}`,
+        conversationId: conversationHash,
+        text: message.content,
+        outgoing:
+          message.from === studentUsername ||
+          message.from.split("@")[0].split("/")[0] === studentUsername,
+        timestamp: toMillis(message.timestamp),
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+  }
 }
 
 interface SubConversationResponse {
