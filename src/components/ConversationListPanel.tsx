@@ -1,7 +1,7 @@
 import { useT } from "../i18n/useT";
 import "./ConversationListPanel.css";
 import { Avatar, Conversation, ConversationList, Search, Sidebar, } from "@chatscope/chat-ui-kit-react";
-// import UserAvatar from "./UserAvatar";
+import UserAvatar from "./UserAvatar";
 import keycloak from "../auth/Keycloak";
 import ProfileDrawer from "./ProfileDrawer";
 import LanguageSwitch from "./LanguageSwitch";
@@ -22,7 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { XmppClient } from "../xmpp/XmppClient";
 import { toBareJid, usePresenceStore } from "../chatStore/PresenceStore.ts";
-import { avatarDataUri, BOT_AVATAR_SRC } from "./UserAvatar";
+import { BOT_AVATAR_SRC } from "./UserAvatar";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
@@ -266,11 +266,11 @@ export default function ConversationListPanel() {
                 }
                 onClick={() => void toggleBot(conversation)}
             >
-                <Avatar
+                <UserAvatar
+                    as={Avatar}
                     src={BOT_AVATAR_SRC}
                     name={conversation.title}
-                    size="md"
-                    status="available"
+                    online
                 />
             </Conversation>
             {expandedBots[conversation.hash] && (
@@ -333,11 +333,11 @@ export default function ConversationListPanel() {
             active={isActive(conversation)}
             onClick={() => void handleSelect(conversation)}
         >
-            <Avatar
-                src={avatarDataUri(conversation.title)}
-                name={conversation.title}
-                size="md"
-                status={isOnline(conversation.targetJid) ? "available" : "unavailable"}
+            <UserAvatar
+                as={Avatar}
+                name={conversation.title || conversation.targetJid}
+                online={isOnline(conversation.targetJid)}
+                showOffline
             />
         </Conversation>
     );

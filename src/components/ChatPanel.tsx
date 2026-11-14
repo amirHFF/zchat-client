@@ -15,6 +15,13 @@ import MarkdownMessage from "./MarkdownMessage.tsx";
 import { useChatStore } from "../chatStore/ChatStore";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
+import CheckIcon from "@mui/icons-material/Check";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
 import { useLocation, useNavigate } from "react-router-dom";
 import { formatMessageTime } from "../utils/formatTimestamp";
@@ -50,6 +57,11 @@ export default function ChatPanel() {
   const [text, setText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [attachmentDialogOpen, setAttachmentDialogOpen] = useState(false);
+  const [moreMenuAnchor, setMoreMenuAnchor] = useState<HTMLElement | null>(
+    null,
+  );
+  // While on, every outgoing message carries <needToRag>true</needToRag>.
+  const [isBookingSearchActive, setIsBookingSearchActive] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<MessageKey | null>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
@@ -91,6 +103,8 @@ export default function ChatPanel() {
     setText("");
     setSelectedImage(null);
     setAttachmentDialogOpen(false);
+    setMoreMenuAnchor(null);
+    setIsBookingSearchActive(false);
     setCameraError(null);
     setOcrError(null);
     setOcrLoading(false);
@@ -126,10 +140,13 @@ export default function ChatPanel() {
       ".cs-button--attachment",
     );
     if (attachButton) {
-      attachButton.setAttribute("aria-label", t("chat.ocr.attachImageAria"));
-      attachButton.setAttribute("title", t("chat.ocr.attachImageAria"));
+      // The library's attach button now opens the "more options" menu.
+      attachButton.setAttribute("aria-label", t("chat.moreOptions"));
+      attachButton.setAttribute("title", t("chat.moreOptions"));
+      attachButton.setAttribute("aria-haspopup", "menu");
+      attachButton.setAttribute("aria-expanded", String(Boolean(moreMenuAnchor)));
     }
-  }, [conversation, ocrLoading, t]);
+  }, [conversation, ocrLoading, moreMenuAnchor, t]);
 
   // --- فیکس مشکل ۱: جلوگیری از پیست شدن استایل/رنگ داخل input ---
   useEffect(() => {
@@ -173,15 +190,22 @@ export default function ChatPanel() {
 
     const shouldSendHash =
       isBotConversation(conversation) && Boolean(conversation.parentHash);
+    const sendOptions = { needToRag: isBookingSearchActive };
     try {
       if (shouldSendHash) {
         chatServiceFacade.sendMessage(
           conversation.targetJid,
           innerText,
           conversation.hash,
+          sendOptions,
         );
       } else {
-        chatServiceFacade.sendMessage(conversation.targetJid, innerText);
+        chatServiceFacade.sendMessage(
+          conversation.targetJid,
+          innerText,
+          undefined,
+          sendOptions,
+        );
       }
 
       setText("");
@@ -276,6 +300,25 @@ export default function ChatPanel() {
     setCameraError(null);
     setSelectedImage(null);
     setAttachmentDialogOpen(true);
+  };
+
+  const openMoreMenu = () => {
+    const attachButton = chatPanelRef.current?.querySelector<HTMLElement>(
+      ".cs-button--attachment",
+    );
+    setMoreMenuAnchor(attachButton ?? null);
+  };
+
+  const closeMoreMenu = () => setMoreMenuAnchor(null);
+
+  const handleAttachmentMenuClick = () => {
+    closeMoreMenu();
+    openAttachmentDialog();
+  };
+
+  const handleBookingSearchToggle = () => {
+    setIsBookingSearchActive((active) => !active);
+    closeMoreMenu();
   };
 
   const closeAttachmentDialog = () => {
@@ -406,14 +449,52 @@ export default function ChatPanel() {
           attachButton={true}
           attachDisabled={ocrLoading}
           sendDisabled={ocrLoading || !text.trim()}
-          onAttachClick={openAttachmentDialog}
-          className={
-            ocrLoading
-              ? "chat-message-input chat-message-input--loading"
-              : "chat-message-input"
-          }
+          onAttachClick={openMoreMenu}
+          className={[
+            "chat-message-input",
+            ocrLoading && "chat-message-input--loading",
+            isBookingSearchActive && "chat-message-input--book-search",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         />
       </ChatContainer>
+      <Menu
+        className="chat-more-menu"
+        anchorEl={moreMenuAnchor}
+        open={Boolean(moreMenuAnchor)}
+        onClose={closeMoreMenu}
+        anchorOrigin={{ vertical: "top", horizontal: "left" }}
+        transformOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <MenuItem onClick={handleAttachmentMenuClick} disabled={ocrLoading}>
+          <ListItemIcon>
+            <AttachFileIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary={t("chat.menu.attachment")} />
+        </MenuItem>
+        <MenuItem
+          role="menuitemcheckbox"
+          aria-checked={isBookingSearchActive}
+          selected={isBookingSearchActive}
+          onClick={handleBookingSearchToggle}
+        >
+          <ListItemIcon>
+            <MenuBookOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("chat.menu.bookSearch")}
+            secondary={
+              isBookingSearchActive
+                ? t("chat.menu.bookSearchOn")
+                : t("chat.menu.bookSearchOff")
+            }
+          />
+          {isBookingSearchActive && (
+            <CheckIcon fontSize="small" className="chat-more-menu__check" />
+          )}
+        </MenuItem>
+      </Menu>
       {/* open modal for upload image and extract text from it */}
       <Dialog
         className="ocr-attachment-dialog"

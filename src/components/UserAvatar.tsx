@@ -1,93 +1,76 @@
 import React from "react";
+import "./UserAvatar.css";
 
 interface Props {
     name: string;
     online?: boolean;
-    /** اگر true باشد، در حالت آفلاین هم دایره‌ی خاکستری نشان می‌دهد */
+    /** اگر true باشد، در حالت آفلاین هم نشانگر (حلقه‌ی توخالی) نمایش داده می‌شود */
     showOffline?: boolean;
+    /** تصویر اختیاری (مثلاً آواتار بات)؛ اگر نباشد حرف اول نام نمایش داده می‌شود */
+    src?: string;
+    /** اندازه به پیکسل (پیش‌فرض 36) */
+    size?: number;
+    className?: string;
+    /** chatscope برای تشخیص اسلات آواتار از prop «as» استفاده می‌کند؛ به DOM پاس داده نمی‌شود */
+    as?: unknown;
 }
 
-const colors = [
-    "#4F46E5",
-    "#2563EB",
-    "#059669",
-    "#EA580C",
-    "#DC2626",
-    "#9333EA",
-    "#0891B2",
-    "#CA8A04"
+/** رنگ‌ها از متغیرهای تم خوانده می‌شوند تا با تغییر تم، آواتارها هم هماهنگ شوند */
+const themeTones = [
+    "var(--blue)",
+    "var(--teal)",
+    "var(--coral)",
+    "var(--gold)",
+    "var(--navy)",
 ];
 
-function getColor(name: string) {
+function hashName(name: string) {
     let hash = 0;
-
     for (let i = 0; i < name.length; i++) {
-        hash += name.charCodeAt(i);
+        hash = (hash * 31 + name.charCodeAt(i)) | 0;
     }
-
-    return colors[hash % colors.length];
-}
-function escapeXml(s: string) {
-    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return Math.abs(hash);
 }
 
-/** آواتار حرف اول رنگی به‌صورت data URI برای استفاده در Avatar ی chatscope */
-export function avatarDataUri(name: string | undefined) {
+function getTone(name: string) {
+    return themeTones[hashName(name) % themeTones.length];
+}
+
+export default function UserAvatar({
+    name,
+    online = false,
+    showOffline = false,
+    src,
+    size = 36,
+    className,
+}: Props) {
     const safeName = name ?? "";
-    const letter = escapeXml((safeName[0] ?? "?").toUpperCase());
-    const svg =
-        `<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42">` +
-        `<rect width="42" height="42" fill="${getColor(safeName)}"/>` +
-        `<text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="white" ` +
-        `font-family="sans-serif" font-size="18" font-weight="600">${letter}</text></svg>`;
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
-export default function UserAvatar({name, online = false, showOffline = false}: Props) {
-    console.log("UserAvatar render", { name, online, showOffline });
     const showDot = online || showOffline;
+    const letter = safeName.trim()[0]?.toUpperCase() ?? "?";
+
+    const classes = ["zc-avatar", showDot && "zc-avatar--has-dot", className]
+        .filter(Boolean)
+        .join(" ");
+
     return (
         <div
-            style={{
-                position: "relative",
-                width: 42,
-                height: 42,
-                flexShrink: 0,
-                overflow: "visible",
-            }}
+            className={classes}
+            style={
+                {
+                    "--avatar-size": `${size}px`,
+                    "--avatar-tone": getTone(safeName),
+                } as React.CSSProperties
+            }
         >
-            <div
-                style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: "50%",
-                    background: getColor(name),
-                    color: "white",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontWeight: 600,
-                    fontSize: 16,
-                }}
-            >
-                {name?.[0]?.toUpperCase() ?? "?"}
+            <div className="zc-avatar__face" aria-hidden={!src}>
+                {src ? <img src={src} alt={safeName} draggable={false} /> : letter}
             </div>
 
             {showDot && (
-                <div
+                <span
                     role="status"
                     aria-label={online ? "online" : "offline"}
-                    style={{
-                        position: "absolute",
-                        insetInlineEnd: 0,
-                        bottom: 0,
-                        width: 12,
-                        height: 12,
-                        borderRadius: "50%",
-                        background: online ? "#22C55E" : "#9CA3AF",
-                        border: "2px solid white",
-                        boxSizing: "border-box",
-                    }}
+                    className={`zc-avatar__dot ${online ? "zc-avatar__dot--online" : "zc-avatar__dot--offline"}`}
                 />
             )}
         </div>

@@ -114,7 +114,12 @@ export class ChatServiceFacade {
   // Send Message
   // ------------------------------------
 
-  public sendMessage(to: string, text: string, hash?: string): void {
+  public sendMessage(
+    to: string,
+    text: string,
+    hash?: string,
+    options: { needToRag?: boolean } = {},
+  ): void {
     const sentAt = Date.now();
     to = to.concat(this.xmppDomainName);
     const messageBuilder = $msg({
@@ -126,28 +131,28 @@ export class ChatServiceFacade {
       .t(text)
       .up();
 
-    if (hash) {
-      messageBuilder
-        .c("zchat", { xmlns: "urn:zchat:message" })
-        .c("hash")
-        .t(hash);
+    // Custom fields live in the <zchat xmlns="urn:zchat:message"> extension.
+    if (hash || options.needToRag) {
+      messageBuilder.c("zchat", { xmlns: "urn:zchat:message" });
+      if (hash) {
+        messageBuilder.c("hash").t(hash).up();
+      }
+      if (options.needToRag) {
+        messageBuilder.c("needToRag").t("true").up();
+      }
+      messageBuilder.up();
     }
 
     const message = messageBuilder.tree();
 
-    // console.log("Sending XMPP message:", {
-    //   to,
-    //   text,
-    //   hash,
-    //   stanza: Strophe.serialize(message),
-    // });
-    // result log example
-    //  {
-    //  "to": "bot-storm-qdhi@zchat.ir",
-    //  "text": "hi chat A",
-    //  "hash": "c9da649841667153e203444bd",
-    //  "stanza": "<message to=\"bot-storm-qdhi@zchat.ir\" type=\"chat\" xmlns=\"jabber:client\"><body>hi chat A</body><zchat xmlns=\"urn:zchat:message\"><hash>c9da649841667153e203444bd</hash></zchat></message>"
-    //  }
+    console.log("Sending XMPP message:", {
+      to,
+      text,
+      hash,
+      needToRag: Boolean(options.needToRag),
+      stanza: Strophe.serialize(message),
+    });
+
     this.client.send(message);
     this.messageDisplayHandler.onOutgoingMessage(to, text, sentAt);
   }

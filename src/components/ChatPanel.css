@@ -164,6 +164,82 @@
   color: var(--text-secondary) !important;
 }
 
+/* The attach button opens the "more options" menu: show three dots instead of a paperclip. */
+.chat-message-input .cs-button--attachment {
+  position: relative;
+}
+
+.chat-message-input .cs-button--attachment svg {
+  display: none;
+}
+
+.chat-message-input .cs-button--attachment::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 22px;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Book search on: tint the button and add a small dot. */
+.chat-message-input--book-search .cs-button--attachment {
+  color: var(--teal) !important;
+}
+
+.chat-message-input--book-search .cs-button--attachment::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.chat-more-menu .MuiPaper-root {
+  min-width: 210px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 28px rgba(23, 36, 58, 0.14);
+}
+
+.chat-more-menu .MuiMenuItem-root {
+  gap: 4px;
+  font-family: var(--font-body);
+  color: var(--navy);
+}
+
+.chat-more-menu .MuiListItemText-primary {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--navy);
+}
+
+.chat-more-menu .MuiListItemText-secondary {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.chat-more-menu .MuiListItemIcon-root {
+  color: var(--text-secondary);
+}
+
+.chat-more-menu .MuiMenuItem-root.Mui-selected,
+.chat-more-menu .MuiMenuItem-root.Mui-selected:hover {
+  background: var(--teal-soft);
+}
+
+.chat-more-menu .Mui-selected .MuiListItemIcon-root,
+.chat-more-menu .Mui-selected .MuiListItemText-secondary,
+.chat-more-menu__check {
+  color: var(--teal) !important;
+}
+
 .ocr-file-input {
   position: fixed;
   width: 1px;

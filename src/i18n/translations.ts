@@ -152,6 +152,11 @@ export const messages = {
   "chat.ocr.cancel": { en: "Cancel", fa: "لغو" },
   "chat.ocr.extractText": { en: "Extract text", fa: "استخراج متن" },
   "chat.ocr.extracting": { en: "Extracting…", fa: "در حال استخراج…" },
+  "chat.moreOptions": { en: "More options", fa: "گزینه‌های بیشتر" },
+  "chat.menu.attachment": { en: "Attachment", fa: "پیوست" },
+  "chat.menu.bookSearch": { en: "Book search", fa: "جستجو در کتاب" },
+  "chat.menu.bookSearchOn": { en: "On", fa: "فعال" },
+  "chat.menu.bookSearchOff": { en: "Off", fa: "غیرفعال" },
   "chat.ocr.attachImageAria": {
     en: "Attach image",
     fa: "پیوست تصویر",
