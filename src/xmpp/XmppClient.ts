@@ -3,6 +3,9 @@ import type { XmppMessage } from "../model/XmppMessage";
 const chatWebSocketAddress = import.meta.env.VITE_API_CHAT_SERVER_ADDRESS;
 
 export type ConnectionStatusListener = (status: number) => void;
+export type PresenceListener = (jid: string, online: boolean) => void;
+
+const toBareJid = (jid: string) => Strophe.getBareJidFromJid(jid).toLowerCase();
 
 export class XmppClient {
   private static instance: XmppClient;
@@ -21,6 +24,13 @@ export class XmppClient {
   private reconnectAttempt = 0;
   private shouldReconnect = false;
   private hasConnectedOnce = false;
+  // jid -> resourceهای آنلاین (کاربر ممکن است هم‌زمان با چند دستگاه وصل باشد)
+  private presenceResources = new Map<string, Set<string>>();
+  private presenceSubscriptions = new Set<{
+    jids: Set<string>;
+    listener: PresenceListener;
+  }>();
+  private presenceHandler: any;
 
   private statusListener?: ConnectionStatusListener;
 
@@ -89,12 +99,9 @@ export class XmppClient {
             case Strophe.Status.CONNECTED:
               this.hasConnectedOnce = true;
               this.reconnectAttempt = 0;
-
+              this.onConnected();            // <-- جدید
               console.log("Connected.");
-              console.log("jid : " + jid);
-
               resolve();
-
               break;
 
             case Strophe.Status.AUTHFAIL:
@@ -104,18 +111,16 @@ export class XmppClient {
 
             case Strophe.Status.CONNFAIL:
               this.connected = false;
+              this.resetPresence();          // <-- جدید
               this.scheduleReconnect();
-
               reject(new Error("Connection failed."));
-
               break;
 
             case Strophe.Status.DISCONNECTED:
               this.connected = false;
+              this.resetPresence();          // <-- جدید
               this.scheduleReconnect();
-
               console.log("Disconnected.");
-
               break;
           }
         },
@@ -195,7 +200,88 @@ export class XmppClient {
       });
     }, delay);
   }
+  /**
+   * افزودن Listener برای وضعیت آنلاین بودن لیستی از JIDها.
+   * وضعیت فعلی (در صورت وجود) بلافاصله به listener داده می‌شود.
+   * خروجی: تابعی برای لغو اشتراک.
+   */
+  public addPresenceListener(
+      jids: string[],
+      listener: PresenceListener,
+  ): () => void {
+    const subscription = {
+      jids: new Set(jids.filter(Boolean).map(toBareJid)),
+      listener,
+    };
+    this.presenceSubscriptions.add(subscription);
 
+    // وضعیت‌هایی که قبلاً دریافت شده (مثلاً JIDهایی که بعد از اتصال اضافه شدند)
+    subscription.jids.forEach((jid) =>
+        listener(jid, this.presenceResources.has(jid)),
+    );
+
+    return () => {
+      this.presenceSubscriptions.delete(subscription);
+    };
+  }
+
+  /** بعد از هر اتصال موفق (اولیه یا reconnect) */
+  private onConnected(): void {
+    // Strophe هنگام connect جدید handlerها را پاک می‌کند، پس دوباره ثبت می‌کنیم.
+    if (this.presenceHandler) {
+      try {
+        this.removeHandler(this.presenceHandler);
+      } catch {
+        /* ignore */
+      }
+    }
+    this.presenceHandler = this.addHandler(
+        (stanza: Element) => {
+          this.handlePresence(stanza);
+          return true;
+        },
+        undefined,
+        "presence",
+    );
+
+    // بعد از ثبت handler، presence اولیه را می‌فرستیم تا سرور
+    // وضعیت مخاطبین را برایمان بفرستد.
+    this.connection.send($pres().tree());
+  }
+
+  private handlePresence(stanza: Element): void {
+    const from = stanza.getAttribute("from");
+    const type = stanza.getAttribute("type");
+
+    // subscribe / error / ... را نادیده می‌گیریم؛ فقط available و unavailable
+    if (!from || (type && type !== "unavailable")) return;
+
+    const jid = toBareJid(from);
+    const resource = Strophe.getResourceFromJid(from) ?? "";
+    const resources = this.presenceResources.get(jid) ?? new Set<string>();
+
+    if (type === "unavailable") resources.delete(resource);
+    else resources.add(resource);
+
+    if (resources.size) this.presenceResources.set(jid, resources);
+    else this.presenceResources.delete(jid);
+
+    this.notifyPresence(jid);
+  }
+
+  private notifyPresence(jid: string): void {
+    const online = this.presenceResources.has(jid);
+    this.presenceSubscriptions.forEach((s) => {
+      if (s.jids.has(jid)) s.listener(jid, online);
+    });
+  }
+
+  /** با قطع اتصال، همه را آفلاین حساب می‌کنیم */
+  private resetPresence(): void {
+    const jids = [...this.presenceResources.keys()];
+    this.presenceResources.clear();
+    jids.forEach((jid) => this.notifyPresence(jid));
+  }
   /**
    * آیا وصل هستیم؟
    */
@@ -284,18 +370,6 @@ export class XmppClient {
       "message",
     );
   }
-  public addPresenceListener(listener: (presence: Element) => void) {
-    return this.addHandler(
-      (stanza: Element) => {
-        listener(stanza);
-
-        return true;
-      },
-
-      undefined,
-      "presence",
-    );
-  }
   public addIqListener(listener: (iq: Element) => void) {
     return this.addHandler(
       (stanza: Element) => {
@@ -323,8 +397,5 @@ export class XmppClient {
   }
   public addTimedHandler(period: number, handler: () => boolean) {
     return this.connection.addTimedHandler(period, handler);
-  }
-  public sendPresence(): void {
-    this.send($pres().tree());
   }
 }

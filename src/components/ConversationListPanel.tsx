@@ -1,431 +1,463 @@
 import { useT } from "../i18n/useT";
 import "./ConversationListPanel.css";
-import {
-  Sidebar,
-  Search,
-  ConversationList,
-  Conversation,
-} from "@chatscope/chat-ui-kit-react";
-import UserAvatar from "./UserAvatar";
+import { Avatar, Conversation, ConversationList, Search, Sidebar, } from "@chatscope/chat-ui-kit-react";
+// import UserAvatar from "./UserAvatar";
 import keycloak from "../auth/Keycloak";
 import ProfileDrawer from "./ProfileDrawer";
 import LanguageSwitch from "./LanguageSwitch";
 import AddIcon from "@mui/icons-material/Add";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton";
-import React, { useEffect, useState } from "react";
+// import React, {useEffect, useState} from "react";
 import { useChatStore } from "../chatStore/ChatStore";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
 import { formatConversationTime } from "../utils/formatTimestamp";
 import type { ConversationModel } from "../model/ConversationModel";
-import { isBotConversation, getBotId } from "../utils/botConversation";
+import { getBotId, isBotConversation } from "../utils/botConversation";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import { enterMobileChatHistory } from "../utils/mobileChatHistory";
 import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { XmppClient } from "../xmpp/XmppClient";
+import { toBareJid, usePresenceStore } from "../chatStore/PresenceStore.ts";
+import { avatarDataUri, BOT_AVATAR_SRC } from "./UserAvatar";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
 
 export default function ConversationListPanel() {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const t = useT();
-  const navigate = useNavigate();
-  const location = useLocation();
+    const [profileOpen, setProfileOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const t = useT();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const conversations = useChatStore((state) => state.conversations);
-  const setConversations = useChatStore((state) => state.setConversations);
-  const setSelectedConversation = useChatStore(
-    (state) => state.setSelectedConversation,
-  );
-  const selectedConversation = useChatStore(
-    (state) => state.selectedConversation,
-  );
-  const setMessages = useChatStore((state) => state.setMessages);
-  const subConversations = useChatStore((state) => state.subConversations);
-  const setSubConversations = useChatStore(
-    (state) => state.setSubConversations,
-  );
-  const addSubConversationToStore = useChatStore(
-    (state) => state.addSubConversation,
-  );
-  const [expandedBots, setExpandedBots] = useState<Record<string, boolean>>({});
-  const [expandedCategories, setExpandedCategories] = useState({
-    bots: true,
-    users: true,
-  });
-  const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
-  const [creatingFor, setCreatingFor] = useState<string | null>(null);
-  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
-  const matchesSearch = (conversation: ConversationModel) =>
-    !normalizedQuery ||
-    [conversation.title, conversation.targetJid, conversation.lastMessage].some(
-      (value) => value?.toLocaleLowerCase().includes(normalizedQuery),
+    const conversations = useChatStore((state) => state.conversations);
+    const setConversations = useChatStore((state) => state.setConversations);
+    const setSelectedConversation = useChatStore(
+        (state) => state.setSelectedConversation,
     );
-  const botConversations = conversations.filter(
-    (conversation) =>
-      isBotConversation(conversation) && matchesSearch(conversation),
-  );
-  const userConversations = conversations
-    .filter((conversation) => !isBotConversation(conversation))
-    .filter(matchesSearch);
-
-  const isActive = (conversation: ConversationModel) => {
-    if (!selectedConversation) return false;
-
-    // اگر هر دو hash دارند، فقط با hash مقایسه کن
-    if (selectedConversation.hash && conversation.hash) {
-      return selectedConversation.hash === conversation.hash;
-    }
-
-    // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
-    return (
-      !selectedConversation.hash &&
-      !conversation.hash &&
-      selectedConversation.targetJid === conversation.targetJid
+    const selectedConversation = useChatStore(
+        (state) => state.selectedConversation,
     );
-  };
-  useEffect(() => {
-    const loadConversations = async () => {
-      if (conversationsFetchStarted) return;
+    const setMessages = useChatStore((state) => state.setMessages);
+    const subConversations = useChatStore((state) => state.subConversations);
+    const setSubConversations = useChatStore(
+        (state) => state.setSubConversations,
+    );
+    const addSubConversationToStore = useChatStore(
+        (state) => state.addSubConversation,
+    );
+    const [expandedBots, setExpandedBots] = useState<Record<string, boolean>>({});
+    const [expandedCategories, setExpandedCategories] = useState({
+        bots: true,
+        users: true,
+    });
+    const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
+    const [creatingFor, setCreatingFor] = useState<string | null>(null);
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+    const matchesSearch = (conversation: ConversationModel) =>
+        !normalizedQuery ||
+        [conversation.title, conversation.targetJid, conversation.lastMessage].some(
+            (value) => value?.toLocaleLowerCase().includes(normalizedQuery),
+        );
+    const botConversations = conversations.filter(
+        (conversation) =>
+            isBotConversation(conversation) && matchesSearch(conversation),
+    );
+    const userConversations = conversations
+        .filter((conversation) => !isBotConversation(conversation))
+        .filter(matchesSearch);
 
-      const username = keycloak.tokenParsed?.preferred_username;
-      if (!username) return;
+    const onlineMap = usePresenceStore((s) => s.online);
+    const setPresence = usePresenceStore((s) => s.setPresence);
 
-      conversationsFetchStarted = true; // lock before await
+    const userJidsKey = useMemo(
+        () =>
+            conversations
+                .filter((c) => !isBotConversation(c) && c.targetJid)
+                .map((c) => toBareJid(c.targetJid))
+                .sort()
+                .join(","),
+        [conversations],
+    );
 
-      const fetched = await OrchestratorRestClient.fetchConversations(username);
+    useEffect(() => {
+        if (!userJidsKey) return;
+        return XmppClient.getInstance().addPresenceListener(
+            userJidsKey.split(","),
+            setPresence,
+        );
+    }, [userJidsKey, setPresence]);
 
-      if (fetched !== undefined) {
-        setConversations(fetched);
-      }
+    const isOnline = (jid: string) => Boolean(onlineMap[toBareJid(jid)]);
+
+    const isActive = (conversation: ConversationModel) => {
+        if (!selectedConversation) return false;
+
+        // اگر هر دو hash دارند، فقط با hash مقایسه کن
+        if (selectedConversation.hash && conversation.hash) {
+            return selectedConversation.hash === conversation.hash;
+        }
+
+        // در غیر این صورت (گفت‌وگوی جدید بدون hash) با targetJid
+        return (
+            !selectedConversation.hash &&
+            !conversation.hash &&
+            selectedConversation.targetJid === conversation.targetJid
+        );
+    };
+    useEffect(() => {
+        const loadConversations = async () => {
+            if (conversationsFetchStarted) return;
+
+            const username = keycloak.tokenParsed?.preferred_username;
+            if (!username) return;
+
+            conversationsFetchStarted = true; // lock before await
+
+            const fetched = await OrchestratorRestClient.fetchConversations(username);
+
+            if (fetched !== undefined) {
+                setConversations(fetched);
+            }
+        };
+
+        loadConversations();
+    }, [setConversations]);
+
+    const setMobileView = useChatStore((state) => state.setMobileView);
+    const selectSubConversation = async (
+        conversation: ConversationModel,
+        loadMessages: boolean,
+    ) => {
+        enterMobileChatHistory(
+            navigate,
+            location.pathname,
+            location.search,
+            location.hash,
+            location.state,
+        );
+        const selected = {
+            ...conversation,
+            targetJid: getBotId(conversation) ?? conversation.targetJid,
+        };
+        setSelectedConversation(selected);
+        setMessages([]);
+        setMobileView("chat");
+        if (!loadMessages || !conversation.hash) return;
+        const messages = await OrchestratorRestClient.loadConversationMessages(
+            conversation.hash,
+        );
+        if (
+            useChatStore.getState().selectedConversation?.hash === conversation.hash
+        )
+            setMessages(messages);
     };
 
-    loadConversations();
-  }, [setConversations]);
-
-  const setMobileView = useChatStore((state) => state.setMobileView);
-  const selectSubConversation = async (
-    conversation: ConversationModel,
-    loadMessages: boolean,
-  ) => {
-    enterMobileChatHistory(
-      navigate,
-      location.pathname,
-      location.search,
-      location.hash,
-      location.state,
-    );
-    const selected = {
-      ...conversation,
-      targetJid: getBotId(conversation) ?? conversation.targetJid,
+    const toggleBot = async (conversation: ConversationModel) => {
+        const parentHash = conversation.hash;
+        const expand = !expandedBots[parentHash];
+        setExpandedBots((state) => ({ ...state, [parentHash]: expand }));
+        if (
+            !expand ||
+            Object.prototype.hasOwnProperty.call(subConversations, parentHash)
+        )
+            return;
+        setLoadingBots((state) => ({ ...state, [parentHash]: true }));
+        const items =
+            await OrchestratorRestClient.fetchSubConversations(parentHash);
+        setSubConversations(parentHash, items);
+        setLoadingBots((state) => ({ ...state, [parentHash]: false }));
     };
-    setSelectedConversation(selected);
-    setMessages([]);
-    setMobileView("chat");
-    if (!loadMessages || !conversation.hash) return;
-    const messages = await OrchestratorRestClient.loadConversationMessages(
-      conversation.hash,
-    );
-    if (
-      useChatStore.getState().selectedConversation?.hash === conversation.hash
-    )
-      setMessages(messages);
-  };
 
-  const toggleBot = async (conversation: ConversationModel) => {
-    const parentHash = conversation.hash;
-    const expand = !expandedBots[parentHash];
-    setExpandedBots((state) => ({ ...state, [parentHash]: expand }));
-    if (
-      !expand ||
-      Object.prototype.hasOwnProperty.call(subConversations, parentHash)
-    )
-      return;
-    setLoadingBots((state) => ({ ...state, [parentHash]: true }));
-    const items =
-      await OrchestratorRestClient.fetchSubConversations(parentHash);
-    setSubConversations(parentHash, items);
-    setLoadingBots((state) => ({ ...state, [parentHash]: false }));
-  };
-
-  const createSubConversation = async (parentHash: string) => {
-    const title = window.prompt(t("sidebar.enterChatTitle"))?.trim();
-    if (!title) return;
-    setCreatingFor(parentHash);
-    try {
-      const item = await OrchestratorRestClient.addSubConversation(
-        parentHash,
-        title,
-      );
-      addSubConversationToStore(parentHash, item);
-      await selectSubConversation(item, false);
-    } catch (error) {
-      console.error("Error creating sub-conversation:", error);
-      window.alert(String(error));
-    } finally {
-      setCreatingFor(null);
-    }
-  };
-  const handleSelect = async (conversation: ConversationModel) => {
-    enterMobileChatHistory(
-      navigate,
-      location.pathname,
-      location.search,
-      location.hash,
-      location.state,
-    );
-    setSelectedConversation(conversation);
-    setMessages([]);
-    setMobileView("chat");
-
-    if (!conversation.hash) {
-      console.error(
-        "Cannot load messages: conversation.hash is empty",
-        conversation,
-      );
-      return;
-    }
-
-    const messages = await OrchestratorRestClient.loadConversationMessages(
-      conversation.hash,
-    );
-
-    // Ignore stale response if user already clicked another conversation
-    if (
-      useChatStore.getState().selectedConversation?.hash === conversation.hash
-    ) {
-      setMessages(messages);
-    }
-  };
-
-  const renderBotConversation = (conversation: ConversationModel) => (
-    <React.Fragment key={conversation.hash || conversation.targetJid}>
-      <Conversation
-        className={`bot-conversation${selectedConversation?.parentHash === conversation.hash ? " bot-parent-active" : ""}`}
-        name={
-          <>
-            <span className="bot-conversation-name">
-              {conversation.title || conversation.targetJid}
-            </span>
-            <span className="bot-expand-icon" aria-hidden="true">
-              {expandedBots[conversation.hash] ? (
-                <KeyboardArrowDownIcon fontSize="small" />
-              ) : (
-                <KeyboardArrowRightIcon
-                  className="bot-expand-icon__right"
-                  fontSize="small"
-                />
-              )}
-            </span>
-          </>
+    const createSubConversation = async (parentHash: string) => {
+        const title = window.prompt(t("sidebar.enterChatTitle"))?.trim();
+        if (!title) return;
+        setCreatingFor(parentHash);
+        try {
+            const item = await OrchestratorRestClient.addSubConversation(
+                parentHash,
+                title,
+            );
+            addSubConversationToStore(parentHash, item);
+            await selectSubConversation(item, false);
+        } catch (error) {
+            console.error("Error creating sub-conversation:", error);
+            window.alert(String(error));
+        } finally {
+            setCreatingFor(null);
         }
-        // info={conversation.lastMessage || t("sidebar.noMessages")}
-        info={
-          <span className="bot-conversation-count">
-            <span className="bot-conversation-count__icon" aria-hidden="true" />
-            {Object.prototype.hasOwnProperty.call(
-              subConversations,
-              conversation.hash,
-            )
-              ? subConversations[conversation.hash].length > 0
-                ? t("sidebar.conversationCount", {
-                    count: subConversations[conversation.hash].length,
-                  })
-                : t("sidebar.startNewConversationHint")
-              : t("sidebar.conversationsLabel")}
-          </span>
+    };
+    const handleSelect = async (conversation: ConversationModel) => {
+        enterMobileChatHistory(
+            navigate,
+            location.pathname,
+            location.search,
+            location.hash,
+            location.state,
+        );
+        setSelectedConversation(conversation);
+        setMessages([]);
+        setMobileView("chat");
+
+        if (!conversation.hash) {
+            console.error(
+                "Cannot load messages: conversation.hash is empty",
+                conversation,
+            );
+            return;
         }
-        active={
-          selectedConversation?.hash === conversation.hash ||
-          Boolean(selectedConversation?.parentHash === conversation.hash)
+
+        const messages = await OrchestratorRestClient.loadConversationMessages(
+            conversation.hash,
+        );
+
+        // Ignore stale response if user already clicked another conversation
+        if (
+            useChatStore.getState().selectedConversation?.hash === conversation.hash
+        ) {
+            setMessages(messages);
         }
-        onClick={() => void toggleBot(conversation)}
-      >
-        <UserAvatar name={conversation.title} online={true} />
-      </Conversation>
-      {expandedBots[conversation.hash] && (
-        <div className="bot-sub-list">
-          <button
-            className="bot-sub-create"
-            disabled={creatingFor === conversation.hash}
-            onClick={() => void createSubConversation(conversation.hash)}
-          >
-            <AddIcon fontSize="small" /> {t("sidebar.newChat")}
-          </button>
-          {loadingBots[conversation.hash] ? (
-            <div className="bot-sub-empty">{t("sidebar.loadingChats")}</div>
-          ) : null}
-          {!loadingBots[conversation.hash] &&
-          !subConversations[conversation.hash]?.length ? (
-            <div className="bot-sub-empty">
-              {t("sidebar.noSubConversations")}
-            </div>
-          ) : null}
-          {subConversations[conversation.hash]?.map((sub) => (
-            <button
-              key={sub.hash}
-              className={`bot-sub-item${selectedConversation?.hash === sub.hash ? " active" : ""}`}
-              onClick={() => void selectSubConversation(sub, true)}
+    };
+
+    const renderBotConversation = (conversation: ConversationModel) => (
+        <React.Fragment key={conversation.hash || conversation.targetJid}>
+            <Conversation
+                className={`bot-conversation${selectedConversation?.parentHash === conversation.hash ? " bot-parent-active" : ""}`}
+                name={
+                    <>
+                        <span className="bot-conversation-name">
+                            {conversation.title || conversation.targetJid}
+                        </span>
+                        <span className="bot-expand-icon" aria-hidden="true">
+                            {expandedBots[conversation.hash] ? (
+                                <KeyboardArrowDownIcon fontSize="small" />
+                            ) : (
+                                <KeyboardArrowRightIcon
+                                    className="bot-expand-icon__right"
+                                    fontSize="small"
+                                />
+                            )}
+                        </span>
+                    </>
+                }
+                // info={conversation.lastMessage || t("sidebar.noMessages")}
+                info={
+                    <span className="bot-conversation-count">
+                        <span className="bot-conversation-count__icon" aria-hidden="true" />
+                        {Object.prototype.hasOwnProperty.call(
+                            subConversations,
+                            conversation.hash,
+                        )
+                            ? subConversations[conversation.hash].length > 0
+                                ? t("sidebar.conversationCount", {
+                                    count: subConversations[conversation.hash].length,
+                                })
+                                : t("sidebar.startNewConversationHint")
+                            : t("sidebar.conversationsLabel")}
+                    </span>
+                }
+                active={
+                    selectedConversation?.hash === conversation.hash ||
+                    Boolean(selectedConversation?.parentHash === conversation.hash)
+                }
+                onClick={() => void toggleBot(conversation)}
             >
-              <span className="bot-sub-title">
-                {sub.title || t("sidebar.newChat")}
-              </span>
-              <span className="bot-sub-message">
-                {(sub.lastMessage || "")
-                  .replaceAll("#", "")
-                  .replaceAll("*", "")
-                  .replaceAll("_", "")
-                  .replaceAll("`", "")
-                  .replaceAll("~", "")
-                  .replaceAll(">", "")
-                  .replaceAll("[", "")
-                  .replaceAll("]", "")
-                  .replaceAll("(", "")
-                  .replaceAll(")", "")
-                  .replaceAll("!", "")
-                  .replaceAll("|", "")
-                  .replace(/\s+/g, " ")
-                  .trim() || t("sidebar.noMessages")}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-    </React.Fragment>
-  );
+                <Avatar
+                    src={BOT_AVATAR_SRC}
+                    name={conversation.title}
+                    size="md"
+                    status="available"
+                />
+            </Conversation>
+            {expandedBots[conversation.hash] && (
+                <div className="bot-sub-list">
+                    <button
+                        className="bot-sub-create"
+                        disabled={creatingFor === conversation.hash}
+                        onClick={() => void createSubConversation(conversation.hash)}
+                    >
+                        <AddIcon fontSize="small" /> {t("sidebar.newChat")}
+                    </button>
+                    {loadingBots[conversation.hash] ? (
+                        <div className="bot-sub-empty">{t("sidebar.loadingChats")}</div>
+                    ) : null}
+                    {!loadingBots[conversation.hash] &&
+                        !subConversations[conversation.hash]?.length ? (
+                        <div className="bot-sub-empty">
+                            {t("sidebar.noSubConversations")}
+                        </div>
+                    ) : null}
+                    {subConversations[conversation.hash]?.map((sub) => (
+                        <button
+                            key={sub.hash}
+                            className={`bot-sub-item${selectedConversation?.hash === sub.hash ? " active" : ""}`}
+                            onClick={() => void selectSubConversation(sub, true)}
+                        >
+                            <span className="bot-sub-title">
+                                {sub.title || t("sidebar.newChat")}
+                            </span>
+                            <span className="bot-sub-message">
+                                {(sub.lastMessage || "")
+                                    .replaceAll("#", "")
+                                    .replaceAll("*", "")
+                                    .replaceAll("_", "")
+                                    .replaceAll("`", "")
+                                    .replaceAll("~", "")
+                                    .replaceAll(">", "")
+                                    .replaceAll("[", "")
+                                    .replaceAll("]", "")
+                                    .replaceAll("(", "")
+                                    .replaceAll(")", "")
+                                    .replaceAll("!", "")
+                                    .replaceAll("|", "")
+                                    .replace(/\s+/g, " ")
+                                    .trim() || t("sidebar.noMessages")}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            )}
+        </React.Fragment>
+    );
 
-  const renderUserConversation = (conversation: ConversationModel) => (
-    <Conversation
-      key={conversation.hash || conversation.targetJid}
-      name={conversation.title || conversation.targetJid}
-      info={conversation.lastMessage || t("sidebar.noMessages")}
-      lastActivityTime={formatConversationTime(conversation.lastMessageTime)}
-      active={isActive(conversation)}
-      onClick={() => void handleSelect(conversation)}
-    >
-      <UserAvatar name={conversation.title} online={true} />
-    </Conversation>
-  );
-
-  return (
-    <Sidebar position="left" className="conversation-sidebar">
-      <div className="sidebar-header">
-        <IconButton
-          onClick={() => setProfileOpen(true)}
-          sx={{ color: "var(--navy)" }}
+    const renderUserConversation = (conversation: ConversationModel) => (
+        <Conversation
+            key={conversation.hash || conversation.targetJid}
+            name={conversation.title || conversation.targetJid}
+            info={conversation.lastMessage || t("sidebar.noMessages")}
+            lastActivityTime={formatConversationTime(conversation.lastMessageTime)}
+            active={isActive(conversation)}
+            onClick={() => void handleSelect(conversation)}
         >
-          <MenuIcon />
-        </IconButton>
+            <Avatar
+                src={avatarDataUri(conversation.title)}
+                name={conversation.title}
+                size="md"
+                status={isOnline(conversation.targetJid) ? "available" : "unavailable"}
+            />
+        </Conversation>
+    );
 
-        {/* <div className="mark" aria-label="Simorq">
+    return (
+        <Sidebar position="left" className="conversation-sidebar">
+            <div className="sidebar-header">
+                <IconButton
+                    onClick={() => setProfileOpen(true)}
+                    sx={{ color: "var(--navy)" }}
+                >
+                    <MenuIcon />
+                </IconButton>
+
+                {/* <div className="mark" aria-label="Simorq">
           <span className="mark-monogram">S</span>
         </div> */}
-        <div className="mark" aria-label="Simorq">
-          <span className="mark-monogram">
-            <SimorghIcon />
-          </span>
-        </div>
-        <div className="title">{t("brand.name")}</div>
-        <LanguageSwitch className="sidebar-lang-switch" />
-        <span className="app-version">v{_APP_VERSION_}</span>
-      </div>
-
-      <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
-
-      <Search
-        placeholder={t("sidebar.search")}
-        value={searchQuery}
-        onChange={setSearchQuery}
-      />
-
-      <ConversationList>
-        <section className="conversation-category">
-          <button
-            type="button"
-            className="conversation-category-toggle"
-            aria-expanded={expandedCategories.bots}
-            onClick={() =>
-              setExpandedCategories((state) => ({
-                ...state,
-                bots: !state.bots,
-              }))
-            }
-          >
-            {expandedCategories.bots ? (
-              <KeyboardArrowDownIcon fontSize="small" />
-            ) : (
-              <KeyboardArrowRightIcon
-                className="conversation-category-chevron-right"
-                fontSize="small"
-              />
-            )}
-            <span>{t("sidebar.bots")}</span>
-            <span className="conversation-category-count">
-              {botConversations.length}
-            </span>
-          </button>
-          {expandedCategories.bots && (
-            <div className="conversation-category-items">
-              {botConversations.length ? (
-                botConversations.map(renderBotConversation)
-              ) : normalizedQuery ? (
-                <div className="conversation-category-empty">
-                  {t("sidebar.noSearchResults")}
+                <div className="mark" aria-label="Simorq">
+                    <span className="mark-monogram">
+                        <SimorghIcon />
+                    </span>
                 </div>
-              ) : (
-                <div className="conversation-category-empty">
-                  {t("sidebar.noConversations")}
-                </div>
-              )}
+                <div className="title">{t("brand.name")}</div>
+                <LanguageSwitch className="sidebar-lang-switch" />
+                <span className="app-version">v{_APP_VERSION_}</span>
             </div>
-          )}
-        </section>
 
-        <section className="conversation-category">
-          <button
-            type="button"
-            className="conversation-category-toggle"
-            aria-expanded={expandedCategories.users}
-            onClick={() =>
-              setExpandedCategories((state) => ({
-                ...state,
-                users: !state.users,
-              }))
-            }
-          >
-            {expandedCategories.users ? (
-              <KeyboardArrowDownIcon fontSize="small" />
-            ) : (
-              <KeyboardArrowRightIcon
-                className="conversation-category-chevron-right"
-                fontSize="small"
-              />
-            )}
-            <span>{t("sidebar.otherUsers")}</span>
-            <span className="conversation-category-count">
-              {userConversations.length}
-            </span>
-          </button>
-          {expandedCategories.users && (
-            <div className="conversation-category-items">
-              {userConversations.length ? (
-                userConversations.map(renderUserConversation)
-              ) : normalizedQuery ? (
-                <div className="conversation-category-empty">
-                  {t("sidebar.noSearchResults")}
-                </div>
-              ) : (
-                <div className="conversation-category-empty">
-                  {t("sidebar.noConversations")}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-      </ConversationList>
-    </Sidebar>
-  );
+            <ProfileDrawer open={profileOpen} onClose={() => setProfileOpen(false)} />
+
+            <Search
+                placeholder={t("sidebar.search")}
+                value={searchQuery}
+                onChange={setSearchQuery}
+            />
+
+            <ConversationList>
+                <section className="conversation-category">
+                    <button
+                        type="button"
+                        className="conversation-category-toggle"
+                        aria-expanded={expandedCategories.bots}
+                        onClick={() =>
+                            setExpandedCategories((state) => ({
+                                ...state,
+                                bots: !state.bots,
+                            }))
+                        }
+                    >
+                        {expandedCategories.bots ? (
+                            <KeyboardArrowDownIcon fontSize="small" />
+                        ) : (
+                            <KeyboardArrowRightIcon
+                                className="conversation-category-chevron-right"
+                                fontSize="small"
+                            />
+                        )}
+                        <span>{t("sidebar.bots")}</span>
+                        <span className="conversation-category-count">
+                            {botConversations.length}
+                        </span>
+                    </button>
+                    {expandedCategories.bots && (
+                        <div className="conversation-category-items">
+                            {botConversations.length ? (
+                                botConversations.map(renderBotConversation)
+                            ) : normalizedQuery ? (
+                                <div className="conversation-category-empty">
+                                    {t("sidebar.noSearchResults")}
+                                </div>
+                            ) : (
+                                <div className="conversation-category-empty">
+                                    {t("sidebar.noConversations")}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </section>
+
+                <section className="conversation-category">
+                    <button
+                        type="button"
+                        className="conversation-category-toggle"
+                        aria-expanded={expandedCategories.users}
+                        onClick={() =>
+                            setExpandedCategories((state) => ({
+                                ...state,
+                                users: !state.users,
+                            }))
+                        }
+                    >
+                        {expandedCategories.users ? (
+                            <KeyboardArrowDownIcon fontSize="small" />
+                        ) : (
+                            <KeyboardArrowRightIcon
+                                className="conversation-category-chevron-right"
+                                fontSize="small"
+                            />
+                        )}
+                        <span>{t("sidebar.otherUsers")}</span>
+                        <span className="conversation-category-count">
+                            {userConversations.length}
+                        </span>
+                    </button>
+                    {expandedCategories.users && (
+                        <div className="conversation-category-items">
+                            {userConversations.length ? (
+                                userConversations.map(renderUserConversation)
+                            ) : normalizedQuery ? (
+                                <div className="conversation-category-empty">
+                                    {t("sidebar.noSearchResults")}
+                                </div>
+                            ) : (
+                                <div className="conversation-category-empty">
+                                    {t("sidebar.noConversations")}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </section>
+            </ConversationList>
+        </Sidebar>
+    );
 }
