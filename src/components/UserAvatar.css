@@ -41,6 +41,55 @@
   object-fit: cover;
 }
 
+/* ---------- آواتار بات ---------- */
+/* گوشه‌ی گرد مربعی (به‌جای دایره) تا بات‌ها از کاربران انسانی متمایز باشند */
+.zc-avatar--bot .zc-avatar__face {
+  border-radius: 30%;
+  background: linear-gradient(
+    145deg,
+    var(--blue),
+    color-mix(in srgb, var(--teal) 70%, var(--blue))
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--navy-strong) 12%, transparent);
+}
+
+.zc-bot {
+  width: 66%;
+  height: 66%;
+  display: block;
+  overflow: visible;
+}
+
+.zc-bot__head,
+.zc-bot__ear {
+  fill: var(--surface);
+}
+
+.zc-bot__ear {
+  opacity: 0.85;
+}
+
+.zc-bot__antenna {
+  stroke: var(--surface);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.zc-bot__spark {
+  fill: var(--gold);
+}
+
+.zc-bot__eye {
+  fill: var(--blue);
+}
+
+.zc-bot__mouth {
+  stroke: color-mix(in srgb, var(--blue) 55%, var(--surface));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  fill: none;
+}
+
 /*
  * به‌جای حاشیه‌ی سفید دور نقطه، یک برش شفاف در خود آواتار ایجاد می‌شود؛
  * در نتیجه روی پس‌زمینه‌ی hover/active هم تمیز دیده می‌شود.

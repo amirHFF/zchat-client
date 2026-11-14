@@ -22,7 +22,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { XmppClient } from "../xmpp/XmppClient";
 import { toBareJid, usePresenceStore } from "../chatStore/PresenceStore.ts";
-import { BOT_AVATAR_SRC } from "./UserAvatar";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
@@ -268,7 +267,7 @@ export default function ConversationListPanel() {
             >
                 <UserAvatar
                     as={Avatar}
-                    src={BOT_AVATAR_SRC}
+                    variant="bot"
                     name={conversation.title}
                     online
                 />

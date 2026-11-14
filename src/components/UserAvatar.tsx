@@ -11,8 +11,29 @@ interface Props {
     /** اندازه به پیکسل (پیش‌فرض 36) */
     size?: number;
     className?: string;
+    /** "bot" یک آیکون ربات با رنگ‌های تم نمایش می‌دهد */
+    variant?: "user" | "bot";
     /** chatscope برای تشخیص اسلات آواتار از prop «as» استفاده می‌کند؛ به DOM پاس داده نمی‌شود */
     as?: unknown;
+}
+
+/**
+ * آیکون ربات به‌صورت SVG درون‌خطی (نه data URI) تا رنگ‌ها از متغیرهای تم خوانده شوند.
+ * رنگ‌ها در UserAvatar.css با کلاس‌های zc-bot__* تعیین می‌شوند.
+ */
+function BotGlyph() {
+    return (
+        <svg className="zc-bot" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path className="zc-bot__antenna" d="M12 3.6v2.6" />
+            <circle className="zc-bot__spark" cx="12" cy="3" r="1.6" />
+            <rect className="zc-bot__ear" x="2.2" y="11" width="2.2" height="4.4" rx="1.1" />
+            <rect className="zc-bot__ear" x="19.6" y="11" width="2.2" height="4.4" rx="1.1" />
+            <rect className="zc-bot__head" x="4.6" y="6.6" width="14.8" height="12.6" rx="4.4" />
+            <rect className="zc-bot__eye" x="8.3" y="10.4" width="2.3" height="3.8" rx="1.15" />
+            <rect className="zc-bot__eye" x="13.4" y="10.4" width="2.3" height="3.8" rx="1.15" />
+            <path className="zc-bot__mouth" d="M10.4 16.4h3.2" />
+        </svg>
+    );
 }
 
 /** رنگ‌ها از متغیرهای تم خوانده می‌شوند تا با تغییر تم، آواتارها هم هماهنگ شوند */
@@ -43,12 +64,19 @@ export default function UserAvatar({
     src,
     size = 36,
     className,
+    variant = "user",
 }: Props) {
     const safeName = name ?? "";
     const showDot = online || showOffline;
     const letter = safeName.trim()[0]?.toUpperCase() ?? "?";
+    const isBot = variant === "bot";
 
-    const classes = ["zc-avatar", showDot && "zc-avatar--has-dot", className]
+    const classes = [
+        "zc-avatar",
+        isBot && "zc-avatar--bot",
+        showDot && "zc-avatar--has-dot",
+        className,
+    ]
         .filter(Boolean)
         .join(" ");
 
@@ -63,7 +91,13 @@ export default function UserAvatar({
             }
         >
             <div className="zc-avatar__face" aria-hidden={!src}>
-                {src ? <img src={src} alt={safeName} draggable={false} /> : letter}
+                {src ? (
+                    <img src={src} alt={safeName} draggable={false} />
+                ) : isBot ? (
+                    <BotGlyph />
+                ) : (
+                    letter
+                )}
             </div>
 
             {showDot && (
@@ -76,20 +110,3 @@ export default function UserAvatar({
         </div>
     );
 }
-const BOT_AVATAR_SVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42" role="img" aria-label="AI assistant">
-    <circle cx="21" cy="21" r="21" fill="#173F7A"/>
-    <path d="M27.5 1.1A21 21 0 0 1 40.8 28c-2.4-5.5-6.8-8.7-13.2-9.7-5.2-.8-7.2-4.8-6-9.2.9-3.2 2.8-5.8 5.9-8Z" fill="#2477D4"/>
-    <path d="M36.7 31.5a21.1 21.1 0 0 1-8.9 8.3c.7-4.3 3.6-7.3 8.9-8.3Z" fill="#00B7A5"/>
-    <path d="M20.8 8.2v3" stroke="#BDF5EA" stroke-width="1.8" stroke-linecap="round"/>
-    <circle cx="20.8" cy="7.2" r="1.8" fill="#32D3BC"/>
-    <path d="M11 16.8a5.2 5.2 0 0 1 5.2-5.2h9.6a5.2 5.2 0 0 1 5.2 5.2v8.1a5.2 5.2 0 0 1-5.2 5.2h-4.1l-4.3 3v-3h-1.2a5.2 5.2 0 0 1-5.2-5.2v-8.1Z" fill="#FFFDF8"/>
-    <circle cx="16.8" cy="20.2" r="2" fill="#2477D4"/>
-    <circle cx="25.2" cy="20.2" r="2" fill="#2477D4"/>
-    <circle cx="17.4" cy="19.6" r=".65" fill="#fff"/>
-    <circle cx="25.8" cy="19.6" r=".65" fill="#fff"/>
-    <path d="M16.8 25c1.1 1.2 2.5 1.8 4.2 1.8s3.1-.6 4.2-1.8" fill="none" stroke="#173F7A" stroke-width="1.6" stroke-linecap="round"/>
-  </svg>
-`.trim();
-
-export const BOT_AVATAR_SRC = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(BOT_AVATAR_SVG)}`;
