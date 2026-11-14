@@ -26,8 +26,8 @@ export function createSimorqTheme(direction: Direction, colors: readonly string[
         paper: "#ffffff",
       },
       text: {
-        primary: "var(--navy, #20304A)",
-        secondary: "var(--text-secondary, #5B6B82)",
+        primary: "#20304A",
+        secondary: "#5B6B82",
       },
     },
     typography: {

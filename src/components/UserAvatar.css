@@ -122,9 +122,8 @@
   background: var(--teal);
 }
 
-/* آفلاین: حلقه‌ی توخالی و کم‌رنگ تا در لیست شلوغ دیده نشود */
 .zc-avatar__dot--offline {
-  background: transparent;
+  background: color-mix(in srgb, var(--text-secondary) 25%, transparent);
   border: 1.5px solid color-mix(in srgb, var(--text-secondary) 55%, transparent);
 }
 
