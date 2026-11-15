@@ -22,11 +22,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { XmppClient } from "../xmpp/XmppClient";
 import { toBareJid, usePresenceStore } from "../chatStore/PresenceStore.ts";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
+import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
+import type { NewConversationTab } from "./NewConversation";
 
 // module-level: survives StrictMode remount (useRef does not)
 let conversationsFetchStarted = false;
 
-export default function ConversationListPanel() {
+interface ConversationListPanelProps {
+    /** Opens the "new conversation" dialog on the given tab (0 = user, 1 = bot). */
+    onNewConversation: (tab: NewConversationTab) => void;
+}
+
+export default function ConversationListPanel({
+    onNewConversation,
+}: ConversationListPanelProps) {
     const [profileOpen, setProfileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const t = useT();
@@ -457,6 +467,25 @@ export default function ConversationListPanel() {
                     )}
                 </section>
             </ConversationList>
+
+            <div className="sidebar-footer">
+                <button
+                    type="button"
+                    className="sidebar-footer-action"
+                    onClick={() => onNewConversation(0)}
+                >
+                    <PersonAddAltOutlinedIcon fontSize="small" aria-hidden="true" />
+                    <span>{t("newConversation.tabConversation")}</span>
+                </button>
+                <button
+                    type="button"
+                    className="sidebar-footer-action sidebar-footer-action--primary"
+                    onClick={() => onNewConversation(1)}
+                >
+                    <SmartToyOutlinedIcon fontSize="small" aria-hidden="true" />
+                    <span>{t("newConversation.tabBot")}</span>
+                </button>
+            </div>
         </Sidebar>
     );
 }

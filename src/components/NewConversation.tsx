@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import {
-  Fab,
   Box,
   Tab,
   Tabs,
@@ -26,12 +24,17 @@ import {
 import React from "react";
 import type { ChatBot } from "../model/ChatBot";
 import type { UserProfile } from "../model/UserProfile";
-import { useChatStore } from "../chatStore/ChatStore";
 import { OrchestratorRestClient } from "../restClient/OrchestratorRestClient";
 import { useLanguageStore } from "../i18n/languageStore";
 import { useT } from "../i18n/useT";
 
+/** 0 = new user conversation, 1 = new bot conversation */
+export type NewConversationTab = 0 | 1;
+
 interface NewConversationProps {
+  open: boolean;
+  initialTab?: NewConversationTab;
+  onClose: () => void;
   onCreateConversation: (username: string) => void;
   onCreateBotConversation: (
     botId: string,
@@ -39,37 +42,8 @@ interface NewConversationProps {
   ) => void;
 }
 
-const FAB_SIZE = 56;
-const DRAG_THRESHOLD = 6;
 const SEARCH_MIN_LENGTH = 4;
 const SEARCH_DEBOUNCE_MS = 400;
-const FAB_POSITION_KEY = "zchat.newConversationFab";
-const FAB_HINT_KEY = "zchat.fabDragHint";
-
-type FabPoint = { x: number; y: number };
-
-function readSavedFabPosition(): FabPoint | null {
-  try {
-    const raw = localStorage.getItem(FAB_POSITION_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as FabPoint;
-    if (typeof parsed.x !== "number" || typeof parsed.y !== "number")
-      return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function clampFabPosition(point: FabPoint): FabPoint {
-  const margin = 12;
-  const maxX = Math.max(margin, window.innerWidth - FAB_SIZE - margin);
-  const maxY = Math.max(margin, window.innerHeight - FAB_SIZE - margin);
-  return {
-    x: Math.min(Math.max(point.x, margin), maxX),
-    y: Math.min(Math.max(point.y, margin), maxY),
-  };
-}
 
 function botMatchesQuery(bot: ChatBot, query: string) {
   const normalized = query.toLowerCase();
@@ -79,11 +53,14 @@ function botMatchesQuery(bot: ChatBot, query: string) {
 }
 
 export default function NewConversation({
+  open,
+  initialTab = 0,
+  onClose,
   onCreateConversation,
   onCreateBotConversation,
 }: NewConversationProps) {
-  const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState<number>(initialTab);
+  const [prevOpen, setPrevOpen] = useState(open);
   const [username, setUsername] = useState("");
   //search users and bots
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
@@ -103,131 +80,34 @@ export default function NewConversation({
   const [hasParticipationCode, setHasParticipationCode] = useState(false);
   const [bots, setBots] = useState<ChatBot[]>([]);
   const isMobile = useMediaQuery("(max-width:640px)", { noSsr: true });
-  const selectedConversation = useChatStore(
-    (state) => state.selectedConversation,
-  );
   const [hoveredBot, setHoveredBot] = useState<ChatBot | null>(null);
-  const [dragPosition, setDragPosition] = useState<FabPoint | null>(() =>
-    readSavedFabPosition(),
-  );
-  const [dragging, setDragging] = useState(false);
-  const [hintDismissed, setHintDismissed] = useState(
-    () => localStorage.getItem(FAB_HINT_KEY) === "1",
-  );
-  const dragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-    originX: number;
-    originY: number;
-    moved: boolean;
-  } | null>(null);
-  const suppressClickRef = useRef(false);
   const searchRequestRef = useRef(0);
-  const liftFab = !isMobile && Boolean(selectedConversation);
-  const showDragHint = liftFab && !hintDismissed;
 
-  useEffect(() => {
-    if (!showDragHint) return;
-
-    const timer = window.setTimeout(() => {
-      localStorage.setItem(FAB_HINT_KEY, "1");
-      setHintDismissed(true);
-    }, 5000);
-
-    return () => window.clearTimeout(timer);
-  }, [showDragHint]);
-
-  useEffect(() => {
-    function keepInsideViewport() {
-      setDragPosition((current) => {
-        if (!current) return current;
-        const next = clampFabPosition(current);
-        localStorage.setItem(FAB_POSITION_KEY, JSON.stringify(next));
-        return next;
-      });
-    }
-
-    window.addEventListener("resize", keepInsideViewport);
-    return () => window.removeEventListener("resize", keepInsideViewport);
-  }, []);
-
-  function defaultLiftPosition(): FabPoint {
-    const margin = 32;
-    return clampFabPosition({
-      x: dir === "rtl" ? margin : window.innerWidth - margin - FAB_SIZE,
-      y: Math.round(window.innerHeight / 2 - FAB_SIZE / 2),
-    });
+  // Show the tab the user asked for (conversation or bot) each time the
+  // dialog opens. Adjusting state during render avoids an extra effect pass.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) setTab(initialTab);
   }
 
-  function handleFabPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
-    if (!liftFab || event.button !== 0) return;
-
-    const origin = dragPosition ?? defaultLiftPosition();
-    const drag = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: origin.x,
-      originY: origin.y,
-      moved: false,
-      latest: origin,
+  // Refresh the bot list whenever the dialog opens.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    OrchestratorRestClient.getAllChatBots()
+      .then((fetched) => {
+        if (!cancelled) setBots(fetched ?? []);
+      })
+      .catch((err) => console.error("Error loading bots:", err));
+    return () => {
+      cancelled = true;
     };
-    dragRef.current = drag;
-
-    function onMove(moveEvent: PointerEvent) {
-      if (moveEvent.pointerId !== drag.pointerId) return;
-
-      const dx = moveEvent.clientX - drag.startX;
-      const dy = moveEvent.clientY - drag.startY;
-      if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-
-      if (!drag.moved) {
-        localStorage.setItem(FAB_HINT_KEY, "1");
-        setHintDismissed(true);
-        setDragging(true);
-      }
-      drag.moved = true;
-      drag.latest = clampFabPosition({
-        x: drag.originX + dx,
-        y: drag.originY + dy,
-      });
-      setDragPosition(drag.latest);
-    }
-
-    function onUp(upEvent: PointerEvent) {
-      if (upEvent.pointerId !== drag.pointerId) return;
-
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-      dragRef.current = null;
-
-      if (!drag.moved) return;
-
-      suppressClickRef.current = true;
-      localStorage.setItem(FAB_POSITION_KEY, JSON.stringify(drag.latest));
-      setDragging(false);
-    }
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
-  }
-
-  async function fetchBots() {
-    try {
-      const fetched = await OrchestratorRestClient.getAllChatBots();
-      setBots(fetched ?? []);
-    } catch (err) {
-      console.error("Error loading bots:", err);
-    }
-  }
+  }, [open]);
 
   //method
   function closeDialog() {
     searchRequestRef.current += 1;
-    setOpen(false);
+    onClose();
     setTab(0);
     setUsername("");
     //reset search results
@@ -348,89 +228,6 @@ export default function NewConversation({
 
   return (
     <>
-      <Box
-        className="new-conversation-fab"
-        style={
-          liftFab && dragPosition
-            ? {
-                left: dragPosition.x,
-                top: dragPosition.y,
-                right: "auto",
-                bottom: "auto",
-                transform: "none",
-              }
-            : undefined
-        }
-        sx={{
-          position: "fixed",
-          zIndex: 1300,
-          width: FAB_SIZE,
-          height: FAB_SIZE,
-          ...(liftFab && dragPosition
-            ? {}
-            : liftFab
-              ? {
-                  right: 32,
-                  top: "50%",
-                  bottom: "auto",
-                  left: "auto",
-                  transform: "translateY(-50%)",
-                }
-              : {
-                  right: 32,
-                  bottom: 50,
-                  top: "auto",
-                  left: "auto",
-                }),
-        }}
-      >
-        {showDragHint && (
-          <Box
-            sx={{
-              position: "absolute",
-              right: "calc(100% + 12px)",
-              top: "50%",
-              transform: "translateY(-50%)",
-              px: 1.5,
-              py: 0.85,
-              borderRadius: "10px",
-              bgcolor: "var(--navy)",
-              color: "#fff",
-              fontFamily: "var(--font-body)",
-              fontSize: "12.5px",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              pointerEvents: "none",
-              boxShadow: "0 10px 24px rgba(32,48,74,.22)",
-            }}
-          >
-            {t("newConversation.dragHint")}
-          </Box>
-        )}
-        <Fab
-          color="primary"
-          sx={{
-            position: "absolute",
-            inset: 0,
-            bgcolor: "var(--navy-strong)",
-            boxShadow: "0 12px 28px rgba(32,48,74,.24)",
-            touchAction: liftFab ? "none" : "auto",
-            cursor: liftFab ? (dragging ? "grabbing" : "grab") : "pointer",
-          }}
-          onPointerDown={handleFabPointerDown}
-          onClick={() => {
-            if (suppressClickRef.current) {
-              suppressClickRef.current = false;
-              return;
-            }
-            setOpen(true);
-            void fetchBots();
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      </Box>
-
       <Dialog
         open={open}
         onClose={closeDialog}

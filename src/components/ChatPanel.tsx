@@ -21,7 +21,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import CheckIcon from "@mui/icons-material/Check";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
 import { useLocation, useNavigate } from "react-router-dom";
 import { formatMessageTime } from "../utils/formatTimestamp";
@@ -48,6 +48,22 @@ const ocrErrorKeys: Record<OcrErrorCode, MessageKey> = {
   network: "chat.ocr.network",
   unknown: "chat.ocr.unknownError",
 };
+
+type ChatComposerProps = React.HTMLAttributes<HTMLDivElement> & {
+  /** Read by chatscope's ChatContainer so this wrapper renders in the input slot. */
+  as?: unknown;
+};
+
+/**
+ * Wraps MessageInput so extra controls (the book search toggle) can sit in the
+ * same row as the Send button. ChatContainer only renders children it knows,
+ * so this element is passed with `as={MessageInput}`.
+ */
+function ChatComposer(props: ChatComposerProps) {
+  const { as, ...rest } = props;
+  void as;
+  return <div {...rest} />;
+}
 
 export default function ChatPanel() {
   const setMobileView = useChatStore((state) => state.setMobileView);
@@ -144,7 +160,10 @@ export default function ChatPanel() {
       attachButton.setAttribute("aria-label", t("chat.moreOptions"));
       attachButton.setAttribute("title", t("chat.moreOptions"));
       attachButton.setAttribute("aria-haspopup", "menu");
-      attachButton.setAttribute("aria-expanded", String(Boolean(moreMenuAnchor)));
+      attachButton.setAttribute(
+        "aria-expanded",
+        String(Boolean(moreMenuAnchor)),
+      );
     }
   }, [conversation, ocrLoading, moreMenuAnchor, t]);
 
@@ -318,7 +337,6 @@ export default function ChatPanel() {
 
   const handleBookingSearchToggle = () => {
     setIsBookingSearchActive((active) => !active);
-    closeMoreMenu();
   };
 
   const closeAttachmentDialog = () => {
@@ -441,23 +459,77 @@ export default function ChatPanel() {
           })}
         </MessageList>
 
-        <MessageInput
-          placeholder={t("chat.typeMessage")}
-          value={text}
-          onChange={setText}
-          onSend={handleSend}
-          attachButton={true}
-          attachDisabled={ocrLoading}
-          sendDisabled={ocrLoading || !text.trim()}
-          onAttachClick={openMoreMenu}
+        <ChatComposer
+          as={MessageInput}
           className={[
-            "chat-message-input",
-            ocrLoading && "chat-message-input--loading",
-            isBookingSearchActive && "chat-message-input--book-search",
+            "chat-composer",
+            isBookingSearchActive && "chat-composer--book-search",
           ]
             .filter(Boolean)
             .join(" ")}
-        />
+        >
+          {isBookingSearchActive && (
+            <div className="book-search-notice" role="status">
+              <MenuBookIcon fontSize="small" aria-hidden="true" />
+              <span className="book-search-notice__text">
+                <strong>{t("chat.bookSearch.activeTitle")}</strong>{" "}
+                {t("chat.bookSearch.activeHint")}
+              </span>
+              <button
+                type="button"
+                className="book-search-notice__off"
+                onClick={handleBookingSearchToggle}
+              >
+                {t("chat.bookSearch.turnOff")}
+              </button>
+            </div>
+          )}
+          <div className="chat-composer__row">
+            <MessageInput
+              placeholder={t("chat.typeMessage")}
+              value={text}
+              onChange={setText}
+              onSend={handleSend}
+              attachButton={true}
+              attachDisabled={ocrLoading}
+              sendDisabled={ocrLoading || !text.trim()}
+              onAttachClick={openMoreMenu}
+              className={[
+                "chat-message-input",
+                ocrLoading && "chat-message-input--loading",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            />
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isBookingSearchActive}
+              aria-label={t("chat.bookSearch.label")}
+              title={
+                isBookingSearchActive
+                  ? t("chat.bookSearch.disableHint")
+                  : t("chat.bookSearch.enableHint")
+              }
+              className={`book-search-toggle${isBookingSearchActive ? " book-search-toggle--on" : ""}`}
+              onClick={handleBookingSearchToggle}
+            >
+              {isBookingSearchActive ? (
+                <MenuBookIcon fontSize="small" aria-hidden="true" />
+              ) : (
+                <MenuBookOutlinedIcon fontSize="small" aria-hidden="true" />
+              )}
+              <span className="book-search-toggle__label" aria-hidden="true">
+                {t("chat.bookSearch.label")}
+              </span>
+              <span className="book-search-toggle__state" aria-hidden="true">
+                {isBookingSearchActive
+                  ? t("chat.bookSearch.on")
+                  : t("chat.bookSearch.off")}
+              </span>
+            </button>
+          </div>
+        </ChatComposer>
       </ChatContainer>
       <Menu
         className="chat-more-menu"
@@ -472,27 +544,6 @@ export default function ChatPanel() {
             <AttachFileIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary={t("chat.menu.attachment")} />
-        </MenuItem>
-        <MenuItem
-          role="menuitemcheckbox"
-          aria-checked={isBookingSearchActive}
-          selected={isBookingSearchActive}
-          onClick={handleBookingSearchToggle}
-        >
-          <ListItemIcon>
-            <MenuBookOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText
-            primary={t("chat.menu.bookSearch")}
-            secondary={
-              isBookingSearchActive
-                ? t("chat.menu.bookSearchOn")
-                : t("chat.menu.bookSearchOff")
-            }
-          />
-          {isBookingSearchActive && (
-            <CheckIcon fontSize="small" className="chat-more-menu__check" />
-          )}
         </MenuItem>
       </Menu>
       {/* open modal for upload image and extract text from it */}

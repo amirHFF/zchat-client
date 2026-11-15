@@ -184,12 +184,8 @@
     height: 100% !important;
   }
 
-  .chat-frame[data-mobile-view="chat"] .cs-message-input {
+  .chat-frame[data-mobile-view="chat"] .chat-composer {
     flex: 0 0 auto !important;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-  }
-
-  .chat-frame[data-mobile-view="chat"] .new-conversation-fab {
-    display: none !important;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
   }
 }

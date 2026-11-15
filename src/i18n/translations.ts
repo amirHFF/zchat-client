@@ -154,9 +154,26 @@ export const messages = {
   "chat.ocr.extracting": { en: "Extracting…", fa: "در حال استخراج…" },
   "chat.moreOptions": { en: "More options", fa: "گزینه‌های بیشتر" },
   "chat.menu.attachment": { en: "Attachment", fa: "پیوست" },
-  "chat.menu.bookSearch": { en: "Book search", fa: "جستجو در کتاب" },
-  "chat.menu.bookSearchOn": { en: "On", fa: "فعال" },
-  "chat.menu.bookSearchOff": { en: "Off", fa: "غیرفعال" },
+  "chat.bookSearch.label": { en: "Book search", fa: "جستجو در کتاب" },
+  "chat.bookSearch.on": { en: "On", fa: "فعال" },
+  "chat.bookSearch.off": { en: "Off", fa: "خاموش" },
+  "chat.bookSearch.enableHint": {
+    en: "Turn on book search (uses more tokens per message)",
+    fa: "روشن کردن جستجو در کتاب (هر پیام توکن بیشتری مصرف می‌کند)",
+  },
+  "chat.bookSearch.disableHint": {
+    en: "Turn off book search",
+    fa: "خاموش کردن جستجو در کتاب",
+  },
+  "chat.bookSearch.activeTitle": {
+    en: "Book search is on.",
+    fa: "جستجو در کتاب روشن است.",
+  },
+  "chat.bookSearch.activeHint": {
+    en: "Each message you send uses more tokens.",
+    fa: "هر پیامی که می‌فرستید توکن بیشتری مصرف می‌کند.",
+  },
+  "chat.bookSearch.turnOff": { en: "Turn off", fa: "خاموش کن" },
   "chat.ocr.attachImageAria": {
     en: "Attach image",
     fa: "پیوست تصویر",
@@ -340,10 +357,6 @@ export const messages = {
   "profile.language": {
     en: "Language",
     fa: "زبان",
-  },
-  "newConversation.dragHint": {
-    en: "Drag to move",
-    fa: "برای جابه‌جایی بکشید",
   },
   "newConversation.backToContacts": {
     en: "Back to contacts",

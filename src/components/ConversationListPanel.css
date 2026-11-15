@@ -131,7 +131,81 @@
 
 .conversation-sidebar .cs-conversation-list {
   flex: 1 1 auto !important;
+  min-height: 0 !important;
   overflow-y: auto !important;
+}
+
+/* ---------- Sidebar footer: new conversation / new bot ---------- */
+.sidebar-footer {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.sidebar-footer-action {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--navy);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.sidebar-footer-action > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-footer-action svg {
+  flex-shrink: 0;
+  color: var(--teal);
+}
+
+.sidebar-footer-action:hover {
+  background: var(--teal-soft);
+  border-color: var(--teal);
+}
+
+.sidebar-footer-action:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.sidebar-footer-action--primary {
+  background: var(--navy-strong);
+  border-color: var(--navy-strong);
+  color: #fff;
+}
+
+.sidebar-footer-action--primary svg {
+  color: inherit;
+}
+
+.sidebar-footer-action--primary:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-footer-action {
+    transition: none;
+  }
 }
 .conversation-sidebar .cs-conversation {
   display: flex !important;

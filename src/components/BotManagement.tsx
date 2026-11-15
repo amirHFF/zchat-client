@@ -191,38 +191,38 @@ export default function BotManagement() {
     }
   };
 
-  const handleRefreshConversations = async () => {
-    if (!selectedStudent || !selectedBotID || conversationsLoading) return;
-    const requestId = ++conversationsRequestRef.current;
-    setConversationsError(false);
-    setConversationsLoading(true);
-    try {
-      const items = await OrchestratorRestClient.getStudentBotConversations(
-        selectedStudent.username,
-        selectedBotID,
-      );
-      if (requestId === conversationsRequestRef.current) {
-        setStudentConversations(items);
-        if (selectedConversation) {
-          const refreshedSelection = items.find(
-            (item) => item.hash === selectedConversation.hash,
-          );
-          if (!refreshedSelection) {
-            messagesRequestRef.current += 1;
-            setSelectedConversation(null);
-            setMessages([]);
-          } else {
-            setSelectedConversation(refreshedSelection);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error refreshing student bot conversations:", error);
-      if (requestId === conversationsRequestRef.current) setConversationsError(true);
-    } finally {
-      if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
-    }
-  };
+  // const handleRefreshConversations = async () => {
+  //   if (!selectedStudent || !selectedBotID || conversationsLoading) return;
+  //   const requestId = ++conversationsRequestRef.current;
+  //   setConversationsError(false);
+  //   setConversationsLoading(true);
+  //   try {
+  //     const items = await OrchestratorRestClient.getStudentBotConversations(
+  //       selectedStudent.username,
+  //       selectedBotID,
+  //     );
+  //     if (requestId === conversationsRequestRef.current) {
+  //       setStudentConversations(items);
+  //       if (selectedConversation) {
+  //         const refreshedSelection = items.find(
+  //           (item) => item.hash === selectedConversation.hash,
+  //         );
+  //         if (!refreshedSelection) {
+  //           messagesRequestRef.current += 1;
+  //           setSelectedConversation(null);
+  //           setMessages([]);
+  //         } else {
+  //           setSelectedConversation(refreshedSelection);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error refreshing student bot conversations:", error);
+  //     if (requestId === conversationsRequestRef.current) setConversationsError(true);
+  //   } finally {
+  //     if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
+  //   }
+  // };
 
   const handleRefreshSubConversation = async (
     conversation: ConversationModel,
@@ -241,14 +241,20 @@ export default function BotManagement() {
             : item,
         ),
       );
-      if (selectedConversation?.hash === conversation.hash && requestId === messagesRequestRef.current) {
+      if (
+        selectedConversation?.hash === conversation.hash &&
+        requestId === messagesRequestRef.current
+      ) {
         setMessages(items);
         setMessagesError(false);
         setMessagesLoading(false);
       }
     } catch (error) {
       console.error("Error refreshing sub-conversation:", error);
-      if (selectedConversation?.hash === conversation.hash && requestId === messagesRequestRef.current) {
+      if (
+        selectedConversation?.hash === conversation.hash &&
+        requestId === messagesRequestRef.current
+      ) {
         setMessagesError(true);
         setMessagesLoading(false);
       }
@@ -327,21 +333,31 @@ export default function BotManagement() {
                 aria-label={t("teacherDashboard.studentConversations")}
               >
                 {studentConversations.map((conversation) => (
-                  <div className={`bot-management__conversation-row${selectedConversation?.hash === conversation.hash ? " is-selected" : ""}`} key={conversation.hash}>
+                  <div
+                    className={`bot-management__conversation-row${selectedConversation?.hash === conversation.hash ? " is-selected" : ""}`}
+                    key={conversation.hash}
+                  >
                     <button
                       type="button"
                       className="bot-management__conversation"
                       onClick={() => void handleConversationClick(conversation)}
                     >
-                      <strong>{conversation.title || t("teacherDashboard.untitledConversation")}</strong>
-                      <span>{conversation.lastMessage || t("sidebar.noMessages")}</span>
+                      <strong>
+                        {conversation.title ||
+                          t("teacherDashboard.untitledConversation")}
+                      </strong>
+                      <span>
+                        {conversation.lastMessage || t("sidebar.noMessages")}
+                      </span>
                     </button>
                     <button
                       type="button"
                       className="bot-management__refresh-sub"
                       aria-label={`Refresh ${conversation.title || "conversation"}`}
                       title="Refresh this conversation"
-                      onClick={() => void handleRefreshSubConversation(conversation)}
+                      onClick={() =>
+                        void handleRefreshSubConversation(conversation)
+                      }
                     >
                       <RefreshIcon fontSize="small" />
                     </button>
@@ -370,7 +386,11 @@ export default function BotManagement() {
                       aria-label="Refresh messages"
                       title="Refresh messages"
                     >
-                      {messagesLoading ? <CircularProgress size={18} /> : <RefreshIcon fontSize="small" />}
+                      {messagesLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        <RefreshIcon fontSize="small" />
+                      )}
                     </button>
                     <MessageList
                       className="bot-management__message-list"

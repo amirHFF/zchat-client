@@ -7,7 +7,9 @@ import React, { useEffect } from "react";
 import ChatPanel from "./components/ChatPanel";
 import { useChatStore } from "./chatStore/ChatStore";
 import { useLocation, useNavigate } from "react-router-dom";
-import NewConversation from "./components/NewConversation";
+import NewConversation, {
+  type NewConversationTab,
+} from "./components/NewConversation";
 import { MainContainer } from "@chatscope/chat-ui-kit-react";
 import { ChatServiceFacade } from "./xmpp/ChatServiceFacade";
 import type { ConversationModel } from "./model/ConversationModel";
@@ -33,6 +35,14 @@ export default function App() {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [loginAttempt, setLoginAttempt] = useState(0);
   const [creatingConversation, setCreatingConversation] = useState(false);
+  const [newConversationOpen, setNewConversationOpen] = useState(false);
+  const [newConversationTab, setNewConversationTab] =
+    useState<NewConversationTab>(0);
+
+  function openNewConversation(tab: NewConversationTab) {
+    setNewConversationTab(tab);
+    setNewConversationOpen(true);
+  }
 
   useEffect(() => {
     async function init() {
@@ -145,6 +155,9 @@ export default function App() {
     <div className="app-shell">
       <div className="chat-frame" data-mobile-view={mobileView}>
         <NewConversation
+          open={newConversationOpen}
+          initialTab={newConversationTab}
+          onClose={() => setNewConversationOpen(false)}
           onCreateConversation={(username) =>
             openCreatedConversation(username, () =>
               OrchestratorRestClient.addConversation(
@@ -165,7 +178,7 @@ export default function App() {
         />
 
         <MainContainer responsive>
-          <ConversationListPanel />
+          <ConversationListPanel onNewConversation={openNewConversation} />
           <ChatPanel />
         </MainContainer>
 
