@@ -195,38 +195,38 @@ export default function BotManagement() {
     }
   };
 
-  // const handleRefreshConversations = async () => {
-  //   if (!selectedStudent || !selectedBotID || conversationsLoading) return;
-  //   const requestId = ++conversationsRequestRef.current;
-  //   setConversationsError(false);
-  //   setConversationsLoading(true);
-  //   try {
-  //     const items = await OrchestratorRestClient.getStudentBotConversations(
-  //       selectedStudent.username,
-  //       selectedBotID,
-  //     );
-  //     if (requestId === conversationsRequestRef.current) {
-  //       setStudentConversations(items);
-  //       if (selectedConversation) {
-  //         const refreshedSelection = items.find(
-  //           (item) => item.hash === selectedConversation.hash,
-  //         );
-  //         if (!refreshedSelection) {
-  //           messagesRequestRef.current += 1;
-  //           setSelectedConversation(null);
-  //           setMessages([]);
-  //         } else {
-  //           setSelectedConversation(refreshedSelection);
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error refreshing student bot conversations:", error);
-  //     if (requestId === conversationsRequestRef.current) setConversationsError(true);
-  //   } finally {
-  //     if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
-  //   }
-  // };
+  const handleRefreshConversations = async () => {
+    if (!selectedStudent || !selectedBotID || conversationsLoading) return;
+    const requestId = ++conversationsRequestRef.current;
+    setConversationsError(false);
+    setConversationsLoading(true);
+    try {
+      const items = await OrchestratorRestClient.getStudentBotConversations(
+        selectedStudent.username,
+        selectedBotID,
+      );
+      if (requestId === conversationsRequestRef.current) {
+        setStudentConversations(items);
+        if (selectedConversation) {
+          const refreshedSelection = items.find(
+            (item) => item.hash === selectedConversation.hash,
+          );
+          if (!refreshedSelection) {
+            messagesRequestRef.current += 1;
+            setSelectedConversation(null);
+            setMessages([]);
+          } else {
+            setSelectedConversation(refreshedSelection);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing student bot conversations:", error);
+      if (requestId === conversationsRequestRef.current) setConversationsError(true);
+    } finally {
+      if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
+    }
+  };
 
   const handleRefreshSubConversation = async (
     conversation: ConversationModel,
