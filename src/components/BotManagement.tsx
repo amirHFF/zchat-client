@@ -184,6 +184,10 @@ export default function BotManagement() {
       );
       if (requestId === messagesRequestRef.current) setMessages(items);
     } catch (error) {
+
+      if(false)
+        handleRefreshConversations();
+
       console.error("Error refreshing student bot messages:", error);
       if (requestId === messagesRequestRef.current) setMessagesError(true);
     } finally {
