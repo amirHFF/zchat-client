@@ -217,7 +217,7 @@ export class XmppClient {
 
     // وضعیت‌هایی که قبلاً دریافت شده (مثلاً JIDهایی که بعد از اتصال اضافه شدند)
     subscription.jids.forEach((jid) =>
-        listener(jid, this.presenceResources.has(jid)),
+        listener(jid, this.presenceResources.has(jid.concat("@zchat.ir"))),
     );
 
     return () => {

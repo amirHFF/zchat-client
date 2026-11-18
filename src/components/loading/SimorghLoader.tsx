@@ -1,5 +1,6 @@
 import React, { useId } from "react";
 import "./style.css";
+import { SimorghBird } from "../../assets/icon/SimorghBird";
 
 type Props = {
   size?: number;
@@ -8,156 +9,92 @@ type Props = {
   fullscreen?: boolean;
 };
 
+const SPARK_ANGLES = [0, 72, 144, 216, 288];
+
+const STAR_D = "M0-3.2.9-.9 3.2 0 .9.9 0 3.2-.9.9-3.2 0-.9-.9Z";
+
 export const SimorghLoader = ({
-  size = 64,
-  label = "در حال بارگذاری…",
-  showLabel = false,
-  fullscreen = false,
-}: Props) => {
+                                size = 64,
+                                label = "در حال بارگذاری…",
+                                showLabel = false,
+                                fullscreen = false,
+                              }: Props) => {
   const uid = useId().replace(/:/g, "");
   const id = (n: string) => `${n}-${uid}`;
   const url = (n: string) => `url(#${id(n)})`;
 
   const loader = (
-    <div className="simorgh-loader" role="status" aria-live="polite">
-      <svg
-        viewBox="0 0 24 24"
-        className="simorgh-icon simorgh-loader-svg"
-        style={{ width: size, height: size }}
-        aria-hidden="true"
-      >
-        <defs>
-          {/* حلقهٔ بیرونی: طلایی → فیروزه‌ای */}
-          <linearGradient id={id("outer")} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#e0b85c" />
-            <stop offset="50%" stopColor="#f1e3b4" />
-            <stop offset="100%" stopColor="#3fb5ae" />
-          </linearGradient>
-          {/* حلقهٔ داخلی: طلایی */}
-          <linearGradient id={id("inner")} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f5dc92" />
-            <stop offset="50%" stopColor="#c9972f" />
-            <stop offset="100%" stopColor="#f0cf7a" />
-          </linearGradient>
-          {/* بال‌ها و بدن: آبی تیره → فیروزه‌ای */}
-          <linearGradient
-            id={id("wingL")}
-            gradientUnits="userSpaceOnUse"
-            x1="12"
-            y1="11"
-            x2="4"
-            y2="3"
-          >
-            <stop offset="0%" stopColor="#0e4a96" />
-            <stop offset="100%" stopColor="#25b5c4" />
-          </linearGradient>
-          <linearGradient
-            id={id("wingR")}
-            gradientUnits="userSpaceOnUse"
-            x1="12"
-            y1="11"
-            x2="20"
-            y2="3"
-          >
-            <stop offset="0%" stopColor="#0e4a96" />
-            <stop offset="100%" stopColor="#25b5c4" />
-          </linearGradient>
-          <linearGradient id={id("body")} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2aa9c4" />
-            <stop offset="100%" stopColor="#0c4a8f" />
-          </linearGradient>
-          {/* دم: فیروزه‌ای → طلایی */}
-          <linearGradient
-            id={id("tail")}
-            gradientUnits="userSpaceOnUse"
-            x1="11"
-            y1="14"
-            x2="21"
-            y2="21"
-          >
-            <stop offset="0%" stopColor="#1f9fc0" />
-            <stop offset="65%" stopColor="#4fd1c5" />
-            <stop offset="100%" stopColor="#e9c46a" />
-          </linearGradient>
-        </defs>
+      <div className="simorgh-loader" role="status" aria-live="polite">
+        <svg
+            viewBox="0 0 120 120"
+            className="simorgh-icon simorgh-loader-svg"
+            style={{ width: size, height: size }}
+            aria-hidden="true"
+        >
+          <defs>
+            <radialGradient id={id("halo")} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#ffd86b" stopOpacity="0.55" />
+              <stop offset="55%" stopColor="#ff5fa2" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id={id("ring")} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#ffd86b" />
+              <stop offset="50%" stopColor="#ff5fa2" />
+              <stop offset="100%" stopColor="#22d3ee" />
+            </linearGradient>
+          </defs>
 
-        {/* حلقهٔ بیرونی (جدید) */}
-        <circle
-          className="s-ring-outer"
-          cx="12"
-          cy="12"
-          r="11.2"
-          stroke={url("outer")}
-        />
-        <circle
-          className="s-ring-outer-spin"
-          cx="12"
-          cy="12"
-          r="11.2"
-          stroke={url("outer")}
-        />
+          {/* هالهٔ نورانی */}
+          <circle className="s-halo" cx="60" cy="60" r="46" fill={url("halo")} />
 
-        {/* حلقهٔ داخلی (قبلی) */}
-        <circle
-          className="s-ring-track"
-          cx="12"
-          cy="12"
-          r="9.3"
-          stroke={url("inner")}
-        />
-        <circle
-          className="s-ring-spin"
-          cx="12"
-          cy="12"
-          r="9.3"
-          stroke={url("inner")}
-        />
+          {/* حلقه‌ها */}
+          <circle className="s-ring-dash" cx="60" cy="60" r="47" />
+          <circle
+              className="s-ring-track"
+              cx="60"
+              cy="60"
+              r="54"
+              stroke={url("ring")}
+          />
+          <circle
+              className="s-ring-spin"
+              cx="60"
+              cy="60"
+              r="54"
+              pathLength={100}
+              stroke={url("ring")}
+          />
 
-        <g className="s-bird">
-          <path
-            className="s-tail s-tail-glow"
-            d="M11.4 14.4C11.6 17.5 14 19.6 17 19.2c1.6-.2 2.8.6 3.5 1.8"
-            stroke={url("tail")}
-          />
-          <path
-            fill={url("body")}
-            d="M11 14.2c-1 2.3-2.5 3.6-4.2 4.2 2 .4 3.8-.4 4.8-2z"
-          />
-          <path
-            className="s-wing s-wing-left"
-            fill={url("wingL")}
-            d="M11.6 10.4C8.8 10 5.8 7.6 4 3.5l2 1.7.2-2.6 1.6 2.4.6-2.2 1 2.8c.7 1.8 1.5 3 2.4 3.6z"
-          />
-          <path
-            className="s-wing s-wing-right"
-            fill={url("wingR")}
-            d="M12.4 10.4c2.8-.4 5.8-2.8 7.6-6.9l-2 1.7-.2-2.6-1.6 2.4-.6-2.2-1 2.8c-.7 1.8-1.5 3-2.4 3.6z"
-          />
-          <path
-            fill={url("body")}
-            d="M12 9c1.6.3 2.2 2 1.6 3.8-.6 1.6-2 2.2-2.8 1.8-.4-1.6-.2-3.8 1.2-5.6z"
-          />
-          <path
-            className="s-neck"
-            stroke={url("body")}
-            d="M12.2 9.6c.6-1.2.2-2.6-.8-3.2"
-          />
-          <circle cx="11" cy="6" r="1.2" fill={url("body")} />
-          <path className="s-beak" d="M10 5.8 8.6 6.4l1.5.2z" />
-          <path className="s-crest" d="M11.5 5c.5-1 1.3-1.6 2.1-1.6" />
-        </g>
-      </svg>
-      {showLabel ? (
-        <span className="simorgh-loader-label">{label}</span>
-      ) : (
-        <span className="sr-only">{label}</span>
-      )}
-    </div>
+          {/* جرقه‌های چرخان */}
+          <g className="s-orbit">
+            {SPARK_ANGLES.map((a, i) => (
+                <g key={a} transform={`rotate(${a} 60 60)`}>
+                  <path
+                      className="s-spark"
+                      d={STAR_D}
+                      transform="translate(60 6)"
+                      fill={i % 2 ? "#a5f3fc" : "#ffd86b"}
+                      style={{ animationDelay: `${i * 0.35}s` }}
+                  />
+                </g>
+            ))}
+          </g>
+
+          {/* طرح سیمرغ (مشترک با SimorghIcon) */}
+          <SimorghBird uid={uid} />
+        </svg>
+
+        {showLabel ? (
+            <span className="simorgh-loader-label">{label}</span>
+        ) : (
+            <span className="sr-only">{label}</span>
+        )}
+      </div>
   );
 
   return fullscreen ? (
-    <div className="simorgh-loader-overlay">{loader}</div>
+      <div className="simorgh-loader-overlay">{loader}</div>
   ) : (
-    loader
+      loader
   );
 };

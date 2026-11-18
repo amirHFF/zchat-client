@@ -5,7 +5,6 @@ import type { UserProfile } from "../model/UserProfile";
 import type { ChatMessage } from "../model/ChatMessage";
 import type { ConversationModel } from "../model/ConversationModel";
 const orchestratorUrl = import.meta.env.VITE_API_ORCHESTRATOR_URL;
-
 function resolveConversationHash(conversation: {
   hash?: string;
   conversationHash?: string;
@@ -23,6 +22,7 @@ function resolveConversationHash(conversation: {
 }
 
 export class OrchestratorRestClient {
+
   static async fetchSubConversations(
     parentHash: string,
   ): Promise<ConversationModel[]> {
@@ -333,8 +333,9 @@ export class OrchestratorRestClient {
   }
 
   static async getBotParticipants(botID: string): Promise<UserProfile[]> {
+    let username = keycloak.tokenParsed?.preferred_username;
     const response = await fetch(
-      `${orchestratorUrl}/profiles/bot/participants/${encodeURIComponent(botID)}`,
+      `${orchestratorUrl}/profiles/bot/participants/${encodeURIComponent(botID)}?teacherUsername=${username}`,
       {
         method: "GET",
         headers: {
