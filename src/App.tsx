@@ -38,6 +38,8 @@ export default function App() {
   const [newConversationOpen, setNewConversationOpen] = useState(false);
   const [newConversationTab, setNewConversationTab] =
     useState<NewConversationTab>(0);
+  // Parent hash of a bot that was just added; the sidebar asks for its first chat.
+  const [newChatForBot, setNewChatForBot] = useState<string | null>(null);
 
   function openNewConversation(tab: NewConversationTab) {
     setNewConversationTab(tab);
@@ -130,6 +132,39 @@ export default function App() {
     }
   }
 
+  // After a bot is added, do not open the bot itself as a chat: messages sent
+  // there are not saved in any conversation. Add the bot to the list and let
+  // the sidebar ask for a new chat with its existing "New chat" flow.
+  async function addCreatedBot(botId: string, botParticipationCode: string) {
+    setCreatingConversation(true);
+    try {
+      const currentJid = keycloak.tokenParsed?.preferred_username;
+      const added = await OrchestratorRestClient.addBotConversation(
+        botId,
+        currentJid ?? "",
+        botParticipationCode,
+      );
+      const chatStore = useChatStore.getState();
+      chatStore.addConversation({
+        hash: added.hash,
+        jid: currentJid,
+        targetJid: botId,
+        title: added.title,
+        lastMessage: "",
+        lastMessageTime: Date.now().toString(),
+      });
+      // If the bot was already in the list, use the entry that is there.
+      const parent = useChatStore
+        .getState()
+        .conversations.find(
+          (c) => (added.hash && c.hash === added.hash) || c.targetJid === botId,
+        );
+      if (parent?.hash) setNewChatForBot(parent.hash);
+    } finally {
+      setCreatingConversation(false);
+    }
+  }
+
   if (!connected) {
     return (
       <div className="connecting-screen">
@@ -167,18 +202,16 @@ export default function App() {
             )
           }
           onCreateBotConversation={(botId, botParticipationCode) =>
-            openCreatedConversation(botId, () =>
-              OrchestratorRestClient.addBotConversation(
-                botId,
-                keycloak.tokenParsed?.preferred_username ?? "",
-                botParticipationCode,
-              ),
-            )
+            addCreatedBot(botId, botParticipationCode)
           }
         />
 
         <MainContainer responsive>
-          <ConversationListPanel onNewConversation={openNewConversation} />
+          <ConversationListPanel
+            onNewConversation={openNewConversation}
+            newChatForBot={newChatForBot}
+            onNewChatForBotHandled={() => setNewChatForBot(null)}
+          />
           <ChatPanel />
         </MainContainer>
 

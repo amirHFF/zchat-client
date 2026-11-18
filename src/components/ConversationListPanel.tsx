@@ -32,10 +32,15 @@ let conversationsFetchStarted = false;
 interface ConversationListPanelProps {
     /** Opens the "new conversation" dialog on the given tab (0 = user, 1 = bot). */
     onNewConversation: (tab: NewConversationTab) => void;
+    /** Parent hash of a bot that was just added; the panel asks for its first chat. */
+    newChatForBot?: string | null;
+    onNewChatForBotHandled?: () => void;
 }
 
 export default function ConversationListPanel({
     onNewConversation,
+    newChatForBot,
+    onNewChatForBotHandled,
 }: ConversationListPanelProps) {
     const [profileOpen, setProfileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -200,6 +205,26 @@ export default function ConversationListPanel({
             setCreatingFor(null);
         }
     };
+
+    // A bot was just added: show it and ask for a new chat with the same
+    // "New chat" flow, so messages are saved in that chat.
+    useEffect(() => {
+        if (!newChatForBot) return;
+        const parentHash = newChatForBot;
+        onNewChatForBotHandled?.();
+        void (async () => {
+            setExpandedCategories((state) => ({ ...state, bots: true }));
+            const parent = useChatStore
+                .getState()
+                .conversations.find((c) => c.hash === parentHash);
+            // Load the bot's chats before adding one, so the load cannot
+            // overwrite the new chat in the list.
+            if (parent && !expandedBots[parentHash]) await toggleBot(parent);
+            await createSubConversation(parentHash);
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newChatForBot]);
+
     const handleSelect = async (conversation: ConversationModel) => {
         enterMobileChatHistory(
             navigate,
