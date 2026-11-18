@@ -86,7 +86,7 @@ export default function ConversationListPanel({
     const userJidsKey = useMemo(
         () =>
             conversations
-                .filter((c) => !isBotConversation(c) && c.targetJid)
+                // .filter((c) => !isBotConversation(c) && c.targetJid)
                 .map((c) => toBareJid(c.targetJid))
                 .sort()
                 .join(","),
@@ -279,7 +279,7 @@ export default function ConversationListPanel({
                     as={Avatar}
                     variant="bot"
                     name={conversation.title}
-                    online
+                    online={isOnline(conversation.targetJid)}
                 />
             </Conversation>
             {expandedBots[conversation.hash] && (
@@ -346,7 +346,7 @@ export default function ConversationListPanel({
                 as={Avatar}
                 name={conversation.title || conversation.targetJid}
                 online={isOnline(conversation.targetJid)}
-                showOffline
+
             />
         </Conversation>
     );

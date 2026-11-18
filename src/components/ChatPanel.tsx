@@ -22,7 +22,6 @@ import ListItemText from "@mui/material/ListItemText";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { SimorghIcon } from "../assets/icon/SimorghIcon";
 import { useLocation, useNavigate } from "react-router-dom";
 import { formatMessageTime } from "../utils/formatTimestamp";
 import { isBotConversation } from "../utils/botConversation";
@@ -36,6 +35,7 @@ import {
   type OcrErrorCode,
 } from "../restClient/OcrClient";
 import type { MessageKey } from "../i18n/translations";
+import {SimorghLoader} from "./loading/SimorghLoader.tsx";
 
 const ocrErrorKeys: Record<OcrErrorCode, MessageKey> = {
   unsupportedImage: "chat.ocr.unsupportedImage",
@@ -389,7 +389,7 @@ export default function ChatPanel() {
         {/* <div className="mark">S</div> */}
         <div className="mark" aria-label="Simorq">
           <span className="mark-monogram">
-            <SimorghIcon />
+            <SimorghLoader />
           </span>
         </div>
         <div className="title">{t("chat.noConversation")}</div>

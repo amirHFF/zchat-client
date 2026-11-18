@@ -1,176 +1,198 @@
-/* ===== لودر ===== */
 .simorgh-loader {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+}
+
+.simorgh-loader .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .simorgh-loader-svg {
   overflow: visible;
+  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.55))
+  drop-shadow(0 0 16px rgba(34, 211, 238, 0.35));
 }
 
-.simorgh-loader-label {
-  font-size: 13px;
-  color: #e9d9a8;
-  opacity: 0.75;
-}
-
-/* حلقهٔ بیرونی نازک */
-.simorgh-loader .s-ring-outer {
-  fill: none;
-  stroke-width: 0.35;
-  stroke-opacity: 0.55;
-}
-
-.simorgh-loader .s-ring-outer-spin {
-  fill: none;
-  stroke-width: 0.6;
-  stroke-linecap: round;
-  stroke-dasharray: 16 54.4;
+/* همهٔ المان‌ها در دستگاه مختصات viewBox می‌چرخند */
+.simorgh-loader-svg * {
   transform-box: view-box;
-  transform-origin: 12px 12px;
-  animation: simorgh-spin-reverse 3.2s linear infinite;
 }
 
-/* حلقهٔ داخلی */
-.simorgh-loader .s-ring-track {
+/* ---------- حلقه‌ها ---------- */
+.simorgh-loader-svg circle {
   fill: none;
+}
+.simorgh-loader-svg .s-halo {
+  fill: inherit;
+}
+.s-ring-track {
+  stroke-width: 1;
+  opacity: 0.28;
+}
+.s-ring-spin {
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 26 74;
+  transform-origin: 60px 60px;
+  animation: s-spin 1.8s linear infinite;
+}
+.s-ring-dash {
+  stroke: #a5f3fc;
   stroke-width: 0.8;
-  stroke-opacity: 0.3;
+  stroke-dasharray: 1.5 4;
+  opacity: 0.6;
+  transform-origin: 60px 60px;
+  animation: s-spin-rev 14s linear infinite;
+}
+.s-halo {
+  transform-origin: 60px 60px;
+  animation: s-pulse 2.6s ease-in-out infinite;
 }
 
-.simorgh-loader .s-ring-spin {
+/* ---------- جرقه‌ها ---------- */
+.s-orbit {
+  transform-origin: 60px 60px;
+  animation: s-spin 7s linear infinite;
+}
+.s-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: s-twinkle 1.4s ease-in-out infinite;
+}
+
+/* ---------- سیمرغ ---------- */
+.s-bird {
+  transform-origin: 60px 60px;
+  animation: s-bob 1.6s ease-in-out infinite;
+}
+
+.s-wing-l {
+  transform-origin: 54px 52px;
+  animation: s-flap-l 1.6s ease-in-out infinite;
+}
+.s-wing-r {
+  transform-origin: 66px 52px;
+  animation: s-flap-r 1.6s ease-in-out infinite;
+}
+
+.s-tail path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+.s-tail-short path {
+  stroke-width: 1.8;
+  opacity: 0.8;
+}
+.s-tail {
+  transform-origin: 60px 76px;
+}
+.s-tail-c {
+  animation: s-sway 1.6s ease-in-out infinite;
+}
+.s-tail-l {
+  animation: s-sway 1.6s ease-in-out -0.25s infinite;
+}
+.s-tail-r {
+  animation: s-sway 1.6s ease-in-out -0.5s infinite reverse;
+}
+
+.s-crest {
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.s-chest {
   fill: none;
   stroke-width: 1;
   stroke-linecap: round;
-  stroke-dasharray: 20 38.4;
-  transform-box: view-box;
-  transform-origin: 12px 12px;
-  animation: simorgh-spin 1.4s linear infinite;
+  opacity: 0.45;
+}
+.s-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: s-blink 4s ease-in-out infinite;
 }
 
-/* پرنده */
-.simorgh-loader .s-bird {
-  animation: simorgh-float 1.8s ease-in-out infinite;
+/* ---------- متن ---------- */
+.simorgh-loader-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: linear-gradient(90deg, #ffd86b, #ff5fa2, #22d3ee, #ffd86b);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: s-shimmer 3s linear infinite;
 }
 
-.simorgh-loader .s-wing-left {
-  transform-box: view-box;
-  transform-origin: 11.6px 10.4px;
-  animation: simorgh-wing-left 0.9s ease-in-out infinite alternate;
-}
-
-.simorgh-loader .s-wing-right {
-  transform-box: view-box;
-  transform-origin: 12.4px 10.4px;
-  animation: simorgh-wing-right 0.9s ease-in-out infinite alternate;
-}
-
-.simorgh-loader .s-tail,
-.simorgh-loader .s-neck {
-  fill: none;
-  stroke-linecap: round;
-}
-.simorgh-loader .s-tail {
-  stroke-width: 1.1;
-}
-.simorgh-loader .s-neck {
-  stroke-width: 1.3;
-}
-
-.simorgh-loader .s-tail-glow {
-  animation: simorgh-glow 1.8s ease-in-out infinite;
-}
-
-.simorgh-loader .s-beak {
-  fill: #e9c46a;
-}
-.simorgh-loader .s-crest {
-  fill: none;
-  stroke: #e9c46a;
-  stroke-width: 0.4;
-  stroke-linecap: round;
-}
-
-@keyframes simorgh-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes simorgh-spin-reverse {
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-@keyframes simorgh-float {
-  0%,
-  100% {
-    transform: translateY(0.4px);
-  }
-  50% {
-    transform: translateY(-0.5px);
-  }
-}
-
-@keyframes simorgh-wing-left {
-  from {
-    transform: rotate(-9deg);
-  }
-  to {
-    transform: rotate(5deg);
-  }
-}
-@keyframes simorgh-wing-right {
-  from {
-    transform: rotate(9deg);
-  }
-  to {
-    transform: rotate(-5deg);
-  }
-}
-
-@keyframes simorgh-glow {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* حالت تمام‌صفحه */
+/* ---------- حالت تمام‌صفحه (تم تیره؛ با متغیر قابل تغییر) ---------- */
 .simorgh-loader-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--mark-bg) 85%, transparent);
-  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  background: var(
+          --simorgh-overlay-bg,
+          radial-gradient(circle at 50% 42%, #1d1550 0%, #0a0a1f 72%)
+  );
+}
+
+/* ---------- انیمیشن‌ها ---------- */
+@keyframes s-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes s-spin-rev {
+  to { transform: rotate(-360deg); }
+}
+@keyframes s-pulse {
+  0%, 100% { transform: scale(0.94); opacity: 0.7; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+@keyframes s-twinkle {
+  0%, 100% { transform: scale(0.4); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+@keyframes s-bob {
+  0%, 100% { transform: translateY(1.5px); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes s-flap-l {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(16deg); }
+}
+@keyframes s-flap-r {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(-16deg); }
+}
+@keyframes s-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes s-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes s-shimmer {
+  to { background-position: -200% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .simorgh-loader .s-bird,
-  .simorgh-loader .s-wing-left,
-  .simorgh-loader .s-wing-right,
-  .simorgh-loader .s-tail-glow,
-  .simorgh-loader .s-ring-outer-spin {
-    animation: none;
+  .simorgh-loader-svg *,
+  .simorgh-loader-label {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
-  .simorgh-loader .s-ring-spin {
-    animation-duration: 3s;
-  }
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }

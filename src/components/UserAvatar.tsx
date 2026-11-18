@@ -3,9 +3,8 @@ import "./UserAvatar.css";
 
 interface Props {
     name: string;
+    /** true: نقطه‌ی سبز | false: نقطه‌ی آفلاین (حلقه‌ی توخالی) | undefined: بدون نشانگر */
     online?: boolean;
-    /** اگر true باشد، در حالت آفلاین هم نشانگر (حلقه‌ی توخالی) نمایش داده می‌شود */
-    showOffline?: boolean;
     /** تصویر اختیاری (مثلاً آواتار بات)؛ اگر نباشد حرف اول نام نمایش داده می‌شود */
     src?: string;
     /** اندازه به پیکسل (پیش‌فرض 36) */
@@ -60,14 +59,13 @@ function getTone(name: string) {
 export default function UserAvatar({
     name,
     online = false,
-    showOffline = false,
     src,
     size = 36,
     className,
     variant = "user",
 }: Props) {
     const safeName = name ?? "";
-    const showDot = online || showOffline;
+    const showDot = online !== undefined;
     const letter = safeName.trim()[0]?.toUpperCase() ?? "?";
     const isBot = variant === "bot";
 
