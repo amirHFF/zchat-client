@@ -304,19 +304,10 @@
   outline-offset: 2px;
 }
 
-/* Phones: keep the toggle compact (icon + On/Off) so the text field keeps its room. */
+/* Phones: tighter composer padding. */
 @media (max-width: 640px) {
   .chat-composer {
     padding: 8px 10px 10px;
-  }
-
-  .book-search-toggle {
-    padding: 0 8px;
-    gap: 4px;
-  }
-
-  .book-search-toggle__label {
-    display: none;
   }
 }
 
@@ -409,6 +400,18 @@
 
 .chat-more-menu .MuiListItemIcon-root {
   color: var(--text-secondary);
+}
+
+/* Book search item (phones/tablets only — desktop keeps the toggle beside Send). */
+.chat-more-menu .MuiMenuItem-root.Mui-selected,
+.chat-more-menu .MuiMenuItem-root.Mui-selected:hover {
+  background: var(--teal-soft);
+}
+
+.chat-more-menu .Mui-selected .MuiListItemIcon-root,
+.chat-more-menu .Mui-selected .MuiListItemText-secondary,
+.chat-more-menu__check {
+  color: var(--teal) !important;
 }
 
 .ocr-file-input {
