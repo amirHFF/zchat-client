@@ -502,6 +502,7 @@ export default function ChatPanel() {
               placeholder={t("chat.typeMessage")}
               value={text}
               onChange={setText}
+              sendOnReturnDisabled={true}
               onSend={handleSend}
               attachButton={true}
               attachDisabled={ocrLoading}
