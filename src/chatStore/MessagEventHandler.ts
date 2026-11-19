@@ -63,6 +63,15 @@ export class MessageEventHandler {
       state.addConversation(newConversation);
     }
 
+    // A bot chat (sub-conversation) is identified by the hash on the message;
+    // keep its last-message preview in the sidebar up to date.
+    if (receivedMessage.hash) {
+      state.updateSubConversation(receivedMessage.hash, {
+        lastMessage: receivedMessage.body,
+        lastMessageTime: now,
+      });
+    }
+
     // 4) اضافه کردن پیام به لیست پیام‌ها فقط اگر همین گفت‌وگو باز است
     const selected = useChatStore.getState().selectedConversation;
     const isCurrent =
@@ -91,6 +100,7 @@ export class MessageEventHandler {
     toJid: string,
     body: string,
     timestamp = Date.now(),
+    hash?: string,
   ): void {
     const state = useChatStore.getState();
 
@@ -115,6 +125,14 @@ export class MessageEventHandler {
         target.hash ? c.hash === target.hash : c.targetJid === target.targetJid,
       { lastMessage: body, lastMessageTime: timestamp.toString() },
     );
+
+    // Message sent in a bot chat (sub-conversation): update its sidebar preview.
+    if (hash) {
+      state.updateSubConversation(hash, {
+        lastMessage: body,
+        lastMessageTime: timestamp.toString(),
+      });
+    }
 
     const message: ChatMessage = {
       id: crypto.randomUUID(),

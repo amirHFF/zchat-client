@@ -154,7 +154,7 @@ export class ChatServiceFacade {
     });
 
     this.client.send(message);
-    this.messageDisplayHandler.onOutgoingMessage(to, text, sentAt);
+    this.messageDisplayHandler.onOutgoingMessage(to, text, sentAt, hash);
   }
 
   // ------------------------------------

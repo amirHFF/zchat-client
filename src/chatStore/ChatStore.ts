@@ -19,6 +19,8 @@ interface ChatStore {
     subConversations: Record<string, ConversationModel[]>;
     setSubConversations: (parentHash: string, list: ConversationModel[]) => void;
     addSubConversation: (parentHash: string, item: ConversationModel) => void;
+    /** Patches the loaded sub-conversation with this hash (e.g. its last message); no-op if it isn't loaded. */
+    updateSubConversation: (hash: string, patch: Partial<ConversationModel>) => void;
 
     selectedConversation?: ConversationModel;
 
@@ -77,6 +79,21 @@ export const useChatStore = create<ChatStore>((set) => ({
             [parentHash]: [item, ...(state.subConversations[parentHash] ?? [])],
         },
     })),
+    updateSubConversation: (hash, patch) => set((state) => {
+        const parentHash = Object.keys(state.subConversations).find((key) =>
+            state.subConversations[key].some((c) => c.hash === hash),
+        );
+        if (parentHash === undefined) return state;
+
+        return {
+            subConversations: {
+                ...state.subConversations,
+                [parentHash]: state.subConversations[parentHash].map((c) =>
+                    c.hash === hash ? { ...c, ...patch } : c,
+                ),
+            },
+        };
+    }),
 
     selectedConversation: undefined,
 
