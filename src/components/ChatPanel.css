@@ -311,6 +311,54 @@
   }
 }
 
+/* Phones and tablets: flat, Telegram-style input — one rounded box holding the
+   menu button, the text field and a round Send button. The breakpoint matches
+   isMobileOrTablet in ChatPanel.tsx, where the book search toggle moves into
+   the "more options" menu. */
+@media (max-width: 1024px) {
+  .chat-composer {
+    border-top: 0;
+  }
+
+  .chat-composer__row {
+    gap: 2px;
+    padding: 4px;
+    background: var(--bg);
+    border-radius: 22px;
+  }
+
+  .chat-composer .cs-message-input__content-editor-wrapper {
+    padding: 8px 4px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Book search on: the accent moves from the text field to the whole box. */
+  .chat-composer--book-search .cs-message-input__content-editor-wrapper {
+    box-shadow: none;
+  }
+
+  .chat-composer--book-search .chat-composer__row {
+    box-shadow: inset 0 0 0 1.5px var(--teal);
+  }
+
+  .chat-composer .cs-message-input__tools .cs-button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .chat-composer .cs-message-input__tools .cs-button--send {
+    background: var(--teal);
+    color: #ffffff !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .book-search-toggle,
   .chat-composer .cs-message-input__content-editor-wrapper {

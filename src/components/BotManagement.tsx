@@ -125,8 +125,27 @@ export default function BotManagement() {
         student.username,
         selectedBotID,
       );
+      // The sub-conversation API leaves `lastMessage` empty (sub-conversations are
+      // created with an empty lastMessage and it is never updated server-side), so
+      // take the latest message from the conversation's messages instead, before
+      // the list is shown. A failed lookup keeps the item as the API returned it.
+      const itemsWithLastMessage = await Promise.all(
+        items.map(async (item) => {
+          if (item.lastMessage) return item;
+          try {
+            const messages = await OrchestratorRestClient.loadStudentBotMessages(
+              item.hash,
+              student.username,
+            );
+            return { ...item, lastMessage: messages.at(-1)?.text ?? item.lastMessage };
+          } catch (error) {
+            console.error("Error loading latest student bot message:", error);
+            return item;
+          }
+        }),
+      );
       if (requestId === conversationsRequestRef.current) {
-        setStudentConversations(items);
+        setStudentConversations(itemsWithLastMessage);
       }
     } catch (error) {
       console.error("Error loading student bot conversations:", error);
