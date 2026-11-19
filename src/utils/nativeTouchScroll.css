@@ -1,0 +1,28 @@
+/*
+ * Native touch scrolling for chatscope's MessageList on phones and tablets.
+ *
+ * chatscope renders the message scroller with `overflow: hidden !important`
+ * (.ps) and an inline `touch-action: none`, so the browser cannot scroll it and
+ * perfect-scrollbar fakes scrolling in JavaScript. On touch screens that fake
+ * scrolling freezes over code blocks, restarts after a tap and stops whenever
+ * the main thread is busy. Here the browser scrolls the list itself.
+ *
+ * The media query must stay identical to TOUCH_QUERY in nativeTouchScroll.ts:
+ * that file turns off perfect-scrollbar's touch handlers under the same
+ * condition, otherwise every swipe would move the list twice.
+ * Desktop (fine pointer) keeps the library's original behaviour.
+ */
+@media (pointer: coarse) {
+  .cs-message-list__scroll-wrapper.ps {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    /* Overrides the inline `touch-action: none` set by MessageList. */
+    touch-action: pan-y !important;
+  }
+
+  /* The browser draws its own scroll indicator; hide the duplicate one. */
+  .cs-message-list__scroll-wrapper > .ps__rail-x,
+  .cs-message-list__scroll-wrapper > .ps__rail-y {
+    display: none !important;
+  }
+}
