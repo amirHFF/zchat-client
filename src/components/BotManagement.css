@@ -371,19 +371,22 @@
   background: transparent;
   color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.bot-management__refresh-sub:hover {
-  background: color-mix(in srgb, var(--teal-soft) 72%, transparent);
-  color: var(--teal);
-}
-
+/* No background in any state (hover, focus, active, selected row); only the icon color changes. */
+.bot-management__refresh-sub:hover,
+.bot-management__refresh-sub:focus,
+.bot-management__refresh-sub:active,
 .bot-management__conversation-row.is-selected .bot-management__refresh-sub {
   background: transparent;
 }
 
+.bot-management__refresh-sub:hover {
+  color: var(--teal);
+}
+
 .bot-management__refresh-sub:focus {
-  background: transparent;
   outline: none;
 }
 
@@ -391,10 +394,6 @@
   border-radius: 7px;
   outline: 2px solid var(--teal);
   outline-offset: -2px;
-}
-
-.bot-management__refresh-sub:active {
-  background: transparent;
 }
 
 .bot-management__conversation-row:hover {
@@ -522,9 +521,10 @@
   margin: 0 12px 8px auto;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface);
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bot-management__refresh-messages:disabled {

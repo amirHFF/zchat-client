@@ -184,47 +184,10 @@ export default function BotManagement() {
       );
       if (requestId === messagesRequestRef.current) setMessages(items);
     } catch (error) {
-
-      if(false)
-        handleRefreshConversations();
-
       console.error("Error refreshing student bot messages:", error);
       if (requestId === messagesRequestRef.current) setMessagesError(true);
     } finally {
       if (requestId === messagesRequestRef.current) setMessagesLoading(false);
-    }
-  };
-
-  const handleRefreshConversations = async () => {
-    if (!selectedStudent || !selectedBotID || conversationsLoading) return;
-    const requestId = ++conversationsRequestRef.current;
-    setConversationsError(false);
-    setConversationsLoading(true);
-    try {
-      const items = await OrchestratorRestClient.getStudentBotConversations(
-        selectedStudent.username,
-        selectedBotID,
-      );
-      if (requestId === conversationsRequestRef.current) {
-        setStudentConversations(items);
-        if (selectedConversation) {
-          const refreshedSelection = items.find(
-            (item) => item.hash === selectedConversation.hash,
-          );
-          if (!refreshedSelection) {
-            messagesRequestRef.current += 1;
-            setSelectedConversation(null);
-            setMessages([]);
-          } else {
-            setSelectedConversation(refreshedSelection);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error refreshing student bot conversations:", error);
-      if (requestId === conversationsRequestRef.current) setConversationsError(true);
-    } finally {
-      if (requestId === conversationsRequestRef.current) setConversationsLoading(false);
     }
   };
 
