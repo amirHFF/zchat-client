@@ -103,6 +103,28 @@
   border-radius: 14px 14px 14px 2px !important;
 }
 
+.cs-message--incoming .cs-message__content:has(.incoming-message-content) {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+.incoming-message-content {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.incoming-message-content .md-message {
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  background: var(--blue-soft);
+  color: var(--navy);
+  border: 1px solid var(--line);
+  border-radius: 14px 14px 14px 2px;
+}
+
 .cs-message__footer {
   font-family: var(--font-body) !important;
   font-size: 11px !important;
