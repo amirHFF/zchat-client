@@ -95,7 +95,7 @@ export class OrchestratorRestClient {
           method: "GET",
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${keycloak.token}`,
+            Authorization: `Bearer ${keycloak.token}`
           },
         },
       );
@@ -146,7 +146,7 @@ export class OrchestratorRestClient {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${keycloak.token}`,
+          Authorization: `Bearer ${keycloak.token}`
         },
         body: JSON.stringify({
           participants: jids,
@@ -184,7 +184,7 @@ export class OrchestratorRestClient {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${keycloak.token}`,
+          Authorization: `Bearer ${keycloak.token}`
         },
         body: JSON.stringify({
           participants: [botId, currentUsername],
@@ -235,7 +235,7 @@ export class OrchestratorRestClient {
           method: "GET",
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${keycloak.token}`,
+            Authorization: `Bearer ${keycloak.token}`
           },
         },
       );
@@ -271,7 +271,7 @@ export class OrchestratorRestClient {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${keycloak.token}`,
+          Authorization: `Bearer ${keycloak.token}`
         },
       },
     );
@@ -290,7 +290,7 @@ export class OrchestratorRestClient {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${keycloak.token}`,
+          Authorization: `Bearer ${keycloak.token}`
         },
       });
 
@@ -320,6 +320,7 @@ export class OrchestratorRestClient {
         method: "GET",
         headers: {
           Accept: "*/*",
+          Authorization: `Bearer ${keycloak.token}`
         },
       },
     );
@@ -340,6 +341,7 @@ export class OrchestratorRestClient {
         method: "GET",
         headers: {
           Accept: "*/*",
+          Authorization: `Bearer ${keycloak.token}`
         },
       },
     );
@@ -365,7 +367,9 @@ export class OrchestratorRestClient {
       `${orchestratorUrl}/conversations/sub?${query.toString()}`,
       {
         method: "GET",
-        headers: { Accept: "*/*" },
+        headers: { Accept: "*/*" ,
+          Authorization: `Bearer ${keycloak.token}`
+        },
       },
     );
 
@@ -403,7 +407,9 @@ export class OrchestratorRestClient {
       `${orchestratorUrl}/conversations/message/load/${encodeURIComponent(conversationHash)}?${query.toString()}`,
       {
         method: "GET",
-        headers: { Accept: "*/*" },
+        headers: { Accept: "*/*" ,
+          Authorization: `Bearer ${keycloak.token}`
+        },
       },
     );
 
