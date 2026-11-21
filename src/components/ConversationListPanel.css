@@ -107,10 +107,15 @@
 .conversation-sidebar {
   display: flex !important;
   flex-direction: column !important;
+  /* Chatscope's Sidebar and ConversationList both default to height: 100%.
+     In a column layout that makes the list overflow its available slot. */
+  min-height: 0 !important;
+  min-width: 0 !important;
   width: 380px !important;
   max-width: 380px !important;
   flex: 0 0 380px !important;
   height: 100% !important;
+  overflow: hidden !important;
 }
 
 @media (max-width: 640px) {
@@ -131,8 +136,19 @@
 
 .conversation-sidebar .cs-conversation-list {
   flex: 1 1 auto !important;
+  height: auto !important;
   min-height: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
   overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.conversation-sidebar .cs-conversation-list > .ps__rail-x {
+  display: none !important;
 }
 
 /* ---------- Sidebar footer: new conversation / new bot ---------- */

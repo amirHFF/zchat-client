@@ -39,6 +39,7 @@ import {
 } from "../restClient/OcrClient";
 import type { MessageKey } from "../i18n/translations";
 import {SimorghLoader} from "./loading/SimorghLoader.tsx";
+import MessageActions from "./MessageActions";
 
 const ocrErrorKeys: Record<OcrErrorCode, MessageKey> = {
   unsupportedImage: "chat.ocr.unsupportedImage",
@@ -463,10 +464,13 @@ export default function ChatPanel() {
               >
                 {!isOutgoing && (
                   <Message.CustomContent>
-                    <MarkdownMessage content={message.text} />
+                    <div className="incoming-message-content">
+                      <MarkdownMessage content={message.text} />
+                      <MessageActions text={message.text} sentTime={sentTime} />
+                    </div>
                   </Message.CustomContent>
                 )}
-                {sentTime ? <Message.Footer sentTime={sentTime} /> : null}
+                {isOutgoing && sentTime ? <Message.Footer sentTime={sentTime} /> : null}
               </Message>
             );
           })}

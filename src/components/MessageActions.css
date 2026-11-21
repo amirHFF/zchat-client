@@ -1,0 +1,42 @@
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  width: fit-content;
+  margin-block-start: 1px;
+  margin-inline-start: 0;
+  direction: inherit;
+}
+
+.message-actions__button.MuiIconButton-root {
+  width: 30px;
+  height: 30px;
+  padding: 7px;
+  color: var(--text-secondary);
+  opacity: 0.72;
+}
+
+.message-actions__button.MuiIconButton-root svg {
+  width: 16px;
+  height: 16px;
+}
+
+.message-actions__time {
+  padding-inline-start: 4px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.message-actions__button.MuiIconButton-root:hover {
+  color: var(--navy);
+  background: var(--teal-soft);
+  opacity: 1;
+}
+
+.message-actions__button.MuiIconButton-root.Mui-disabled {
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
