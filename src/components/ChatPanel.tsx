@@ -116,6 +116,7 @@ export default function ChatPanel() {
   };
 
   const conversation = useChatStore((state) => state.selectedConversation);
+  const isBotChat = Boolean(conversation && isBotConversation(conversation));
   const conversationKey = conversation
     ? `${conversation.hash ?? ""}::${conversation.targetJid}`
     : "";
@@ -519,7 +520,7 @@ export default function ChatPanel() {
                 .filter(Boolean)
                 .join(" ")}
             />
-            {!isMobileOrTablet && (
+            {isBotChat && !isMobileOrTablet && (
               <button
                 type="button"
                 role="switch"
@@ -565,7 +566,7 @@ export default function ChatPanel() {
           </ListItemIcon>
           <ListItemText primary={t("chat.menu.attachment")} />
         </MenuItem>
-        {isMobileOrTablet && (
+        {isBotChat && isMobileOrTablet && (
           <MenuItem
             role="menuitemcheckbox"
             aria-checked={isBookingSearchActive}
