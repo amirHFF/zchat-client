@@ -6,6 +6,7 @@ import logo from "./assets/simorq-logo.png"; // فایل لوگو رو اینج�
 import LanguageSwitch from "./components/LanguageSwitch";
 import { useT } from "./i18n/useT";
 const apiUrl = import.meta.env.VITE_API_URL;
+const DEV_PREVIEW = import.meta.env.VITE_DEV_PREVIEW === "true";
 
 async function register() {
     await keycloak.register();
@@ -16,6 +17,10 @@ export default function LandingPage() {
     const t = useT();
     
     useEffect(() => {
+        if (DEV_PREVIEW) {
+            navigate("/chat");
+            return;
+        }
         if (keycloak.authenticated) {
             navigate("/chat");
         }

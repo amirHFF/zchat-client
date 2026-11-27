@@ -8,6 +8,7 @@ import LanguageSwitch from "./LanguageSwitch";
 import AddIcon from "@mui/icons-material/Add";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 // import React, {useEffect, useState} from "react";
 import { useChatStore } from "../chatStore/ChatStore";
 import { SimorghIcon } from "../assets/icon/SimorghIcon";
@@ -71,6 +72,8 @@ export default function ConversationListPanel({
     });
     const [loadingBots, setLoadingBots] = useState<Record<string, boolean>>({});
     const [creatingFor, setCreatingFor] = useState<string | null>(null);
+    const [subConversationParent, setSubConversationParent] = useState<string | null>(null);
+    const [subConversationTitle, setSubConversationTitle] = useState("");
     const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
     const matchesSearch = (conversation: ConversationModel) =>
         !normalizedQuery ||
@@ -187,9 +190,11 @@ export default function ConversationListPanel({
         setLoadingBots((state) => ({ ...state, [parentHash]: false }));
     };
 
-    const createSubConversation = async (parentHash: string) => {
-        const title = window.prompt(t("sidebar.enterChatTitle"))?.trim();
+    const createSubConversation = async (parentHash: string, rawTitle: string) => {
+        const title = rawTitle.trim();
         if (!title) return;
+        setSubConversationParent(null);
+        setSubConversationTitle("");
         setCreatingFor(parentHash);
         try {
             const item = await OrchestratorRestClient.addSubConversation(
@@ -206,6 +211,11 @@ export default function ConversationListPanel({
         }
     };
 
+    const openSubConversationDialog = (parentHash: string) => {
+        setSubConversationTitle("");
+        setSubConversationParent(parentHash);
+    };
+
     // A bot was just added: show it and ask for a new chat with the same
     // "New chat" flow, so messages are saved in that chat.
     useEffect(() => {
@@ -220,7 +230,7 @@ export default function ConversationListPanel({
             // Load the bot's chats before adding one, so the load cannot
             // overwrite the new chat in the list.
             if (parent && !expandedBots[parentHash]) await toggleBot(parent);
-            await createSubConversation(parentHash);
+            openSubConversationDialog(parentHash);
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newChatForBot]);
@@ -312,7 +322,7 @@ export default function ConversationListPanel({
                     <button
                         className="bot-sub-create"
                         disabled={creatingFor === conversation.hash}
-                        onClick={() => void createSubConversation(conversation.hash)}
+                        onClick={() => openSubConversationDialog(conversation.hash)}
                     >
                         <AddIcon fontSize="small" /> {t("sidebar.newChat")}
                     </button>
@@ -511,6 +521,45 @@ export default function ConversationListPanel({
                     <span>{t("newConversation.tabBot")}</span>
                 </button>
             </div>
+            <Dialog
+                open={subConversationParent !== null}
+                onClose={() => { setSubConversationParent(null); setSubConversationTitle(""); }}
+                maxWidth="xs"
+                fullWidth
+                slotProps={{ paper: { sx: { borderRadius: "18px" } } }}
+            >
+                <DialogTitle sx={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--navy)" }}>
+                    {t("sidebar.enterChatTitle")}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        value={subConversationTitle}
+                        onChange={(event) => setSubConversationTitle(event.target.value)}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" && subConversationTitle.trim() && subConversationParent) {
+                                event.preventDefault();
+                                void createSubConversation(subConversationParent, subConversationTitle);
+                            }
+                        }}
+                        sx={{ mt: 1, "& .MuiInputBase-root": { fontFamily: "var(--font-body)" } }}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={() => { setSubConversationParent(null); setSubConversationTitle(""); }} sx={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                        {t("newConversation.cancel")}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        disabled={!subConversationTitle.trim()}
+                        onClick={() => subConversationParent && void createSubConversation(subConversationParent, subConversationTitle)}
+                        sx={{ fontFamily: "var(--font-body)", fontWeight: 700, borderRadius: "10px", bgcolor: "var(--teal)", "&:hover": { bgcolor: "var(--teal)" } }}
+                    >
+                        {t("newConversation.add")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Sidebar>
     );
 }

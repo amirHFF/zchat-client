@@ -9,12 +9,17 @@ import { SimorghLoader } from "./loading/SimorghLoader.tsx";
 let initStarted = false; // جلوگیری از دوبار init در React StrictMode (dev)
 // بازهٔ refresh دوره‌ای توکن Keycloak: پنج دقیقه.
 const TOKEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const DEV_PREVIEW = import.meta.env.VITE_DEV_PREVIEW === "true";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const t = useT();
 
   useEffect(() => {
+    if (DEV_PREVIEW) {
+      setReady(true);
+      return;
+    }
     if (initStarted) return;
     initStarted = true;
 
@@ -35,7 +40,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!ready || !keycloak.authenticated) return;
+    if (DEV_PREVIEW || !ready || !keycloak.authenticated) return;
 
     // فقط برای نشست احراز‌شده تایمر می‌سازیم و هنگام unmount آن را پاک می‌کنیم.
     const refreshInterval = window.setInterval(() => {

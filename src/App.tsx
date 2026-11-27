@@ -22,6 +22,7 @@ import {
 } from "./utils/mobileChatHistory";
 
 const chatFacade: ChatServiceFacade = ChatServiceFacade.getInstance();
+const DEV_PREVIEW = import.meta.env.VITE_DEV_PREVIEW === "true";
 // App effects run twice in React StrictMode during development. Share the
 // connection attempt so Strophe.connect() is never started in parallel.
 let chatLoginPromise: Promise<void> | undefined;
@@ -31,7 +32,7 @@ export default function App() {
   const location = useLocation();
   const t = useT();
 
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(DEV_PREVIEW);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [loginAttempt, setLoginAttempt] = useState(0);
   const [creatingConversation, setCreatingConversation] = useState(false);
@@ -48,6 +49,7 @@ export default function App() {
 
   useEffect(() => {
     async function init() {
+      if (DEV_PREVIEW) return;
       if (!keycloak.authenticated) {
         navigate("/");
         return;
