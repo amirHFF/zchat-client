@@ -53,7 +53,7 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
           onClose={onClose}
           slotProps={{ paper: { sx: { width: 340, maxWidth: "85vw", bgcolor: "var(--bg)", borderInlineStart: "1px solid var(--line)" } } }}
       >
-        <Box sx={{ position: "relative", overflow: "hidden", px: 2.5, pt: 4, pb: 2.25, color: "#fff", background: "linear-gradient(145deg, var(--navy), var(--navy-strong))", "&::after": { content: '""', position: "absolute", width: 170, height: 170, borderRadius: "50%", border: "1px solid rgba(255,255,255,.12)", insetInlineEnd: -75, top: -90 } }}>
+        <Box sx={{ position: "relative", overflow: "hidden", px: 2.5, pt: 4, pb: 2.25, color: "#fff", background: "linear-gradient(145deg, var(--fill-strong), var(--fill-strongest))", "&::after": { content: '""', position: "absolute", width: 170, height: 170, borderRadius: "50%", border: "1px solid rgba(255,255,255,.12)", insetInlineEnd: -75, top: -90 } }}>
           <IconButton onClick={onClose} aria-label={locale === "fa" ? "بستن" : "Close menu"} sx={{ position: "absolute", top: 10, insetInlineEnd: 8, color: "rgba(255,255,255,.75)", zIndex: 1, "&:hover": { color: "#fff", bgcolor: "rgba(255,255,255,.12)" } }}>
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -88,7 +88,7 @@ export default function ProfileDrawer({ open, onClose }: ProfileDrawerProps) {
         </List>
 
         <List sx={{ px: 1.5, py: 1, mt: "auto" }}>
-          <ListItemButton onClick={() => keycloak.logout({ redirectUri: window.location.origin + "/" })} sx={{ py: 1.1, px: 1.25, borderRadius: 2, color: "#d32f2f", "&:hover": { bgcolor: "rgba(211,47,47,.08)" } }}>
+          <ListItemButton onClick={() => keycloak.logout({ redirectUri: window.location.origin + "/" })} sx={{ py: 1.1, px: 1.25, borderRadius: 2, color: "error.main", "&:hover": { bgcolor: "rgba(211,47,47,.08)" } }}>
             <ListItemIcon sx={{ color: "inherit", minWidth: 38 }}><LogoutOutlinedIcon /></ListItemIcon>
             <ListItemText primary={t("profile.logOut")} slotProps={{ primary: { sx: { color: "inherit", fontSize: 14, fontWeight: 600 } } }} />
           </ListItemButton>

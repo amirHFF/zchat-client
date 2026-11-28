@@ -132,3 +132,19 @@
     transition: none;
   }
 }
+
+/* ---------- Dark theme ---------- */
+/* The robot face is drawn in the surface color, which would turn it dark here;
+   keep it light so it reads against the blue tile. */
+:root[data-color-theme="dark"] .zc-bot__head,
+:root[data-color-theme="dark"] .zc-bot__ear {
+  fill: var(--navy);
+}
+
+:root[data-color-theme="dark"] .zc-bot__antenna {
+  stroke: var(--navy);
+}
+
+:root[data-color-theme="dark"] .zc-bot__mouth {
+  stroke: color-mix(in srgb, var(--blue) 55%, var(--navy));
+}

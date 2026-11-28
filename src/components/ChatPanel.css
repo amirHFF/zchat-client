@@ -37,7 +37,7 @@
 }
 
 .cs-conversation-header {
-  background: #ffffff !important;
+  background: var(--panel) !important;
   border-bottom: 1px solid var(--line) !important;
   padding: 14px 18px !important;
 }
@@ -56,7 +56,7 @@
 /* عمداً direction روی این کانتینر rtl نشده، چون علاوه بر جهت متن،
    چیدمان (چپ/راست بودن حباب outgoing/incoming) رو هم برعکس می‌کنه. */
 .cs-message-list {
-  background-color: #fbfafc;
+  background-color: var(--message-list-bg);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2371e8da' fill-opacity='0.25'%3E%3Cpath fill-rule='evenodd' d='M11 0l5 20H6l5-20zm42 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM0 72h40v4H0v-4zm0-8h31v4H0v-4zm20-16h20v4H20v-4zM0 56h40v4H0v-4zm63-25a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM53 41a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-30 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-28-8a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zM56 5a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zm-3 46a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 0l5 20H16l5-20zm43 64v-4h-4v4h-4v4h4v4h4v-4h4v-4h-4zM36 13h4v4h-4v-4zm4 4h4v4h-4v-4zm-4 4h4v4h-4v-4zm8-8h4v4h-4v-4z'/%3E%3C/g%3E%3C/svg%3E");
   direction: ltr !important;
 }
@@ -148,7 +148,7 @@
   flex-shrink: 0;
   margin-top: auto;
   padding: 10px 16px 12px;
-  background: #ffffff;
+  background: var(--panel);
   border-top: 1px solid var(--line);
 }
 
@@ -256,9 +256,9 @@
 }
 
 .book-search-toggle--on:hover {
-  border-color: var(--navy);
-  background: var(--navy);
-  color: #ffffff;
+  border-color: var(--fill-strong);
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
 }
 
 .book-search-toggle--on .book-search-toggle__state {
@@ -267,7 +267,7 @@
 }
 
 .book-search-toggle--on:hover .book-search-toggle__state {
-  color: var(--navy);
+  color: var(--fill-strong);
 }
 
 @keyframes book-search-pulse {
@@ -309,16 +309,16 @@
   padding: 4px 10px;
   border: 1px solid var(--teal);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--panel);
   color: var(--navy);
   font: 600 12px var(--font-body);
   cursor: pointer;
 }
 
 .book-search-notice__off:hover {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: #ffffff;
+  background: var(--fill-strong);
+  border-color: var(--fill-strong);
+  color: var(--on-fill-strong);
 }
 
 .book-search-notice__off:focus-visible {
@@ -500,7 +500,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--teal) 14%, var(--line));
   border-radius: 20px;
-  background: #fff;
+  background: var(--panel);
   box-shadow: 0 24px 70px rgb(13 34 55 / 18%);
 }
 
@@ -578,7 +578,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 15px;
-  background: linear-gradient(160deg, #fff, var(--bg));
+  background: linear-gradient(160deg, var(--panel), var(--bg));
   color: var(--navy);
   font: inherit;
   text-align: start;
@@ -675,10 +675,10 @@
   flex: 0 0 auto;
   margin-top: 12px;
   padding: 10px 12px;
-  border: 1px solid #f1c9c6;
+  border: 1px solid var(--danger-line);
   border-radius: 9px;
-  background: #fff1f0;
-  color: #a12622;
+  background: var(--danger-soft);
+  color: var(--danger-strong);
   font-size: 13px;
 }
 
@@ -742,7 +742,7 @@
   padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--panel);
   color: var(--navy);
   font: inherit;
   cursor: pointer;
@@ -762,9 +762,9 @@
 }
 
 .ocr-dialog-button--primary:hover:not(:disabled) {
-  border-color: var(--navy);
-  background: var(--navy);
-  color: #fff;
+  border-color: var(--fill-strong);
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
 }
 
 .ocr-dialog-button:disabled {
@@ -804,4 +804,64 @@
   .ocr-dialog-button {
     transition: none;
   }
+}
+
+/* ---------- Dark theme ---------- */
+/* chatscope's default stylesheet hard-codes black text, white backgrounds and
+   light-blue borders; the light themes rely on those defaults. */
+:root[data-color-theme="dark"] .cs-main-container,
+:root[data-color-theme="dark"] .cs-chat-container,
+:root[data-color-theme="dark"] .cs-chat-container .cs-message-input,
+:root[data-color-theme="dark"] .cs-chat-container .cs-input-toolbox {
+  background-color: var(--panel);
+  border-color: var(--line);
+  color: var(--navy);
+}
+
+:root[data-color-theme="dark"] .cs-message-list,
+:root[data-color-theme="dark"] .cs-message,
+:root[data-color-theme="dark"] .cs-conversation-header__actions {
+  color: var(--navy);
+}
+
+:root[data-color-theme="dark"] .cs-conversation-header {
+  color: var(--navy);
+}
+
+/* The library paints these header cells #f6fbff. */
+:root[data-color-theme="dark"] .cs-conversation-header__content .cs-conversation-header__user-name,
+:root[data-color-theme="dark"] .cs-conversation-header__content .cs-conversation-header__info {
+  background-color: transparent;
+}
+
+:root[data-color-theme="dark"] .cs-message-list .cs-typing-indicator,
+:root[data-color-theme="dark"] .cs-message-list__loading-more {
+  background-color: var(--message-list-bg);
+}
+
+/* Same pattern as the light list, at a much lower opacity so it doesn't glare. */
+:root[data-color-theme="dark"] .cs-message-list {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%2371e8da' fill-opacity='0.06'%3E%3Cpath fill-rule='evenodd' d='M11 0l5 20H6l5-20zm42 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM0 72h40v4H0v-4zm0-8h31v4H0v-4zm20-16h20v4H20v-4zM0 56h40v4H0v-4zm63-25a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM53 41a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-30 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-28-8a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zM56 5a5 5 0 0 0-10 0h10zm10 0a5 5 0 0 1-10 0h10zm-3 46a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm10 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 0l5 20H16l5-20zm43 64v-4h-4v4h-4v4h4v4h4v-4h4v-4h-4zM36 13h4v4h-4v-4zm4 4h4v4h-4v-4zm-4 4h4v4h-4v-4zm8-8h4v4h-4v-4z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+:root[data-color-theme="dark"] .cs-message-input__content-editor[data-placeholder]:empty:before {
+  color: var(--text-secondary);
+}
+
+:root[data-color-theme="dark"] .ocr-dialog-title__mark {
+  background: var(--teal-soft);
+}
+
+:root[data-color-theme="dark"] .ocr-choice-card:hover {
+  background: color-mix(in srgb, var(--teal) 10%, var(--panel));
+  box-shadow: 0 8px 20px rgb(0 0 0 / 30%);
+}
+
+:root[data-color-theme="dark"] .ocr-dialog-actions.MuiDialogActions-root {
+  background: var(--surface-muted);
+}
+
+:root[data-color-theme="dark"] .ocr-attachment-dialog .MuiDialog-paper,
+:root[data-color-theme="dark"] .chat-more-menu .MuiPaper-root {
+  box-shadow: 0 24px 70px rgb(0 0 0 / 45%);
 }

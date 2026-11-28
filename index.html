@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>zchat-client</title>
+    <script>
+      // Apply the saved color theme before first paint, so the dark theme
+      // doesn't flash light while the app loads. Same key as themeStore.ts.
+      try {
+        var saved = JSON.parse(localStorage.getItem("simorq-color-theme") || "null");
+        if (saved && saved.state && saved.state.themeId) {
+          document.documentElement.dataset.colorTheme = saved.state.themeId;
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

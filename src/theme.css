@@ -14,6 +14,24 @@
   --coral: #ff7a70;
   --text-secondary: #5b6b82;
   --line: rgba(32, 48, 74, 0.12);
+
+  /* Semantic tokens. The light defaults reproduce the values that used to be
+     hard-coded in the components, so the light themes look exactly as before;
+     the dark theme overrides them. */
+  --panel: #ffffff;                       /* plain panels: headers, composer, sidebar, dialogs */
+  --message-list-bg: #fbfafc;
+  --fill-strong: var(--navy);             /* filled elements that carry light text */
+  --fill-strongest: var(--navy-strong);
+  --on-fill-strong: #ffffff;
+  --overlay-bg: rgba(255, 255, 255, 0.75);
+  --danger: #b42318;
+  --danger-strong: #a12622;
+  --danger-soft: #fff1f0;
+  --danger-line: #f1c9c6;
+  --success: #087f74;
+  --chip-bg: #f1f3f6;
+  --link: #2f7de1;
+
   --font-display: "Sora", sans-serif;
   --font-body: "Inter", sans-serif;
 }
@@ -49,4 +67,33 @@
   --navy: #4e220f; --navy-strong: #351608; --blue: #9d6638; --blue-soft: #f0e1cc;
   --teal: #71815d; --teal-soft: rgba(176, 186, 153, .28); --gold: #b0ba99; --coral: #9d6638;
   --text-secondary: #745943; --line: rgba(78, 34, 15, .16);
+}
+
+/* Dark: deep navy surfaces with the classic blue/teal accents. The accents stay
+   dark enough for the white text on them (outgoing bubbles, buttons) to stay readable.
+   Keep the surface/text values in sync with the dark palette in muiTheme.ts. */
+:root[data-color-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1724; --surface: #172131; --surface-muted: #1f2b3d;
+  --navy: #e6edf7; --navy-strong: #f5f8fc; --blue: #4d7ef0; --blue-soft: #1d2a40;
+  --teal: #1f9a8f; --teal-soft: rgba(45, 190, 177, .16); --gold: #e8b64c; --coral: #ff8a80;
+  --text-secondary: #9aa8bd; --line: rgba(226, 234, 245, .12);
+
+  --panel: #172131;
+  --message-list-bg: #111a28;
+  --fill-strong: #34476a;
+  --fill-strongest: #2a3a55;
+  --on-fill-strong: #ffffff;
+  --overlay-bg: rgba(15, 23, 36, 0.75);
+  --danger: #ff8a7a;
+  --danger-strong: #ffb4a9;
+  --danger-soft: rgba(255, 107, 94, .12);
+  --danger-line: rgba(255, 107, 94, .35);
+  --success: #5fd4c7;
+  --chip-bg: #253248;
+  --link: #7fb0ff;
+}
+
+body {
+  background: var(--bg);
 }

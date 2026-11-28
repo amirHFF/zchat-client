@@ -51,7 +51,7 @@
 }
 
 .md-message a {
-  color: #2f7de1;
+  color: var(--link);
   text-decoration: underline;
 }
 
@@ -136,7 +136,7 @@
   position: relative;
   width: 96vw;
   max-height: 90vh;
-  background: #fff;
+  background: var(--panel);
   border-radius: 12px;
   padding: 56px 12px 12px;
   display: flex;
@@ -169,7 +169,7 @@
   background: #eef1f5;
 }
 .md-modal-close:focus-visible {
-  outline: 2px solid #2f7de1;
+  outline: 2px solid var(--link);
   outline-offset: 2px;
 }
 .md-modal-scroll {
@@ -363,3 +363,31 @@
     color: inherit;
 }
  */
+
+/* ---------- Dark theme ---------- */
+:root[data-color-theme="dark"] .md-table-expand {
+  background: var(--surface-muted);
+  color: var(--navy);
+}
+:root[data-color-theme="dark"] .md-table-expand:hover {
+  background: var(--fill-strong);
+}
+:root[data-color-theme="dark"] .md-modal-body {
+  color: var(--navy);
+}
+:root[data-color-theme="dark"] .md-modal-close {
+  background: var(--surface-muted);
+  color: var(--navy);
+}
+:root[data-color-theme="dark"] .md-modal-close:hover {
+  background: var(--fill-strong);
+}
+:root[data-color-theme="dark"] .md-modal-scroll th {
+  background: #24344d;
+}
+@media (max-width: 900px) {
+  :root[data-color-theme="dark"] .md-message tbody tr,
+  :root[data-color-theme="dark"] .md-message tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}

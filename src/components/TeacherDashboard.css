@@ -59,8 +59,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 9px;
-  background: var(--navy);
-  color: #fff;
+  background: var(--fill-strong);
+  color: var(--on-fill-strong);
 }
 
 .teacher-dashboard__mark .simorgh-icon {

@@ -19,13 +19,21 @@ const rtlCache = createCache({
 export default function AppProviders({ children }: { children: ReactNode }) {
   const dir = useLanguageStore((state) => state.dir);
   const themeId = useThemeStore((state) => state.themeId);
-  const palette = colorThemes.find((item) => item.id === themeId) ?? colorThemes[0];
-  const muiColors = themeId === "forest"
-    ? [palette.colors[1], palette.colors[2]]
-    : themeId === "warm"
-      ? [palette.colors[3], palette.colors[2]]
-      : [palette.colors[0], palette.colors[1]];
-  const theme = useMemo(() => createSimorqTheme(dir, muiColors), [dir, muiColors[0], muiColors[1]]);
+  const palette =
+    colorThemes.find((item) => item.id === themeId) ?? colorThemes[0];
+  const muiColors =
+    themeId === "forest"
+      ? [palette.colors[1], palette.colors[2]]
+      : themeId === "warm"
+        ? [palette.colors[3], palette.colors[2]]
+        : themeId === "dark"
+          ? [palette.colors[2], palette.colors[3]]
+          : [palette.colors[0], palette.colors[1]];
+  const theme = useMemo(
+    () => createSimorqTheme(dir, muiColors, palette.mode),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dir, muiColors[0], muiColors[1], palette.mode],
+  );
   React.useEffect(() => {
     document.documentElement.dataset.colorTheme = themeId;
   }, [themeId]);

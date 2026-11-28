@@ -5,20 +5,13 @@
   --brand-title: #14213d;
 }
 
-/* ===== دارک مود ===== */
-[data-theme="dark"] {
+/* ===== دارک مود =====
+ * از تم انتخاب‌شده‌ی برنامه پیروی می‌کند (نه تنظیمات سیستم‌عامل)، تا در تم‌های
+ * روشن، لوگو روی سیستم‌های دارک‌مود تیره نشود. */
+:root[data-color-theme="dark"] {
   --mark-bg: #14213d;
   --mark-border: #24345a;
   --brand-title: #e8edf7;
-}
-
-/* اگه تم دستی ست نشده بود، از تنظیمات سیستم پیروی کن */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --mark-bg: #14213d;
-    --mark-border: #24345a;
-    --brand-title: #e8edf7;
-  }
 }
 
 /* ===== جعبه‌ی لوگو ===== */

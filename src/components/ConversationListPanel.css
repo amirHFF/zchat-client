@@ -10,11 +10,11 @@
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: var(--navy);
+  background: var(--fill-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-fill-strong);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 14px;
@@ -55,7 +55,7 @@
 
 .cs-sidebar.cs-sidebar--left,
 .cs-sidebar.cs-sidebar--right {
-  background: #ffffff;
+  background: var(--panel);
   border-inline-end: 1px solid var(--line) !important;
 }
 
@@ -204,9 +204,9 @@
 }
 
 .sidebar-footer-action--primary {
-  background: var(--navy-strong);
-  border-color: var(--navy-strong);
-  color: #fff;
+  background: var(--fill-strongest);
+  border-color: var(--fill-strongest);
+  color: var(--on-fill-strong);
 }
 
 .sidebar-footer-action--primary svg {
@@ -214,8 +214,8 @@
 }
 
 .sidebar-footer-action--primary:hover {
-  background: var(--navy);
-  border-color: var(--navy);
+  background: var(--fill-strong);
+  border-color: var(--fill-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -386,8 +386,8 @@
   text-overflow: ellipsis;
 }
 .cs-conversation.bot-parent-active {
-  background: color-mix(in srgb, var(--teal-soft) 55%, white) !important;
-  border-inline-end: 2px solid color-mix(in srgb, var(--teal) 45%, white) !important;
+  background: color-mix(in srgb, var(--teal-soft) 55%, var(--panel)) !important;
+  border-inline-end: 2px solid color-mix(in srgb, var(--teal) 45%, var(--panel)) !important;
 }
 .bot-sub-list {
   position: relative;
@@ -504,4 +504,25 @@
 /* ظاهر آواتار و نشانگر وضعیت در UserAvatar.css تعریف شده است */
 .conversation-sidebar .cs-conversation .zc-avatar {
   align-self: center;
+}
+
+/* ---------- Dark theme ---------- */
+/* chatscope's defaults: white list items, #d1dbe3 borders and black text. */
+:root[data-color-theme="dark"] .cs-conversation {
+  background-color: transparent;
+  color: var(--navy);
+}
+
+:root[data-color-theme="dark"] .cs-conversation-list,
+:root[data-color-theme="dark"] .cs-conversation.cs-conversation--active {
+  color: var(--navy);
+}
+
+:root[data-color-theme="dark"] .cs-main-container > .cs-sidebar.cs-sidebar--left,
+:root[data-color-theme="dark"] .cs-main-container > .cs-sidebar.cs-sidebar--right {
+  border-color: var(--line);
+}
+
+:root[data-color-theme="dark"] .cs-search__input::placeholder {
+  color: var(--text-secondary);
 }

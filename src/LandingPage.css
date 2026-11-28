@@ -128,7 +128,7 @@ button{
 }
 
 .secondary{
-    background:#ffffff;
+    background:var(--panel);
     color:var(--navy);
     border:1px solid var(--line);
 }
